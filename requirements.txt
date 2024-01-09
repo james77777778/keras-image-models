@@ -9,7 +9,7 @@
 
 # Following is for github runner and borrowed from
 # https://github.com/keras-team/keras/blob/master/requirements.txt
-tf-nightly-cpu==2.16.0.dev20240101
+tf-nightly-cpu==2.16.0.dev20240108
 
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch>=2.1.0

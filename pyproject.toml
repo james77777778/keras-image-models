@@ -1,0 +1,94 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kimm"
+description = ""
+keywords = []
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+]
+dynamic = ["version"]
+dependencies = ["keras"]
+
+[project.optional-dependencies]
+tests = [
+    "isort",
+    "ruff",
+    "black",
+    "pytest",
+    "pytest-cov",
+]
+examples = ["opencv-python", "matplotlib"]
+
+[tool.setuptools.packages]
+find = { include = ["kimm*"] }
+
+[tool.setuptools.dynamic]
+version = { attr = "kimm.__version__" }
+
+[tool.black]
+line-length = 80
+
+[tool.ruff]
+line-length = 80
+select = ["E", "W", "F"]
+exclude = [
+    ".venv",
+    ".vscode",
+    ".github",
+    ".devcontainer",
+    "venv",
+    "__pycache__",
+]
+
+[tool.ruff.per-file-ignores]
+"./examples/**/*" = ["E402"]
+"**/__init__.py" = ["F401"]
+
+[tool.ruff.isort]
+force-single-line = true
+
+[tool.isort]
+profile = "black"
+force_single_line = true
+known_first_party = ["kimm"]
+line_length = 80
+
+[tool.pytest.ini_options]
+addopts = "--durations 10 --cov --cov-report html --cov-report term:skip-covered --cov-report xml"
+testpaths = ["kimm"]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    "ignore::ImportWarning",
+    "ignore::RuntimeWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::FutureWarning",
+]
+
+[tool.coverage.run]
+source = ["kimm"]
+omit = ["**/__init__.py", "*test*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "@abstract",
+    "raise NotImplementedError",
+    "raise ValueError",
+]

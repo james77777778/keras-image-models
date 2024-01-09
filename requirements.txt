@@ -1,0 +1,20 @@
+# Working GPU setup
+# CUDA 11.8, CUDNN 8.8
+
+# tensorflow>=2.14.1
+# --index-url https://download.pytorch.org/whl/cu118
+# torch==2.1.0 torchvision==0.16.0
+# -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+# "jax[cuda11_local]"
+
+# Following is for github runner and borrowed from
+# https://github.com/keras-team/keras/blob/master/requirements.txt
+tf-nightly-cpu==2.16.0.dev20231216
+
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.1.0
+torchvision>=0.16.0
+
+jax[cpu]
+
+keras

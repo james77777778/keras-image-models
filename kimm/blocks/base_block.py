@@ -84,12 +84,12 @@ def apply_se_block(
     x = inputs
     x = layers.GlobalAveragePooling2D(keepdims=True, name=f"{name}_mean")(x)
     x = layers.Conv2D(
-        se_channels, 1, use_bias=True, name=f"{name}_reduce_conv2d"
+        se_channels, 1, use_bias=True, name=f"{name}_conv_reduce"
     )(x)
-    x = apply_activation(x, activation, name=f"{name}_act")
+    x = apply_activation(x, activation, name=f"{name}_act1")
     x = layers.Conv2D(
-        input_channels, 1, use_bias=True, name=f"{name}_expand_conv2d"
+        input_channels, 1, use_bias=True, name=f"{name}_conv_expand"
     )(x)
-    x = apply_activation(x, gate_activation, name=f"{name}_gate_act")
+    x = apply_activation(x, gate_activation, name=f"{name}_gate")
     out = layers.Multiply(name=name)([ori_x, x])
     return out

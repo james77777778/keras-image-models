@@ -86,8 +86,8 @@ for timm_model_name, keras_model_class in zip(
         torch_name = torch_name.replace("shortcut2.conv2d", "shortcut.2")
         torch_name = torch_name.replace("shortcut2.bn", "shortcut.3")
         # se
-        torch_name = torch_name.replace("se.reduce.conv2d", "se.conv_reduce")
-        torch_name = torch_name.replace("se.expand.conv2d", "se.conv_expand")
+        torch_name = torch_name.replace("se.conv.reduce", "se.conv_reduce")
+        torch_name = torch_name.replace("se.conv.expand", "se.conv_expand")
         # short conv (GhostNetV2)
         torch_name = torch_name.replace("short.conv1.conv2d", "short_conv.0")
         torch_name = torch_name.replace("short.conv1.bn", "short_conv.1")

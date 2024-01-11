@@ -18,8 +18,8 @@ def apply_activation(x, activation=None, name="activation"):
 
 def apply_conv2d_block(
     inputs,
-    filters,
-    kernel_size,
+    filters=None,
+    kernel_size=None,
     strides=1,
     groups=1,
     activation=None,
@@ -28,6 +28,10 @@ def apply_conv2d_block(
     bn_epsilon=1e-5,
     name="conv2d_block",
 ):
+    if kernel_size is None:
+        raise ValueError(
+            f"kernel_size must be passed. Received: kernel_size={kernel_size}"
+        )
     x = inputs
 
     padding = "same"

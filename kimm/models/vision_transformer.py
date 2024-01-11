@@ -158,7 +158,7 @@ class VisionTransformer(FeatureExtractor):
         )(x)
         x = layers.Reshape((-1, embed_dim))(x)
         x = kimm_layers.PositionEmbedding(name="postition_embedding")(x)
-        features["Depth0"] = x
+        features["EMBEDDING"] = x
         x = layers.Dropout(pos_dropout_rate, name="pos_dropout")(x)
 
         for i in range(depth):
@@ -175,7 +175,7 @@ class VisionTransformer(FeatureExtractor):
                 ),
                 name=f"blocks_{i}",
             )
-            features[f"Depth{i + 1}"] = x
+            features[f"BLOCK{i}"] = x
         x = layers.LayerNormalization(epsilon=1e-6, name="norm")(x)
 
         if include_top:
@@ -216,7 +216,7 @@ class VisionTransformer(FeatureExtractor):
 
     @staticmethod
     def available_feature_keys():
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def get_config(self):
         config = super().get_config()
@@ -288,6 +288,12 @@ class VisionTransformerTiny16(VisionTransformer):
             **kwargs,
         )
 
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["EMBEDDING"]
+        feature_keys.extend([f"BLOCK{i}" for i in range(12)])
+        return feature_keys
+
 
 class VisionTransformerTiny32(VisionTransformer):
     def __init__(
@@ -329,6 +335,12 @@ class VisionTransformerTiny32(VisionTransformer):
             name=name,
             **kwargs,
         )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["EMBEDDING"]
+        feature_keys.extend([f"BLOCK{i}" for i in range(12)])
+        return feature_keys
 
 
 class VisionTransformerSmall16(VisionTransformer):
@@ -372,6 +384,12 @@ class VisionTransformerSmall16(VisionTransformer):
             **kwargs,
         )
 
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["EMBEDDING"]
+        feature_keys.extend([f"BLOCK{i}" for i in range(12)])
+        return feature_keys
+
 
 class VisionTransformerSmall32(VisionTransformer):
     def __init__(
@@ -413,6 +431,12 @@ class VisionTransformerSmall32(VisionTransformer):
             name=name,
             **kwargs,
         )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["EMBEDDING"]
+        feature_keys.extend([f"BLOCK{i}" for i in range(12)])
+        return feature_keys
 
 
 class VisionTransformerBase16(VisionTransformer):
@@ -456,6 +480,12 @@ class VisionTransformerBase16(VisionTransformer):
             **kwargs,
         )
 
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["EMBEDDING"]
+        feature_keys.extend([f"BLOCK{i}" for i in range(12)])
+        return feature_keys
+
 
 class VisionTransformerBase32(VisionTransformer):
     def __init__(
@@ -497,6 +527,12 @@ class VisionTransformerBase32(VisionTransformer):
             name=name,
             **kwargs,
         )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["EMBEDDING"]
+        feature_keys.extend([f"BLOCK{i}" for i in range(12)])
+        return feature_keys
 
 
 class VisionTransformerLarge16(VisionTransformer):
@@ -540,6 +576,12 @@ class VisionTransformerLarge16(VisionTransformer):
             **kwargs,
         )
 
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["EMBEDDING"]
+        feature_keys.extend([f"BLOCK{i}" for i in range(24)])
+        return feature_keys
+
 
 class VisionTransformerLarge32(VisionTransformer):
     def __init__(
@@ -581,3 +623,9 @@ class VisionTransformerLarge32(VisionTransformer):
             name=name,
             **kwargs,
         )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["EMBEDDING"]
+        feature_keys.extend([f"BLOCK{i}" for i in range(24)])
+        return feature_keys

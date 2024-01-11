@@ -25,11 +25,14 @@ class GhostNetTest(testing.TestCase, parameterized.TestCase):
         y = model.predict(x)
 
         self.assertIsInstance(y, dict)
-        self.assertEqual(list(y["S2"].shape), [1, 112, 112, 16])
-        self.assertEqual(list(y["S4"].shape), [1, 56, 56, 24])
-        self.assertEqual(list(y["S8"].shape), [1, 28, 28, 40])
-        self.assertEqual(list(y["S16"].shape), [1, 14, 14, 80])
-        self.assertEqual(list(y["S32"].shape), [1, 7, 7, 160])
+        self.assertAllEqual(
+            list(y.keys()), model_class.available_feature_keys()
+        )
+        self.assertEqual(list(y["STEM_S2"].shape), [1, 112, 112, 16])
+        self.assertEqual(list(y["BLOCK1_S4"].shape), [1, 56, 56, 24])
+        self.assertEqual(list(y["BLOCK3_S8"].shape), [1, 28, 28, 40])
+        self.assertEqual(list(y["BLOCK5_S16"].shape), [1, 14, 14, 80])
+        self.assertEqual(list(y["BLOCK7_S32"].shape), [1, 7, 7, 160])
 
     @parameterized.named_parameters([(GhostNet100V2.__name__, GhostNet100V2)])
     def test_ghostnetv2_base(self, model_class):
@@ -49,8 +52,11 @@ class GhostNetTest(testing.TestCase, parameterized.TestCase):
         y = model.predict(x)
 
         self.assertIsInstance(y, dict)
-        self.assertEqual(list(y["S2"].shape), [1, 112, 112, 16])
-        self.assertEqual(list(y["S4"].shape), [1, 56, 56, 24])
-        self.assertEqual(list(y["S8"].shape), [1, 28, 28, 40])
-        self.assertEqual(list(y["S16"].shape), [1, 14, 14, 80])
-        self.assertEqual(list(y["S32"].shape), [1, 7, 7, 160])
+        self.assertAllEqual(
+            list(y.keys()), model_class.available_feature_keys()
+        )
+        self.assertEqual(list(y["STEM_S2"].shape), [1, 112, 112, 16])
+        self.assertEqual(list(y["BLOCK1_S4"].shape), [1, 56, 56, 24])
+        self.assertEqual(list(y["BLOCK3_S8"].shape), [1, 28, 28, 40])
+        self.assertEqual(list(y["BLOCK5_S16"].shape), [1, 14, 14, 80])
+        self.assertEqual(list(y["BLOCK7_S32"].shape), [1, 7, 7, 160])

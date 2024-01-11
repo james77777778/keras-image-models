@@ -69,6 +69,8 @@ def apply_depthwise_separation_block(
     strides=1,
     se_ratio=0.0,
     activation="relu",
+    bn_epsilon=1e-5,
+    padding=None,
     name="depthwise_separation_block",
 ):
     input_channels = inputs.shape[-1]
@@ -81,6 +83,8 @@ def apply_depthwise_separation_block(
         strides=strides,
         activation=activation,
         use_depthwise=True,
+        bn_epsilon=bn_epsilon,
+        padding=padding,
         name=f"{name}_conv_dw",
     )
     if se_ratio > 0:
@@ -98,6 +102,8 @@ def apply_depthwise_separation_block(
         pointwise_kernel_size,
         1,
         activation=None,
+        bn_epsilon=bn_epsilon,
+        padding=padding,
         name=f"{name}_conv_pw",
     )
     if has_skip:
@@ -115,6 +121,8 @@ def apply_inverted_residual_block(
     expansion_ratio=1.0,
     se_ratio=0.0,
     activation="relu",
+    bn_epsilon=1e-5,
+    padding=None,
     name="inverted_residual_block",
 ):
     input_channels = inputs.shape[-1]
@@ -130,6 +138,8 @@ def apply_inverted_residual_block(
         expansion_kernel_size,
         1,
         activation=activation,
+        bn_epsilon=bn_epsilon,
+        padding=padding,
         name=f"{name}_conv_pw",
     )
     # Depth-wise convolution
@@ -139,6 +149,8 @@ def apply_inverted_residual_block(
         strides=strides,
         activation=activation,
         use_depthwise=True,
+        bn_epsilon=bn_epsilon,
+        padding=padding,
         name=f"{name}_conv_dw",
     )
     # Squeeze-and-excitation
@@ -158,6 +170,8 @@ def apply_inverted_residual_block(
         pointwise_kernel_size,
         1,
         activation=None,
+        bn_epsilon=bn_epsilon,
+        padding=padding,
         name=f"{name}_conv_pwl",
     )
     if has_skip:
@@ -198,6 +212,9 @@ class MobileNetV3(FeatureExtractor):
             force_activation = None
             force_kernel_size = None
             no_se = False
+        # TF default config
+        bn_epsilon = kwargs.pop("bn_epsilon", 1e-5)
+        padding = kwargs.pop("padding", None)
 
         # Prepare feature extraction
         features = {}
@@ -239,6 +256,8 @@ class MobileNetV3(FeatureExtractor):
             3,
             2,
             activation=force_activation or "hard_swish",
+            bn_epsilon=bn_epsilon,
+            padding=padding,
             name="conv_stem",
         )
         features["STEM_S2"] = x
@@ -269,11 +288,31 @@ class MobileNetV3(FeatureExtractor):
                     )
                     if block_type == "ds":
                         x = apply_depthwise_separation_block(
-                            x, c, k, 1, s, se, act, name=name
+                            x,
+                            c,
+                            k,
+                            1,
+                            s,
+                            se,
+                            act,
+                            bn_epsilon=bn_epsilon,
+                            padding=padding,
+                            name=name,
                         )
                     elif block_type == "ir":
                         x = apply_inverted_residual_block(
-                            x, c, k, 1, 1, s, e, se, act, name=name
+                            x,
+                            c,
+                            k,
+                            1,
+                            1,
+                            s,
+                            e,
+                            se,
+                            act,
+                            bn_epsilon=bn_epsilon,
+                            padding=padding,
+                            name=name,
                         )
                     elif block_type == "cn":
                         x = apply_conv2d_block(
@@ -282,6 +321,8 @@ class MobileNetV3(FeatureExtractor):
                             kernel_size=k,
                             strides=s,
                             activation=act,
+                            bn_epsilon=bn_epsilon,
+                            padding=padding,
                             name=name,
                         )
                     current_stride *= s
@@ -524,6 +565,8 @@ class MobileNet100V3SmallMinimal(MobileNetV3):
             config,
             minimal=True,
             name=name,
+            bn_epsilon=1e-3,
+            padding="same",
             **kwargs,
         )
 
@@ -614,6 +657,8 @@ class MobileNet100V3LargeMinimal(MobileNetV3):
             config,
             minimal=True,
             name=name,
+            bn_epsilon=1e-3,
+            padding="same",
             **kwargs,
         )
 

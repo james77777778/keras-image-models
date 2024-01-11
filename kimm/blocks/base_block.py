@@ -26,6 +26,7 @@ def apply_conv2d_block(
     use_depthwise=False,
     bn_momentum=0.9,
     bn_epsilon=1e-5,
+    padding=None,
     name="conv2d_block",
 ):
     if kernel_size is None:
@@ -34,10 +35,11 @@ def apply_conv2d_block(
         )
     x = inputs
 
-    padding = "same"
-    if strides > 1:
-        padding = "valid"
-        x = layers.ZeroPadding2D(kernel_size // 2, name=f"{name}_pad")(x)
+    if padding is None:
+        padding = "same"
+        if strides > 1:
+            padding = "valid"
+            x = layers.ZeroPadding2D(kernel_size // 2, name=f"{name}_pad")(x)
 
     if not use_depthwise:
         x = layers.Conv2D(

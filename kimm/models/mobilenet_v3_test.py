@@ -7,7 +7,7 @@ from kimm.models.mobilenet_v3 import MobileNet100V3Small
 from kimm.utils import make_divisible
 
 
-class MobileNetV2Test(testing.TestCase, parameterized.TestCase):
+class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters(
         [
             (MobileNet100V3Small.__name__, MobileNet100V3Small),

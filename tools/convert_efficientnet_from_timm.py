@@ -15,9 +15,23 @@ from kimm.utils.timm_utils import separate_torch_state_dict
 
 timm_model_names = [
     "tf_efficientnet_b0.ns_jft_in1k",
+    "tf_efficientnet_b1.ns_jft_in1k",
+    "tf_efficientnet_b2.ns_jft_in1k",
+    "tf_efficientnet_b3.ns_jft_in1k",
+    "tf_efficientnet_b4.ns_jft_in1k",
+    "tf_efficientnet_b5.ns_jft_in1k",
+    "tf_efficientnet_b6.ns_jft_in1k",
+    "tf_efficientnet_b7.ns_jft_in1k",
 ]
 keras_model_classes = [
     efficientnet.EfficientNetB0,
+    efficientnet.EfficientNetB1,
+    efficientnet.EfficientNetB2,
+    efficientnet.EfficientNetB3,
+    efficientnet.EfficientNetB4,
+    efficientnet.EfficientNetB5,
+    efficientnet.EfficientNetB6,
+    efficientnet.EfficientNetB7,
 ]
 
 for timm_model_name, keras_model_class in zip(
@@ -62,7 +76,7 @@ for timm_model_name, keras_model_class in zip(
         torch_name = torch_name.replace("conv.stem.conv2d", "conv_stem")
         torch_name = torch_name.replace("conv.stem.bn", "bn1")
         # blocks
-        if "blocks.0.0" in torch_name:
+        if "blocks.0" in torch_name:
             # depthwise separation block
             torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
             torch_name = torch_name.replace("conv.dw.bn", "bn1")

@@ -19,6 +19,7 @@ timm_model_names = [
     # "tf_mobilenetv3_small_minimal_100.in1k",
     "mobilenetv3_small_100.lamb_in1k",
     "mobilenetv3_large_100.miil_in21k_ft_in1k",
+    # "tf_mobilenetv3_large_minimal_100.in1k",
 ]
 keras_model_classes = [
     mobilenet_v3.MobileNet050V3Small,
@@ -26,6 +27,7 @@ keras_model_classes = [
     # mobilenet_v3.MobileNet100V3SmallMinimal,
     mobilenet_v3.MobileNet100V3Small,
     mobilenet_v3.MobileNet100V3Large,
+    # mobilenet_v3.MobileNet100V3LargeMinimal,
 ]
 
 for timm_model_name, keras_model_class in zip(

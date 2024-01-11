@@ -580,3 +580,50 @@ class MobileNet100V3Large(MobileNetV3):
             ]
         )
         return feature_keys
+
+
+class MobileNet100V3LargeMinimal(MobileNetV3):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "large",
+        name: str = "MobileNet100V3LargeMinimal",
+        **kwargs,
+    ):
+        super().__init__(
+            1.0,
+            1.0,
+            False,
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            minimal=True,
+            name=name,
+            **kwargs,
+        )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["STEM_S2"]
+        feature_keys.extend(
+            [
+                f"BLOCK{i}_S{j}"
+                for i, j in zip(range(7), [2, 4, 8, 16, 16, 32, 32])
+            ]
+        )
+        return feature_keys

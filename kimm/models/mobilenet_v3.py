@@ -282,37 +282,21 @@ class MobileNetV3(FeatureExtractor):
                     r = int(math.ceil(r * depth))
                 for current_layer_idx in range(r):
                     s = s if current_layer_idx == 0 else 1
-                    name = (
-                        f"blocks_{current_stage_idx}_"
-                        f"{current_block_idx + current_layer_idx}"
-                    )
+                    common_kwargs = {
+                        "bn_epsilon": bn_epsilon,
+                        "padding": padding,
+                        "name": (
+                            f"blocks_{current_stage_idx}_"
+                            f"{current_block_idx + current_layer_idx}"
+                        ),
+                    }
                     if block_type == "ds":
                         x = apply_depthwise_separation_block(
-                            x,
-                            c,
-                            k,
-                            1,
-                            s,
-                            se,
-                            act,
-                            bn_epsilon=bn_epsilon,
-                            padding=padding,
-                            name=name,
+                            x, c, k, 1, s, se, act, **common_kwargs
                         )
                     elif block_type == "ir":
                         x = apply_inverted_residual_block(
-                            x,
-                            c,
-                            k,
-                            1,
-                            1,
-                            s,
-                            e,
-                            se,
-                            act,
-                            bn_epsilon=bn_epsilon,
-                            padding=padding,
-                            name=name,
+                            x, c, k, 1, 1, s, e, se, act, **common_kwargs
                         )
                     elif block_type == "cn":
                         x = apply_conv2d_block(
@@ -321,9 +305,7 @@ class MobileNetV3(FeatureExtractor):
                             kernel_size=k,
                             strides=s,
                             activation=act,
-                            bn_epsilon=bn_epsilon,
-                            padding=padding,
-                            name=name,
+                            **common_kwargs,
                         )
                     current_stride *= s
             features[f"BLOCK{current_stage_idx}_S{current_stride}"] = x

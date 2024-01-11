@@ -531,6 +531,7 @@ class MobileNet100V3SmallMinimal(MobileNetV3):
         name: str = "MobileNet100V3SmallMinimal",
         **kwargs,
     ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
             1.0,
@@ -623,6 +624,7 @@ class MobileNet100V3LargeMinimal(MobileNetV3):
         name: str = "MobileNet100V3LargeMinimal",
         **kwargs,
     ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
             1.0,

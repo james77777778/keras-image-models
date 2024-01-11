@@ -7,26 +7,27 @@ import numpy as np
 import timm
 import torch
 
-from kimm.models.ghostnet import GhostNet100
-from kimm.models.ghostnet import GhostNet100V2
-from kimm.models.ghostnet import GhostNet130V2
-from kimm.models.ghostnet import GhostNet160V2
+from kimm.models import mobilenet_v3
 from kimm.utils.timm_utils import assign_weights
 from kimm.utils.timm_utils import is_same_weights
 from kimm.utils.timm_utils import separate_keras_weights
 from kimm.utils.timm_utils import separate_torch_state_dict
 
 timm_model_names = [
-    "ghostnet_100",
-    "ghostnetv2_100",
-    "ghostnetv2_130",
-    "ghostnetv2_160",
+    "mobilenetv3_small_050.lamb_in1k",
+    "mobilenetv3_small_075.lamb_in1k",
+    # "tf_mobilenetv3_small_minimal_100.in1k",
+    "mobilenetv3_small_100.lamb_in1k",
+    "mobilenetv3_large_100.miil_in21k_ft_in1k",
+    # "tf_mobilenetv3_large_minimal_100.in1k",
 ]
 keras_model_classes = [
-    GhostNet100,
-    GhostNet100V2,
-    GhostNet130V2,
-    GhostNet160V2,
+    mobilenet_v3.MobileNet050V3Small,
+    mobilenet_v3.MobileNet075V3Small,
+    # mobilenet_v3.MobileNet100V3SmallMinimal,
+    mobilenet_v3.MobileNet100V3Small,
+    mobilenet_v3.MobileNet100V3Large,
+    # mobilenet_v3.MobileNet100V3LargeMinimal,
 ]
 
 for timm_model_name, keras_model_class in zip(
@@ -71,36 +72,34 @@ for timm_model_name, keras_model_class in zip(
         torch_name = torch_name.replace("conv.stem.conv2d", "conv_stem")
         torch_name = torch_name.replace("conv.stem.bn", "bn1")
         # blocks
-        torch_name = torch_name.replace("primary.conv.conv2d", "primary_conv.0")
-        torch_name = torch_name.replace("primary.conv.bn", "primary_conv.1")
-        torch_name = torch_name.replace(
-            "cheap.operation.dwconv2d", "cheap_operation.0"
-        )
-        torch_name = torch_name.replace(
-            "cheap.operation.bn", "cheap_operation.1"
-        )
-        torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-        torch_name = torch_name.replace("conv.dw.bn", "bn_dw")
-        torch_name = torch_name.replace("shortcut1.dwconv2d", "shortcut.0")
-        torch_name = torch_name.replace("shortcut1.bn", "shortcut.1")
-        torch_name = torch_name.replace("shortcut2.conv2d", "shortcut.2")
-        torch_name = torch_name.replace("shortcut2.bn", "shortcut.3")
+        if "blocks.0.0" in torch_name:
+            # depthwise separation block
+            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
+            torch_name = torch_name.replace("conv.dw.bn", "bn1")
+            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
+            torch_name = torch_name.replace("conv.pw.bn", "bn2")
+        else:
+            # inverted residual block
+            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
+            torch_name = torch_name.replace("conv.pw.bn", "bn1")
+            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
+            torch_name = torch_name.replace("conv.dw.bn", "bn2")
+            torch_name = torch_name.replace("conv.pwl.conv2d", "conv_pwl")
+            torch_name = torch_name.replace("conv.pwl.bn", "bn3")
         # se
         torch_name = torch_name.replace("se.conv.reduce", "se.conv_reduce")
         torch_name = torch_name.replace("se.conv.expand", "se.conv_expand")
-        # short conv (GhostNetV2)
-        torch_name = torch_name.replace("short.conv1.conv2d", "short_conv.0")
-        torch_name = torch_name.replace("short.conv1.bn", "short_conv.1")
-        torch_name = torch_name.replace("short.conv2.dwconv2d", "short_conv.2")
-        torch_name = torch_name.replace("short.conv2.bn", "short_conv.3")
-        torch_name = torch_name.replace("short.conv3.dwconv2d", "short_conv.4")
-        torch_name = torch_name.replace("short.conv3.bn", "short_conv.5")
-        # final block
-        torch_name = torch_name.replace("blocks.9.conv2d", "blocks.9.0.conv")
-        torch_name = torch_name.replace("blocks.9.bn", "blocks.9.0.bn1")
+        # last conv block
+        if "Small" in keras_model_class.__name__:
+            if "blocks.5.0" in torch_name:
+                torch_name = torch_name.replace("conv2d", "conv")
+                torch_name = torch_name.replace("bn", "bn1")
+        if "Large" in keras_model_class.__name__:
+            if "blocks.6.0" in torch_name:
+                torch_name = torch_name.replace("conv2d", "conv")
+                torch_name = torch_name.replace("bn", "bn1")
         # conv head
-        if torch_name.startswith("conv.head"):
-            torch_name = torch_name.replace("conv.head", "conv_head")
+        torch_name = torch_name.replace("conv.head", "conv_head")
 
         # weights naming mapping
         torch_name = torch_name.replace("kernel", "weight")  # conv2d
@@ -140,7 +139,7 @@ for timm_model_name, keras_model_class in zip(
     keras_y = keras_model(keras_data, training=False)
     torch_y = torch_y.detach().cpu().numpy()
     keras_y = keras.ops.convert_to_numpy(keras_y)
-    np.testing.assert_allclose(torch_y, keras_y, atol=5e-1)
+    np.testing.assert_allclose(torch_y, keras_y, atol=2e-5)
     print(f"{keras_model_class.__name__}: output matched!")
 
     """

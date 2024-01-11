@@ -29,8 +29,19 @@ class ResNetTest(testing.TestCase, parameterized.TestCase):
         y = model.predict(x)
 
         self.assertIsInstance(y, dict)
-        self.assertEqual(list(y["S2"].shape), [1, 112, 112, 64])
-        self.assertEqual(list(y["S4"].shape), [1, 56, 56, 64 * expansion])
-        self.assertEqual(list(y["S8"].shape), [1, 28, 28, 128 * expansion])
-        self.assertEqual(list(y["S16"].shape), [1, 14, 14, 256 * expansion])
-        self.assertEqual(list(y["S32"].shape), [1, 7, 7, 512 * expansion])
+        self.assertAllEqual(
+            list(y.keys()), model_class.available_feature_keys()
+        )
+        self.assertEqual(list(y["STEM_S2"].shape), [1, 112, 112, 64])
+        self.assertEqual(
+            list(y["BLOCK0_S4"].shape), [1, 56, 56, 64 * expansion]
+        )
+        self.assertEqual(
+            list(y["BLOCK1_S8"].shape), [1, 28, 28, 128 * expansion]
+        )
+        self.assertEqual(
+            list(y["BLOCK2_S16"].shape), [1, 14, 14, 256 * expansion]
+        )
+        self.assertEqual(
+            list(y["BLOCK3_S32"].shape), [1, 7, 7, 512 * expansion]
+        )

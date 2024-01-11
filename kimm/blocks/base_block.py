@@ -18,8 +18,8 @@ def apply_activation(x, activation=None, name="activation"):
 
 def apply_conv2d_block(
     inputs,
-    filters,
-    kernel_size,
+    filters=None,
+    kernel_size=None,
     strides=1,
     groups=1,
     activation=None,
@@ -28,6 +28,10 @@ def apply_conv2d_block(
     bn_epsilon=1e-5,
     name="conv2d_block",
 ):
+    if kernel_size is None:
+        raise ValueError(
+            f"kernel_size must be passed. Received: kernel_size={kernel_size}"
+        )
     x = inputs
 
     padding = "same"
@@ -80,12 +84,12 @@ def apply_se_block(
     x = inputs
     x = layers.GlobalAveragePooling2D(keepdims=True, name=f"{name}_mean")(x)
     x = layers.Conv2D(
-        se_channels, 1, use_bias=True, name=f"{name}_reduce_conv2d"
+        se_channels, 1, use_bias=True, name=f"{name}_conv_reduce"
     )(x)
-    x = apply_activation(x, activation, name=f"{name}_act")
+    x = apply_activation(x, activation, name=f"{name}_act1")
     x = layers.Conv2D(
-        input_channels, 1, use_bias=True, name=f"{name}_expand_conv2d"
+        input_channels, 1, use_bias=True, name=f"{name}_conv_expand"
     )(x)
-    x = apply_activation(x, gate_activation, name=f"{name}_gate_act")
+    x = apply_activation(x, gate_activation, name=f"{name}_gate")
     out = layers.Multiply(name=name)([ori_x, x])
     return out

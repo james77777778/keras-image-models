@@ -37,11 +37,14 @@ class VisionTransformerTest(testing.TestCase, parameterized.TestCase):
         y = model.predict(x)
 
         self.assertIsInstance(y, dict)
+        self.assertAllEqual(
+            list(y.keys()), model_class.available_feature_keys()
+        )
         if patch_size == 16:
-            self.assertEqual(list(y["Depth0"].shape), [1, 577, 192])
+            self.assertEqual(list(y["BLOCK0"].shape), [1, 577, 192])
         elif patch_size == 32:
-            self.assertEqual(list(y["Depth0"].shape), [1, 145, 192])
+            self.assertEqual(list(y["BLOCK0"].shape), [1, 145, 192])
         if patch_size == 16:
-            self.assertEqual(list(y["Depth5"].shape), [1, 577, 192])
+            self.assertEqual(list(y["BLOCK5"].shape), [1, 577, 192])
         elif patch_size == 32:
-            self.assertEqual(list(y["Depth5"].shape), [1, 145, 192])
+            self.assertEqual(list(y["BLOCK5"].shape), [1, 145, 192])

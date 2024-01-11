@@ -290,42 +290,40 @@ class GhostNet(FeatureExtractor):
         x = apply_conv2d_block(
             x, stem_channels, 3, 2, activation="relu", name="conv_stem"
         )
-        features["S2"] = x
+        features["STEM_S2"] = x
 
         # blocks
         total_layer_idx = 0
-        block_idx = 0
-        net_stride = 2
-        for cfg in config:
-            layer_idx = 0
-            strides = 1
-            for kernel_size, expand_size, channels, se_ratio, strides in cfg:
-                output_channels = make_divisible(channels * width, 4)
-                hidden_channels = make_divisible(expand_size * width, 4)
+        current_stride = 2
+        for current_block_idx, cfg in enumerate(config):
+            for current_layer_idx, (k, e, c, se, s) in enumerate(cfg):
+                output_channels = make_divisible(c * width, 4)
+                hidden_channels = make_divisible(e * width, 4)
                 use_attention = False
                 if version == "v2" and total_layer_idx > 1:
                     use_attention = True
+                name = f"blocks_{current_block_idx}_{current_layer_idx}"
                 x = apply_ghost_bottleneck(
                     x,
                     hidden_channels,
                     output_channels,
-                    kernel_size,
-                    strides,
-                    se_ratio=se_ratio,
+                    k,
+                    s,
+                    se_ratio=se,
                     use_attention=use_attention,
-                    name=f"blocks{block_idx}_{layer_idx}",
+                    name=name,
                 )
-                layer_idx += 1
                 total_layer_idx += 1
-            if strides > 1:
-                net_stride *= strides
-                # add feature
-                features[f"S{net_stride}"] = x
-            block_idx += 1
+            current_stride *= s
+            features[f"BLOCK{current_block_idx}_S{current_stride}"] = x
         # post stages conv block
-        output_channels = make_divisible(expand_size * width, 4)
+        output_channels = make_divisible(e * width, 4)
         x = apply_conv2d_block(
-            x, output_channels, 1, activation="relu", name=f"blocks{block_idx}"
+            x,
+            output_channels,
+            1,
+            activation="relu",
+            name=f"blocks_{current_block_idx+1}",
         )
 
         if include_top:
@@ -366,8 +364,14 @@ class GhostNet(FeatureExtractor):
 
     @staticmethod
     def available_feature_keys():
-        # predefined for better UX
-        return [f"S{2**i}" for i in range(1, 6)]
+        feature_keys = ["STEM_S2"]
+        feature_keys.extend(
+            [
+                f"BLOCK{i}_S{j}"
+                for i, j in zip(range(9), [2, 4, 4, 8, 8, 16, 16, 32, 32])
+            ]
+        )
+        return feature_keys
 
     def get_config(self):
         config = super().get_config()

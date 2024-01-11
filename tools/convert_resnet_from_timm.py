@@ -102,7 +102,9 @@ for timm_model_name, keras_model_class in zip(
             raise ValueError(
                 "Can't find the corresponding torch weights. The shape is "
                 f"mismatched. Got keras_name={keras_name}, "
-                f"torch_name={torch_name}"
+                f"keras_weight shape={keras_weight.shape}, "
+                f"torch_name={torch_name}, "
+                f"torch_weights shape={torch_weights.shape}"
             )
 
     """

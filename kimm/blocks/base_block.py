@@ -72,14 +72,17 @@ def apply_se_block(
     activation="relu",
     gate_activation="sigmoid",
     make_divisible_number=None,
+    se_input_channels=None,
     name="se_block",
 ):
     input_channels = inputs.shape[-1]
+    if se_input_channels is None:
+        se_input_channels = input_channels
     if make_divisible_number is None:
-        se_channels = round(input_channels * se_ratio)
+        se_channels = round(se_input_channels * se_ratio)
     else:
         se_channels = make_divisible(
-            input_channels * se_ratio, make_divisible_number
+            se_input_channels * se_ratio, make_divisible_number
         )
 
     ori_x = inputs

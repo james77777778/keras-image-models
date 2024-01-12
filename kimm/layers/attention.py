@@ -26,22 +26,52 @@ class Attention(layers.Layer):
         self.name = name
 
         self.qkv = layers.Dense(
-            hidden_dim * 3, use_bias=use_qkv_bias, name=f"{name}_qkv"
+            hidden_dim * 3,
+            use_bias=use_qkv_bias,
+            dtype=self.dtype,
+            name=f"{name}_qkv",
         )
         if use_qk_norm:
-            self.q_norm = layers.LayerNormalization(name=f"{name}_q_norm")
-            self.k_norm = layers.LayerNormalization(name=f"{name}_k_norm")
+            self.q_norm = layers.LayerNormalization(
+                dtype=self.dtype_policy, name=f"{name}_q_norm"
+            )
+            self.k_norm = layers.LayerNormalization(
+                dtype=self.dtype_policy, name=f"{name}_k_norm"
+            )
         else:
-            self.q_norm = layers.Identity()
-            self.k_norm = layers.Identity()
+            self.q_norm = layers.Identity(dtype=self.dtype_policy)
+            self.k_norm = layers.Identity(dtype=self.dtype_policy)
 
         self.attention_dropout = layers.Dropout(
-            attention_dropout_rate, name=f"{name}_attn_drop"
+            attention_dropout_rate,
+            dtype=self.dtype_policy,
+            name=f"{name}_attn_drop",
         )
-        self.projection = layers.Dense(hidden_dim, name=f"{name}_proj")
+        self.projection = layers.Dense(
+            hidden_dim, dtype=self.dtype_policy, name=f"{name}_proj"
+        )
         self.projection_dropout = layers.Dropout(
-            projection_dropout_rate, name=f"{name}_proj_drop"
+            projection_dropout_rate,
+            dtype=self.dtype_policy,
+            name=f"{name}_proj_drop",
         )
+
+    def build(self, input_shape):
+        self.qkv.build(input_shape)
+        qkv_output_shape = list(input_shape)
+        qkv_output_shape[-1] = qkv_output_shape[-1] * 3
+        self.q_norm.build(qkv_output_shape)
+        self.k_norm.build(qkv_output_shape)
+        attention_input_shape = [
+            input_shape[0],
+            self.num_heads,
+            input_shape[1],
+            input_shape[1],
+        ]
+        self.attention_dropout.build(attention_input_shape)
+        self.projection.build(input_shape)
+        self.projection_dropout.build(input_shape)
+        self.built = True
 
     def call(self, inputs, training=None, mask=None):
         input_shape = ops.shape(inputs)

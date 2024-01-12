@@ -1,15 +1,26 @@
 from absl.testing import parameterized
-from keras import random
+from keras import layers
 from keras.src import testing
 
 from kimm.layers.position_embedding import PositionEmbedding
 
 
 class PositionEmbeddingTest(testing.TestCase, parameterized.TestCase):
-    def test_position_embedding(self):
-        x = random.uniform([1, 123, 768])
-        layer = PositionEmbedding()
+    def test_position_embedding_basic(self):
+        self.run_layer_test(
+            PositionEmbedding,
+            init_kwargs={},
+            input_shape=(1, 10, 10),
+            expected_output_shape=(1, 11, 10),
+            expected_num_trainable_weights=2,
+            expected_num_non_trainable_weights=0,
+            expected_num_losses=0,
+            supports_masking=False,
+        )
 
-        y = layer(x)
-
-        self.assertEqual(y.shape, [1, 124, 768])
+    def test_position_embedding_invalid_input_shape(self):
+        inputs = layers.Input([3])
+        with self.assertRaisesRegex(
+            ValueError, "PositionEmbedding only accepts 3-dimensional input."
+        ):
+            PositionEmbedding()(inputs)

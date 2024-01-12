@@ -414,15 +414,8 @@ class GhostNet050(GhostNet):
         name: str = "GhostNet050",
         **kwargs,
     ):
-        expected_width = 0.5
-        width = kwargs.pop("width", expected_width)
-        if width != expected_width:
-            raise ValueError(
-                f"`width` must be {expected_width} for "
-                f"{self.__class__.__name__}. Got `width`={width}"
-            )
         super().__init__(
-            width,
+            0.5,
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -454,15 +447,8 @@ class GhostNet100(GhostNet):
         name: str = "GhostNet100",
         **kwargs,
     ):
-        expected_width = 1.0
-        width = kwargs.pop("width", expected_width)
-        if width != expected_width:
-            raise ValueError(
-                f"`width` must be {expected_width} for "
-                f"{self.__class__.__name__}. Got `width`={width}"
-            )
         super().__init__(
-            width,
+            1.0,
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -494,15 +480,8 @@ class GhostNet130(GhostNet):
         name: str = "GhostNet130",
         **kwargs,
     ):
-        expected_width = 1.3
-        width = kwargs.pop("width", expected_width)
-        if width != expected_width:
-            raise ValueError(
-                f"`width` must be {expected_width} for "
-                f"{self.__class__.__name__}. Got `width`={width}"
-            )
         super().__init__(
-            width,
+            1.3,
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -534,15 +513,8 @@ class GhostNet100V2(GhostNet):
         name: str = "GhostNet100V2",
         **kwargs,
     ):
-        expected_width = 1.0
-        width = kwargs.pop("width", expected_width)
-        if width != expected_width:
-            raise ValueError(
-                f"`width` must be {expected_width} for "
-                f"{self.__class__.__name__}. Got `width`={width}"
-            )
         super().__init__(
-            width,
+            1.0,
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -575,15 +547,8 @@ class GhostNet130V2(GhostNet):
         name: str = "GhostNet130V2",
         **kwargs,
     ):
-        expected_width = 1.3
-        width = kwargs.pop("width", expected_width)
-        if width != expected_width:
-            raise ValueError(
-                f"`width` must be {expected_width} for "
-                f"{self.__class__.__name__}. Got `width`={width}"
-            )
         super().__init__(
-            width,
+            1.3,
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -616,15 +581,8 @@ class GhostNet160V2(GhostNet):
         name: str = "GhostNet160V2",
         **kwargs,
     ):
-        expected_width = 1.6
-        width = kwargs.pop("width", expected_width)
-        if width != expected_width:
-            raise ValueError(
-                f"`width` must be {expected_width} for "
-                f"{self.__class__.__name__}. Got `width`={width}"
-            )
         super().__init__(
-            width,
+            1.6,
             input_tensor,
             input_shape,
             include_preprocessing,

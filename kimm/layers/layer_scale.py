@@ -30,7 +30,7 @@ class LayerScale(layers.Layer):
         config.update(
             {
                 "hidden_size": self.hidden_size,
-                "initializer": self.initializer,
+                "initializer": initializers.serialize(self.initializer),
                 "name": self.name,
             }
         )

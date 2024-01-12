@@ -3,7 +3,7 @@ from keras import random
 from keras.src import testing
 
 from kimm.models.efficientnet import EfficientNetB0
-from kimm.models.efficientnet import EfficientNetB3
+from kimm.models.efficientnet import EfficientNetB2
 from kimm.utils import make_divisible
 
 
@@ -11,7 +11,7 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters(
         [
             (EfficientNetB0.__name__, EfficientNetB0, 224),
-            (EfficientNetB3.__name__, EfficientNetB3, 300),
+            (EfficientNetB2.__name__, EfficientNetB2, 260),
         ]
     )
     def test_efficentnet_base(self, model_class, image_size):
@@ -26,7 +26,7 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters(
         [
             (EfficientNetB0.__name__, EfficientNetB0, 1.0),
-            (EfficientNetB3.__name__, EfficientNetB3, 1.2),
+            (EfficientNetB2.__name__, EfficientNetB2, 1.1),
         ]
     )
     def test_efficentnet_feature_extractor(self, model_class, width):

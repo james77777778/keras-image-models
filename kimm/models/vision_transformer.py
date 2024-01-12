@@ -1,4 +1,3 @@
-import functools
 import typing
 
 import keras
@@ -8,95 +7,9 @@ from keras import utils
 from keras.src.applications import imagenet_utils
 
 from kimm import layers as kimm_layers
+from kimm.blocks import apply_transformer_block
 from kimm.models.feature_extractor import FeatureExtractor
 from kimm.utils.model_registry import add_model_to_registry
-
-
-def apply_mlp_block(
-    inputs,
-    hidden_dim,
-    output_dim=None,
-    activation="gelu",
-    normalization=None,
-    use_bias=True,
-    dropout_rate=0.0,
-    use_convolution=False,
-    name="mlp_block",
-):
-    input_dim = inputs.shape[-1]
-    output_dim = output_dim or input_dim
-
-    x = inputs
-    if use_convolution:
-        x = layers.Conv2D(
-            hidden_dim, 1, 1, use_bias=use_bias, name=f"{name}_fc1"
-        )(x)
-    else:
-        x = layers.Dense(hidden_dim, use_bias=use_bias, name=f"{name}_fc1")(x)
-    x = layers.Activation(activation, name=f"{name}_act")(x)
-    x = layers.Dropout(dropout_rate, name=f"{name}_drop1")(x)
-    if normalization is not None:
-        x = normalization(name=f"{name}_norm")(x)
-    if use_convolution:
-        x = layers.Conv2D(
-            output_dim, 1, 1, use_bias=use_bias, name=f"{name}_fc2"
-        )(x)
-    else:
-        x = layers.Dense(output_dim, use_bias=use_bias, name=f"{name}_fc2")(x)
-    x = layers.Dropout(dropout_rate, name=f"{name}_drop2")(x)
-    return x
-
-
-def apply_vision_transformer_block(
-    inputs,
-    dim,
-    num_heads,
-    mlp_ratio=4.0,
-    use_qkv_bias=False,
-    use_qk_norm=False,
-    projection_dropout_rate=0.0,
-    attention_dropout_rate=0.0,
-    scale_initializer=None,
-    activation="gelu",
-    normalization=layers.LayerNormalization,
-    name="vision_transformer_block",
-):
-    x = inputs
-    residual1 = x
-
-    x = normalization(name=f"{name}_norm1")(x)
-    x = kimm_layers.Attention(
-        dim,
-        num_heads,
-        use_qkv_bias,
-        use_qk_norm,
-        attention_dropout_rate,
-        projection_dropout_rate,
-        name=f"{name}_attn",
-    )(x)
-    if scale_initializer is not None:
-        x = kimm_layers.LayerScale(
-            dim, initializer=scale_initializer, name=f"{name}_ls1"
-        )(x)
-    # TODO: add DropPath
-    x = layers.Add()([residual1, x])
-
-    residual2 = x
-    x = normalization(name=f"{name}_norm2")(x)
-    x = apply_mlp_block(
-        x,
-        int(dim * mlp_ratio),
-        activation=activation,
-        dropout_rate=projection_dropout_rate,
-        name=f"{name}_mlp",
-    )
-    if scale_initializer is not None:
-        x = kimm_layers.LayerScale(
-            dim, initializer=scale_initializer, name=f"{name}_ls2"
-        )(x)
-    # TODO: add DropPath
-    x = layers.Add()([residual2, x])
-    return x
 
 
 class VisionTransformer(FeatureExtractor):
@@ -163,7 +76,7 @@ class VisionTransformer(FeatureExtractor):
         x = layers.Dropout(pos_dropout_rate, name="pos_dropout")(x)
 
         for i in range(depth):
-            x = apply_vision_transformer_block(
+            x = apply_transformer_block(
                 x,
                 embed_dim,
                 num_heads,
@@ -171,9 +84,6 @@ class VisionTransformer(FeatureExtractor):
                 use_qkv_bias,
                 use_qk_norm,
                 activation="gelu",
-                normalization=functools.partial(
-                    layers.LayerNormalization, epsilon=1e-6
-                ),
                 name=f"blocks_{i}",
             )
             features[f"BLOCK{i}"] = x

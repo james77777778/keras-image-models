@@ -24,20 +24,25 @@ def apply_conv2d_block(
     groups=1,
     activation=None,
     use_depthwise=False,
+    add_skip=False,
     bn_momentum=0.9,
     bn_epsilon=1e-5,
+    padding=None,
     name="conv2d_block",
 ):
     if kernel_size is None:
         raise ValueError(
             f"kernel_size must be passed. Received: kernel_size={kernel_size}"
         )
+    input_channels = inputs.shape[-1]
+    has_skip = add_skip and strides == 1 and input_channels == filters
     x = inputs
 
-    padding = "same"
-    if strides > 1:
-        padding = "valid"
-        x = layers.ZeroPadding2D(kernel_size // 2, name=f"{name}_pad")(x)
+    if padding is None:
+        padding = "same"
+        if strides > 1:
+            padding = "valid"
+            x = layers.ZeroPadding2D(kernel_size // 2, name=f"{name}_pad")(x)
 
     if not use_depthwise:
         x = layers.Conv2D(
@@ -61,6 +66,8 @@ def apply_conv2d_block(
         name=f"{name}_bn", momentum=bn_momentum, epsilon=bn_epsilon
     )(x)
     x = apply_activation(x, activation, name=name)
+    if has_skip:
+        x = layers.Add()([x, inputs])
     return x
 
 
@@ -70,14 +77,17 @@ def apply_se_block(
     activation="relu",
     gate_activation="sigmoid",
     make_divisible_number=None,
+    se_input_channels=None,
     name="se_block",
 ):
     input_channels = inputs.shape[-1]
+    if se_input_channels is None:
+        se_input_channels = input_channels
     if make_divisible_number is None:
-        se_channels = round(input_channels * se_ratio)
+        se_channels = round(se_input_channels * se_ratio)
     else:
         se_channels = make_divisible(
-            input_channels * se_ratio, make_divisible_number
+            se_input_channels * se_ratio, make_divisible_number
         )
 
     ori_x = inputs

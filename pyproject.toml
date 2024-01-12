@@ -83,7 +83,7 @@ filterwarnings = [
 
 [tool.coverage.run]
 source = ["kimm"]
-omit = ["**/__init__.py", "*test*"]
+omit = ["**/__init__.py", "*test*", "kimm/utils/timm_utils.py"]
 
 [tool.coverage.report]
 exclude_lines = [

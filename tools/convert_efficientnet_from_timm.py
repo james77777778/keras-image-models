@@ -7,27 +7,57 @@ import numpy as np
 import timm
 import torch
 
-from kimm.models import mobilenet_v3
+from kimm.models import efficientnet
 from kimm.utils.timm_utils import assign_weights
 from kimm.utils.timm_utils import is_same_weights
 from kimm.utils.timm_utils import separate_keras_weights
 from kimm.utils.timm_utils import separate_torch_state_dict
 
 timm_model_names = [
-    "mobilenetv3_small_050.lamb_in1k",
-    "mobilenetv3_small_075.lamb_in1k",
-    "tf_mobilenetv3_small_minimal_100.in1k",
-    "mobilenetv3_small_100.lamb_in1k",
-    "mobilenetv3_large_100.miil_in21k_ft_in1k",
-    "tf_mobilenetv3_large_minimal_100.in1k",
+    "tf_efficientnet_b0.ns_jft_in1k",
+    "tf_efficientnet_b1.ns_jft_in1k",
+    "tf_efficientnet_b2.ns_jft_in1k",
+    "tf_efficientnet_b3.ns_jft_in1k",
+    "tf_efficientnet_b4.ns_jft_in1k",
+    "tf_efficientnet_b5.ns_jft_in1k",
+    "tf_efficientnet_b6.ns_jft_in1k",
+    "tf_efficientnet_b7.ns_jft_in1k",
+    "tf_efficientnet_lite0.in1k",
+    "tf_efficientnet_lite1.in1k",
+    "tf_efficientnet_lite2.in1k",
+    "tf_efficientnet_lite3.in1k",
+    "tf_efficientnet_lite4.in1k",
+    "tf_efficientnetv2_s.in21k_ft_in1k",
+    "tf_efficientnetv2_m.in21k_ft_in1k",
+    "tf_efficientnetv2_l.in21k_ft_in1k",
+    "tf_efficientnetv2_xl.in21k_ft_in1k",
+    "tf_efficientnetv2_b0.in1k",
+    "tf_efficientnetv2_b1.in1k",
+    "tf_efficientnetv2_b2.in1k",
+    # "tf_efficientnetv2_b3.in1k",
 ]
 keras_model_classes = [
-    mobilenet_v3.MobileNet050V3Small,
-    mobilenet_v3.MobileNet075V3Small,
-    mobilenet_v3.MobileNet100V3SmallMinimal,
-    mobilenet_v3.MobileNet100V3Small,
-    mobilenet_v3.MobileNet100V3Large,
-    mobilenet_v3.MobileNet100V3LargeMinimal,
+    efficientnet.EfficientNetB0,
+    efficientnet.EfficientNetB1,
+    efficientnet.EfficientNetB2,
+    efficientnet.EfficientNetB3,
+    efficientnet.EfficientNetB4,
+    efficientnet.EfficientNetB5,
+    efficientnet.EfficientNetB6,
+    efficientnet.EfficientNetB7,
+    efficientnet.EfficientNetLiteB0,
+    efficientnet.EfficientNetLiteB1,
+    efficientnet.EfficientNetLiteB2,
+    efficientnet.EfficientNetLiteB3,
+    efficientnet.EfficientNetLiteB4,
+    efficientnet.EfficientNetV2S,
+    efficientnet.EfficientNetV2M,
+    efficientnet.EfficientNetV2L,
+    efficientnet.EfficientNetV2XL,
+    efficientnet.EfficientNetV2B0,
+    efficientnet.EfficientNetV2B1,
+    efficientnet.EfficientNetV2B2,
+    # efficientnet.EfficientNetV2B3,
 ]
 
 for timm_model_name, keras_model_class in zip(
@@ -72,34 +102,37 @@ for timm_model_name, keras_model_class in zip(
         torch_name = torch_name.replace("conv.stem.conv2d", "conv_stem")
         torch_name = torch_name.replace("conv.stem.bn", "bn1")
         # blocks
-        if "blocks.0.0" in torch_name:
-            # depthwise separation block
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn1")
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn2")
+        if "EfficientNetV2" in keras_model_class.__name__:
+            if "blocks.0" in torch_name:
+                # normal conv
+                torch_name = torch_name.replace("conv2d", "conv")
+                torch_name = torch_name.replace("bn", "bn1")
+            elif "blocks.1" in torch_name or "blocks.2" in torch_name:
+                # edge residual block
+                torch_name = torch_name.replace("conv.exp.conv2d", "conv_exp")
+                torch_name = torch_name.replace("conv.exp.bn", "bn1")
+                torch_name = torch_name.replace("conv.pwl.conv2d", "conv_pwl")
+                torch_name = torch_name.replace("conv.pwl.bn", "bn2")
         else:
-            # inverted residual block
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn1")
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn2")
-            torch_name = torch_name.replace("conv.pwl.conv2d", "conv_pwl")
-            torch_name = torch_name.replace("conv.pwl.bn", "bn3")
+            if "blocks.0" in torch_name:
+                # depthwise separation block
+                torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
+                torch_name = torch_name.replace("conv.dw.bn", "bn1")
+                torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
+                torch_name = torch_name.replace("conv.pw.bn", "bn2")
+        # inverted residual block
+        torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
+        torch_name = torch_name.replace("conv.pw.bn", "bn1")
+        torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
+        torch_name = torch_name.replace("conv.dw.bn", "bn2")
+        torch_name = torch_name.replace("conv.pwl.conv2d", "conv_pwl")
+        torch_name = torch_name.replace("conv.pwl.bn", "bn3")
         # se
         torch_name = torch_name.replace("se.conv.reduce", "se.conv_reduce")
         torch_name = torch_name.replace("se.conv.expand", "se.conv_expand")
-        # last conv block
-        if "Small" in keras_model_class.__name__:
-            if "blocks.5.0" in torch_name:
-                torch_name = torch_name.replace("conv2d", "conv")
-                torch_name = torch_name.replace("bn", "bn1")
-        if "Large" in keras_model_class.__name__:
-            if "blocks.6.0" in torch_name:
-                torch_name = torch_name.replace("conv2d", "conv")
-                torch_name = torch_name.replace("bn", "bn1")
         # conv head
-        torch_name = torch_name.replace("conv.head", "conv_head")
+        torch_name = torch_name.replace("conv.head.conv2d", "conv_head")
+        torch_name = torch_name.replace("conv.head.bn", "bn2")
 
         # weights naming mapping
         torch_name = torch_name.replace("kernel", "weight")  # conv2d

@@ -7,6 +7,11 @@ class PositionEmbedding(layers.Layer):
         super().__init__(**kwargs)
 
     def build(self, input_shape):
+        if len(input_shape) != 3:
+            raise ValueError(
+                "PositionEmbedding only accepts 3-dimensional input. "
+                f"Received: input_shape={input_shape}"
+            )
         self.pos_embed = self.add_weight(
             shape=[1, input_shape[-2] + 1, input_shape[-1]],
             initializer="random_normal",
@@ -25,6 +30,11 @@ class PositionEmbedding(layers.Layer):
         )
         x = ops.add(x, self.pos_embed)
         return x
+
+    def compute_output_shape(self, input_shape):
+        output_shape = list(input_shape)
+        output_shape[1] = output_shape[1] + 1
+        return output_shape
 
     def get_config(self):
         return super().get_config()

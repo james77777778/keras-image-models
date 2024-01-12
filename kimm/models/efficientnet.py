@@ -12,7 +12,7 @@ from kimm.blocks import apply_se_block
 from kimm.models.feature_extractor import FeatureExtractor
 from kimm.utils import make_divisible
 
-DEFAULT_CONFIG = [
+DEFAULT_V1_CONFIG = [
     # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
     ["ds", 1, 3, 1, 1, 16, 0.25],
     ["ir", 2, 3, 2, 6, 24, 0.25],
@@ -22,7 +22,7 @@ DEFAULT_CONFIG = [
     ["ir", 4, 5, 2, 6, 192, 0.25],
     ["ir", 1, 3, 1, 6, 320, 0.25],
 ]
-DEFAULT_LITE_CONFIG = [
+DEFAULT_V1_LITE_CONFIG = [
     # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
     ["ds", 1, 3, 1, 1, 16, 0.0],
     ["ir", 2, 3, 2, 6, 24, 0.0],
@@ -31,6 +31,54 @@ DEFAULT_LITE_CONFIG = [
     ["ir", 3, 5, 1, 6, 112, 0.0],
     ["ir", 4, 5, 2, 6, 192, 0.0],
     ["ir", 1, 3, 1, 6, 320, 0.0],
+]
+DEFAULT_V2_S_CONFIG = [
+    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
+    ["cn", 2, 3, 1, 1, 24, 0.0],
+    ["er", 4, 3, 2, 4, 48, 0.0],
+    ["er", 4, 3, 2, 4, 64, 0.0],
+    ["ir", 6, 3, 2, 4, 128, 0.25],
+    ["ir", 9, 3, 1, 6, 160, 0.25],
+    ["ir", 15, 3, 2, 6, 256, 0.25],
+]
+DEFAULT_V2_M_CONFIG = [
+    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
+    ["cn", 3, 3, 1, 1, 24, 0.0],
+    ["er", 5, 3, 2, 4, 48, 0.0],
+    ["er", 5, 3, 2, 4, 80, 0.0],
+    ["ir", 7, 3, 2, 4, 160, 0.25],
+    ["ir", 14, 3, 1, 6, 176, 0.25],
+    ["ir", 18, 3, 2, 6, 304, 0.25],
+    ["ir", 5, 3, 1, 6, 512, 0.25],
+]
+DEFAULT_V2_L_CONFIG = [
+    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
+    ["cn", 4, 3, 1, 1, 32, 0.0],
+    ["er", 7, 3, 2, 4, 64, 0.0],
+    ["er", 7, 3, 2, 4, 96, 0.0],
+    ["ir", 10, 3, 2, 4, 192, 0.25],
+    ["ir", 19, 3, 1, 6, 224, 0.25],
+    ["ir", 25, 3, 2, 6, 384, 0.25],
+    ["ir", 7, 3, 1, 6, 640, 0.25],
+]
+DEFAULT_V2_XL_CONFIG = [
+    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
+    ["cn", 4, 3, 1, 1, 32, 0.0],
+    ["er", 8, 3, 2, 4, 64, 0.0],
+    ["er", 8, 3, 2, 4, 96, 0.0],
+    ["ir", 16, 3, 2, 4, 192, 0.25],
+    ["ir", 24, 3, 1, 6, 256, 0.25],
+    ["ir", 32, 3, 2, 6, 512, 0.25],
+    ["ir", 8, 3, 1, 6, 640, 0.25],
+]
+DEFAULT_V2_BASE_CONFIG = [
+    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
+    ["cn", 1, 3, 1, 1, 16, 0.0],
+    ["er", 2, 3, 2, 4, 32, 0.0],
+    ["er", 2, 3, 2, 4, 48, 0.0],
+    ["ir", 3, 3, 2, 4, 96, 0.25],
+    ["ir", 5, 3, 1, 6, 112, 0.25],
+    ["ir", 8, 3, 2, 6, 192, 0.25],
 ]
 
 
@@ -151,11 +199,69 @@ def apply_inverted_residual_block(
     return x
 
 
+def apply_edge_residual_block(
+    inputs,
+    output_channels,
+    expansion_kernel_size=1,
+    pointwise_kernel_size=1,
+    strides=1,
+    expansion_ratio=1.0,
+    se_ratio=0.0,
+    activation="swish",
+    bn_epsilon=1e-5,
+    padding=None,
+    name="edge_residual_block",
+):
+    input_channels = inputs.shape[-1]
+    hidden_channels = make_divisible(input_channels * expansion_ratio)
+    has_skip = strides == 1 and input_channels == output_channels
+
+    x = inputs
+
+    # Expansion
+    x = apply_conv2d_block(
+        x,
+        hidden_channels,
+        expansion_kernel_size,
+        strides,
+        activation=activation,
+        bn_epsilon=bn_epsilon,
+        padding=padding,
+        name=f"{name}_conv_exp",
+    )
+    # Squeeze-and-excitation
+    if se_ratio > 0:
+        x = apply_se_block(
+            x,
+            se_ratio,
+            activation=activation,
+            gate_activation="sigmoid",
+            se_input_channels=input_channels,
+            name=f"{name}_se",
+        )
+    # Point-wise linear projection
+    x = apply_conv2d_block(
+        x,
+        output_channels,
+        pointwise_kernel_size,
+        1,
+        activation=None,
+        bn_epsilon=bn_epsilon,
+        padding=padding,
+        name=f"{name}_conv_pwl",
+    )
+    if has_skip:
+        x = layers.Add()([x, inputs])
+    return x
+
+
 class EfficientNet(FeatureExtractor):
     def __init__(
         self,
         width: float = 1.0,
         depth: float = 1.0,
+        stem_channels: int = 32,
+        head_channels: int = 1280,
         fix_stem_and_head_channels: bool = False,
         fix_first_and_last_blocks: bool = False,
         activation="swish",
@@ -171,14 +277,33 @@ class EfficientNet(FeatureExtractor):
         config: typing.Union[str, typing.List] = "default",
         **kwargs,
     ):
-        if config == "default":
-            config = DEFAULT_CONFIG
-        elif config == "lite":
-            config = DEFAULT_LITE_CONFIG
+        available_configs = [
+            "v1",
+            "v1_lite",
+            "v2_s",
+            "v2_m",
+            "v2_l",
+            "v2_xl",
+            "v2_base",
+        ]
+        if config == "v1":
+            config = DEFAULT_V1_CONFIG
+        elif config == "v1_lite":
+            config = DEFAULT_V1_LITE_CONFIG
+        elif config == "v2_s":
+            config = DEFAULT_V2_S_CONFIG
+        elif config == "v2_m":
+            config = DEFAULT_V2_M_CONFIG
+        elif config == "v2_l":
+            config = DEFAULT_V2_L_CONFIG
+        elif config == "v2_xl":
+            config = DEFAULT_V2_XL_CONFIG
+        elif config == "v2_base":
+            config = DEFAULT_V2_BASE_CONFIG
         else:
             if isinstance(config, str):
                 raise ValueError(
-                    "config must be one of ('default', 'lite') using string. "
+                    f"config must be one of {available_configs} using string. "
                     f"Received: config={config}"
                 )
         # TF default config
@@ -218,7 +343,9 @@ class EfficientNet(FeatureExtractor):
 
         # stem
         stem_channel = (
-            32 if fix_stem_and_head_channels else make_divisible(32 * width)
+            stem_channels
+            if fix_stem_and_head_channels
+            else make_divisible(stem_channels * width)
         )
         x = apply_conv2d_block(
             x,
@@ -265,16 +392,21 @@ class EfficientNet(FeatureExtractor):
                         kernel_size=k,
                         strides=s,
                         activation=activation,
+                        add_skip=True,
                         **common_kwargs,
+                    )
+                elif block_type == "er":
+                    x = apply_edge_residual_block(
+                        x, c, k, 1, s, e, se, activation, **common_kwargs
                     )
                 current_stride *= s
             features[f"BLOCK{current_block_idx}_S{current_stride}"] = x
 
         # last conv
         if fix_stem_and_head_channels:
-            conv_head_channels = 1280
+            conv_head_channels = head_channels
         else:
-            conv_head_channels = make_divisible(1280 * width)
+            conv_head_channels = make_divisible(head_channels * width)
         x = apply_conv2d_block(
             x,
             conv_head_channels,
@@ -366,7 +498,7 @@ class EfficientNetB0(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "default",
+        config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB0",
         **kwargs,
     ):
@@ -374,6 +506,8 @@ class EfficientNetB0(EfficientNet):
         super().__init__(
             1.0,
             1.0,
+            32,
+            1280,
             False,
             False,
             "swish",
@@ -407,7 +541,7 @@ class EfficientNetB1(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "default",
+        config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB1",
         **kwargs,
     ):
@@ -415,6 +549,8 @@ class EfficientNetB1(EfficientNet):
         super().__init__(
             1.0,
             1.1,
+            32,
+            1280,
             False,
             False,
             "swish",
@@ -448,7 +584,7 @@ class EfficientNetB2(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "default",
+        config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB2",
         **kwargs,
     ):
@@ -456,6 +592,8 @@ class EfficientNetB2(EfficientNet):
         super().__init__(
             1.1,
             1.2,
+            32,
+            1280,
             False,
             False,
             "swish",
@@ -489,7 +627,7 @@ class EfficientNetB3(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "default",
+        config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB3",
         **kwargs,
     ):
@@ -497,6 +635,8 @@ class EfficientNetB3(EfficientNet):
         super().__init__(
             1.2,
             1.4,
+            32,
+            1280,
             False,
             False,
             "swish",
@@ -530,7 +670,7 @@ class EfficientNetB4(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "default",
+        config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB4",
         **kwargs,
     ):
@@ -538,6 +678,8 @@ class EfficientNetB4(EfficientNet):
         super().__init__(
             1.4,
             1.8,
+            32,
+            1280,
             False,
             False,
             "swish",
@@ -571,7 +713,7 @@ class EfficientNetB5(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "default",
+        config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB5",
         **kwargs,
     ):
@@ -579,6 +721,8 @@ class EfficientNetB5(EfficientNet):
         super().__init__(
             1.6,
             2.2,
+            32,
+            1280,
             False,
             False,
             "swish",
@@ -612,7 +756,7 @@ class EfficientNetB6(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "default",
+        config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB6",
         **kwargs,
     ):
@@ -620,6 +764,8 @@ class EfficientNetB6(EfficientNet):
         super().__init__(
             1.8,
             2.6,
+            32,
+            1280,
             False,
             False,
             "swish",
@@ -653,7 +799,7 @@ class EfficientNetB7(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "default",
+        config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB7",
         **kwargs,
     ):
@@ -661,6 +807,8 @@ class EfficientNetB7(EfficientNet):
         super().__init__(
             2.0,
             3.1,
+            32,
+            1280,
             False,
             False,
             "swish",
@@ -694,7 +842,7 @@ class EfficientNetLiteB0(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "lite",
+        config: typing.Union[str, typing.List] = "v1_lite",
         name: str = "EfficientNetLiteB0",
         **kwargs,
     ):
@@ -702,6 +850,8 @@ class EfficientNetLiteB0(EfficientNet):
         super().__init__(
             1.0,
             1.0,
+            32,
+            1280,
             True,
             True,
             "relu6",
@@ -735,7 +885,7 @@ class EfficientNetLiteB1(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "lite",
+        config: typing.Union[str, typing.List] = "v1_lite",
         name: str = "EfficientNetLiteB1",
         **kwargs,
     ):
@@ -743,6 +893,8 @@ class EfficientNetLiteB1(EfficientNet):
         super().__init__(
             1.0,
             1.1,
+            32,
+            1280,
             True,
             True,
             "relu6",
@@ -776,7 +928,7 @@ class EfficientNetLiteB2(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "lite",
+        config: typing.Union[str, typing.List] = "v1_lite",
         name: str = "EfficientNetLiteB2",
         **kwargs,
     ):
@@ -784,6 +936,8 @@ class EfficientNetLiteB2(EfficientNet):
         super().__init__(
             1.1,
             1.2,
+            32,
+            1280,
             True,
             True,
             "relu6",
@@ -817,7 +971,7 @@ class EfficientNetLiteB3(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "lite",
+        config: typing.Union[str, typing.List] = "v1_lite",
         name: str = "EfficientNetLiteB3",
         **kwargs,
     ):
@@ -825,6 +979,8 @@ class EfficientNetLiteB3(EfficientNet):
         super().__init__(
             1.2,
             1.4,
+            32,
+            1280,
             True,
             True,
             "relu6",
@@ -858,7 +1014,7 @@ class EfficientNetLiteB4(EfficientNet):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "lite",
+        config: typing.Union[str, typing.List] = "v1_lite",
         name: str = "EfficientNetLiteB4",
         **kwargs,
     ):
@@ -866,6 +1022,8 @@ class EfficientNetLiteB4(EfficientNet):
         super().__init__(
             1.4,
             1.8,
+            32,
+            1280,
             True,
             True,
             "relu6",
@@ -885,3 +1043,388 @@ class EfficientNetLiteB4(EfficientNet):
             padding="same",
             **kwargs,
         )
+
+
+class EfficientNetV2S(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v2_s",
+        name: str = "EfficientNetV2S",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.0,
+            1.0,
+            24,
+            1280,
+            False,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=300,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["STEM_S2"]
+        feature_keys.extend(
+            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
+        )
+        return feature_keys
+
+
+class EfficientNetV2M(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v2_m",
+        name: str = "EfficientNetV2M",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.0,
+            1.0,
+            24,
+            1280,
+            False,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=384,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+
+class EfficientNetV2L(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v2_l",
+        name: str = "EfficientNetV2L",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.0,
+            1.0,
+            32,
+            1280,
+            False,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=384,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+
+class EfficientNetV2XL(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v2_xl",
+        name: str = "EfficientNetV2XL",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.0,
+            1.0,
+            32,
+            1280,
+            False,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=384,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+
+class EfficientNetV2B0(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v2_base",
+        name: str = "EfficientNetV2B0",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.0,
+            1.0,
+            32,
+            1280,
+            True,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=192,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["STEM_S2"]
+        feature_keys.extend(
+            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
+        )
+        return feature_keys
+
+
+class EfficientNetV2B1(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v2_base",
+        name: str = "EfficientNetV2B1",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.0,
+            1.1,
+            32,
+            1280,
+            True,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=192,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["STEM_S2"]
+        feature_keys.extend(
+            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
+        )
+        return feature_keys
+
+
+class EfficientNetV2B2(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v2_base",
+        name: str = "EfficientNetV2B2",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.1,
+            1.2,
+            32,
+            make_divisible(1280 * 1.1),
+            True,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=208,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["STEM_S2"]
+        feature_keys.extend(
+            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
+        )
+        return feature_keys
+
+
+# TODO: fix pretrained weights for EfficientNetV2B3
+class EfficientNetV2B3(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v2_base",
+        name: str = "EfficientNetV2B3",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.2,
+            1.4,
+            32,
+            make_divisible(1280 * 1.2),
+            True,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=240,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["STEM_S2"]
+        feature_keys.extend(
+            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
+        )
+        return feature_keys

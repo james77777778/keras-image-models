@@ -27,6 +27,14 @@ timm_model_names = [
     "tf_efficientnet_lite2.in1k",
     "tf_efficientnet_lite3.in1k",
     "tf_efficientnet_lite4.in1k",
+    "tf_efficientnetv2_s.in21k_ft_in1k",
+    "tf_efficientnetv2_m.in21k_ft_in1k",
+    "tf_efficientnetv2_l.in21k_ft_in1k",
+    "tf_efficientnetv2_xl.in21k_ft_in1k",
+    "tf_efficientnetv2_b0.in1k",
+    "tf_efficientnetv2_b1.in1k",
+    "tf_efficientnetv2_b2.in1k",
+    # "tf_efficientnetv2_b3.in1k",
 ]
 keras_model_classes = [
     efficientnet.EfficientNetB0,
@@ -42,6 +50,14 @@ keras_model_classes = [
     efficientnet.EfficientNetLiteB2,
     efficientnet.EfficientNetLiteB3,
     efficientnet.EfficientNetLiteB4,
+    efficientnet.EfficientNetV2S,
+    efficientnet.EfficientNetV2M,
+    efficientnet.EfficientNetV2L,
+    efficientnet.EfficientNetV2XL,
+    efficientnet.EfficientNetV2B0,
+    efficientnet.EfficientNetV2B1,
+    efficientnet.EfficientNetV2B2,
+    # efficientnet.EfficientNetV2B3,
 ]
 
 for timm_model_name, keras_model_class in zip(
@@ -86,20 +102,31 @@ for timm_model_name, keras_model_class in zip(
         torch_name = torch_name.replace("conv.stem.conv2d", "conv_stem")
         torch_name = torch_name.replace("conv.stem.bn", "bn1")
         # blocks
-        if "blocks.0" in torch_name:
-            # depthwise separation block
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn1")
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn2")
+        if "EfficientNetV2" in keras_model_class.__name__:
+            if "blocks.0" in torch_name:
+                # normal conv
+                torch_name = torch_name.replace("conv2d", "conv")
+                torch_name = torch_name.replace("bn", "bn1")
+            elif "blocks.1" in torch_name or "blocks.2" in torch_name:
+                # edge residual block
+                torch_name = torch_name.replace("conv.exp.conv2d", "conv_exp")
+                torch_name = torch_name.replace("conv.exp.bn", "bn1")
+                torch_name = torch_name.replace("conv.pwl.conv2d", "conv_pwl")
+                torch_name = torch_name.replace("conv.pwl.bn", "bn2")
         else:
-            # inverted residual block
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn1")
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn2")
-            torch_name = torch_name.replace("conv.pwl.conv2d", "conv_pwl")
-            torch_name = torch_name.replace("conv.pwl.bn", "bn3")
+            if "blocks.0" in torch_name:
+                # depthwise separation block
+                torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
+                torch_name = torch_name.replace("conv.dw.bn", "bn1")
+                torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
+                torch_name = torch_name.replace("conv.pw.bn", "bn2")
+        # inverted residual block
+        torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
+        torch_name = torch_name.replace("conv.pw.bn", "bn1")
+        torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
+        torch_name = torch_name.replace("conv.dw.bn", "bn2")
+        torch_name = torch_name.replace("conv.pwl.conv2d", "conv_pwl")
+        torch_name = torch_name.replace("conv.pwl.bn", "bn3")
         # se
         torch_name = torch_name.replace("se.conv.reduce", "se.conv_reduce")
         torch_name = torch_name.replace("se.conv.expand", "se.conv_expand")

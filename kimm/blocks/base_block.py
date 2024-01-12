@@ -24,6 +24,7 @@ def apply_conv2d_block(
     groups=1,
     activation=None,
     use_depthwise=False,
+    add_skip=False,
     bn_momentum=0.9,
     bn_epsilon=1e-5,
     padding=None,
@@ -33,6 +34,8 @@ def apply_conv2d_block(
         raise ValueError(
             f"kernel_size must be passed. Received: kernel_size={kernel_size}"
         )
+    input_channels = inputs.shape[-1]
+    has_skip = add_skip and strides == 1 and input_channels == filters
     x = inputs
 
     if padding is None:
@@ -63,6 +66,8 @@ def apply_conv2d_block(
         name=f"{name}_bn", momentum=bn_momentum, epsilon=bn_epsilon
     )(x)
     x = apply_activation(x, activation, name=name)
+    if has_skip:
+        x = layers.Add()([x, inputs])
     return x
 
 

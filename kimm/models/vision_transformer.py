@@ -9,6 +9,7 @@ from keras.src.applications import imagenet_utils
 
 from kimm import layers as kimm_layers
 from kimm.models.feature_extractor import FeatureExtractor
+from kimm.utils.model_registry import add_model_to_registry
 
 
 def apply_mlp_block(
@@ -629,3 +630,13 @@ class VisionTransformerLarge32(VisionTransformer):
         feature_keys = ["EMBEDDING"]
         feature_keys.extend([f"BLOCK{i}" for i in range(24)])
         return feature_keys
+
+
+add_model_to_registry(VisionTransformerTiny16, True)
+add_model_to_registry(VisionTransformerTiny32, True)
+add_model_to_registry(VisionTransformerSmall16, True)
+add_model_to_registry(VisionTransformerSmall32, True)
+add_model_to_registry(VisionTransformerBase16, True)
+add_model_to_registry(VisionTransformerBase32, True)
+add_model_to_registry(VisionTransformerLarge16, True)
+add_model_to_registry(VisionTransformerLarge32, True)

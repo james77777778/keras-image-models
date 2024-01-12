@@ -8,6 +8,7 @@ from kimm.models.efficientnet import EfficientNetLiteB0
 from kimm.models.efficientnet import EfficientNetLiteB2
 from kimm.models.efficientnet import EfficientNetV2B0
 from kimm.models.efficientnet import EfficientNetV2S
+from kimm.models.efficientnet import TinyNetE
 from kimm.utils import make_divisible
 
 
@@ -20,6 +21,7 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
             (EfficientNetLiteB2.__name__, EfficientNetLiteB2, 260),
             (EfficientNetV2S.__name__, EfficientNetV2S, 300),
             (EfficientNetV2B0.__name__, EfficientNetV2B0, 192),
+            (TinyNetE.__name__, TinyNetE, 106),
         ]
     )
     def test_efficentnet_base(self, model_class, image_size):
@@ -33,13 +35,16 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
 
     @parameterized.named_parameters(
         [
-            (EfficientNetB0.__name__, EfficientNetB0, 1.0),
-            (EfficientNetB2.__name__, EfficientNetB2, 1.1),
-            (EfficientNetLiteB0.__name__, EfficientNetLiteB0, 1.0),
-            (EfficientNetLiteB2.__name__, EfficientNetLiteB2, 1.1),
+            (EfficientNetB0.__name__, EfficientNetB0, 1.0, False),
+            (EfficientNetB2.__name__, EfficientNetB2, 1.1, False),
+            (EfficientNetLiteB0.__name__, EfficientNetLiteB0, 1.0, False),
+            (EfficientNetLiteB2.__name__, EfficientNetLiteB2, 1.1, False),
+            (TinyNetE.__name__, TinyNetE, 0.51, True),
         ]
     )
-    def test_efficentnet_feature_extractor(self, model_class, width):
+    def test_efficentnet_feature_extractor(
+        self, model_class, width, fix_stem_channels
+    ):
         x = random.uniform([1, 224, 224, 3]) * 255.0
         model = model_class(
             input_shape=[224, 224, 3], as_feature_extractor=True
@@ -51,9 +56,13 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
         self.assertAllEqual(
             list(y.keys()), model_class.available_feature_keys()
         )
-        self.assertEqual(
-            list(y["STEM_S2"].shape), [1, 112, 112, make_divisible(32 * width)]
-        )
+        if fix_stem_channels:
+            self.assertEqual(list(y["STEM_S2"].shape), [1, 112, 112, 32])
+        else:
+            self.assertEqual(
+                list(y["STEM_S2"].shape),
+                [1, 112, 112, make_divisible(32 * width)],
+            )
         self.assertEqual(
             list(y["BLOCK1_S4"].shape), [1, 56, 56, make_divisible(24 * width)]
         )

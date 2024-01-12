@@ -11,6 +11,7 @@ from kimm.blocks import apply_conv2d_block
 from kimm.blocks import apply_se_block
 from kimm.models.feature_extractor import FeatureExtractor
 from kimm.utils import make_divisible
+from kimm.utils.model_registry import add_model_to_registry
 
 DEFAULT_SMALL_CONFIG = [
     # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio,
@@ -656,3 +657,11 @@ class MobileNet100V3LargeMinimal(MobileNetV3):
             ]
         )
         return feature_keys
+
+
+add_model_to_registry(MobileNet050V3Small, True)
+add_model_to_registry(MobileNet075V3Small, True)
+add_model_to_registry(MobileNet100V3Small, True)
+add_model_to_registry(MobileNet100V3SmallMinimal, True)
+add_model_to_registry(MobileNet100V3Large, True)
+add_model_to_registry(MobileNet100V3LargeMinimal, True)

@@ -8,6 +8,7 @@ from keras import utils
 from keras.src.applications import imagenet_utils
 
 from kimm.blocks import apply_conv2d_block
+from kimm.blocks import apply_inverted_residual_block
 from kimm.blocks import apply_se_block
 from kimm.models.feature_extractor import FeatureExtractor
 from kimm.utils import make_divisible
@@ -130,73 +131,6 @@ def apply_depthwise_separation_block(
     return x
 
 
-def apply_inverted_residual_block(
-    inputs,
-    output_channels,
-    depthwise_kernel_size=3,
-    expansion_kernel_size=1,
-    pointwise_kernel_size=1,
-    strides=1,
-    expansion_ratio=1.0,
-    se_ratio=0.0,
-    activation="swish",
-    bn_epsilon=1e-5,
-    padding=None,
-    name="inverted_residual_block",
-):
-    input_channels = inputs.shape[-1]
-    hidden_channels = make_divisible(input_channels * expansion_ratio)
-    has_skip = strides == 1 and input_channels == output_channels
-
-    x = inputs
-    # Point-wise expansion
-    x = apply_conv2d_block(
-        x,
-        hidden_channels,
-        expansion_kernel_size,
-        1,
-        activation=activation,
-        bn_epsilon=bn_epsilon,
-        padding=padding,
-        name=f"{name}_conv_pw",
-    )
-    # Depth-wise convolution
-    x = apply_conv2d_block(
-        x,
-        kernel_size=depthwise_kernel_size,
-        strides=strides,
-        activation=activation,
-        use_depthwise=True,
-        bn_epsilon=bn_epsilon,
-        padding=padding,
-        name=f"{name}_conv_dw",
-    )
-    # Squeeze-and-excitation
-    if se_ratio > 0:
-        x = apply_se_block(
-            x,
-            se_ratio,
-            activation=activation,
-            gate_activation="sigmoid",
-            se_input_channels=input_channels,
-            name=f"{name}_se",
-        )
-    # Point-wise linear projection
-    x = apply_conv2d_block(
-        x,
-        output_channels,
-        pointwise_kernel_size,
-        1,
-        activation=None,
-        bn_epsilon=bn_epsilon,
-        padding=padding,
-        name=f"{name}_conv_pwl",
-    )
-    if has_skip:
-        x = layers.Add()([x, inputs])
-    return x
-
-
 def apply_edge_residual_block(
     inputs,
     output_channels,
@@ -271,7 +205,7 @@ class EfficientNet(FeatureExtractor):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "default",
+        config: typing.Union[str, typing.List] = "v1",
         **kwargs,
     ):
         _available_configs = [

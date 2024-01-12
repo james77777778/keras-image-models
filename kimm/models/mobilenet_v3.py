@@ -8,6 +8,7 @@ from keras import utils
 from keras.src.applications import imagenet_utils
 
 from kimm.blocks import apply_conv2d_block
+from kimm.blocks import apply_inverted_residual_block
 from kimm.blocks import apply_se_block
 from kimm.models.feature_extractor import FeatureExtractor
 from kimm.utils import make_divisible
@@ -106,74 +107,6 @@ def apply_depthwise_separation_block(
         bn_epsilon=bn_epsilon,
         padding=padding,
         name=f"{name}_conv_pw",
-    )
-    if has_skip:
-        x = layers.Add()([x, inputs])
-    return x
-
-
-def apply_inverted_residual_block(
-    inputs,
-    output_channels,
-    depthwise_kernel_size=3,
-    expansion_kernel_size=1,
-    pointwise_kernel_size=1,
-    strides=1,
-    expansion_ratio=1.0,
-    se_ratio=0.0,
-    activation="relu",
-    bn_epsilon=1e-5,
-    padding=None,
-    name="inverted_residual_block",
-):
-    input_channels = inputs.shape[-1]
-    hidden_channels = make_divisible(input_channels * expansion_ratio)
-    has_skip = strides == 1 and input_channels == output_channels
-
-    x = inputs
-
-    # Point-wise expansion
-    x = apply_conv2d_block(
-        x,
-        hidden_channels,
-        expansion_kernel_size,
-        1,
-        activation=activation,
-        bn_epsilon=bn_epsilon,
-        padding=padding,
-        name=f"{name}_conv_pw",
-    )
-    # Depth-wise convolution
-    x = apply_conv2d_block(
-        x,
-        kernel_size=depthwise_kernel_size,
-        strides=strides,
-        activation=activation,
-        use_depthwise=True,
-        bn_epsilon=bn_epsilon,
-        padding=padding,
-        name=f"{name}_conv_dw",
-    )
-    # Squeeze-and-excitation
-    if se_ratio > 0:
-        x = apply_se_block(
-            x,
-            se_ratio,
-            activation="relu",
-            gate_activation="hard_sigmoid",
-            make_divisible_number=8,
-            name=f"{name}_se",
-        )
-    # Point-wise linear projection
-    x = apply_conv2d_block(
-        x,
-        output_channels,
-        pointwise_kernel_size,
-        1,
-        activation=None,
-        bn_epsilon=bn_epsilon,
-        padding=padding,
-        name=f"{name}_conv_pwl",
     )
     if has_skip:
         x = layers.Add()([x, inputs])
@@ -297,7 +230,20 @@ class MobileNetV3(FeatureExtractor):
                         )
                     elif block_type == "ir":
                         x = apply_inverted_residual_block(
-                            x, c, k, 1, 1, s, e, se, act, **common_kwargs
+                            x,
+                            c,
+                            k,
+                            1,
+                            1,
+                            s,
+                            e,
+                            se,
+                            act,
+                            se_input_channels=None,
+                            se_activation="relu",
+                            se_gate_activation="hard_sigmoid",
+                            se_make_divisible_number=8,
+                            **common_kwargs,
                         )
                     elif block_type == "cn":
                         x = apply_conv2d_block(

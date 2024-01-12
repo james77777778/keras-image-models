@@ -75,7 +75,11 @@ def assign_weights(
     elif tuple(keras_weight.shape) == tuple(torch_weight.shape):
         keras_weight.assign(torch_weight)
     else:
-        raise ValueError(f"Failed to assign {keras_name}")
+        raise ValueError(
+            f"Failed to assign {keras_name}, "
+            f"keras_weight.shape={keras_weight.shape}, "
+            f"torch_weight.shape={torch_weight.shape}, "
+        )
 
 
 def is_same_weights(

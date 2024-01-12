@@ -8,6 +8,7 @@ from keras import utils
 from keras.src.applications import imagenet_utils
 
 from kimm.blocks import apply_conv2d_block
+from kimm.blocks import apply_inverted_residual_block
 from kimm.models.feature_extractor import FeatureExtractor
 from kimm.utils import make_divisible
 from kimm.utils.model_registry import add_model_to_registry
@@ -52,55 +53,6 @@ def apply_depthwise_separation_block(
         1,
         activation=None,
         name=f"{name}_conv_pw",
-    )
-    if has_skip:
-        x = layers.Add()([x, inputs])
-    return x
-
-
-def apply_inverted_residual_block(
-    inputs,
-    output_channels,
-    depthwise_kernel_size=3,
-    expansion_kernel_size=1,
-    pointwise_kernel_size=1,
-    strides=1,
-    expansion_ratio=1.0,
-    activation="relu6",
-    name="inverted_residual_block",
-):
-    input_channels = inputs.shape[-1]
-    hidden_channels = make_divisible(input_channels * expansion_ratio)
-    has_skip = strides == 1 and input_channels == output_channels
-
-    x = inputs
-
-    # Point-wise expansion
-    x = apply_conv2d_block(
-        x,
-        hidden_channels,
-        expansion_kernel_size,
-        1,
-        activation=activation,
-        name=f"{name}_conv_pw",
-    )
-    # Depth-wise convolution
-    x = apply_conv2d_block(
-        x,
-        kernel_size=depthwise_kernel_size,
-        strides=strides,
-        activation=activation,
-        use_depthwise=True,
-        name=f"{name}_conv_dw",
-    )
-    # Point-wise linear projection
-    x = apply_conv2d_block(
-        x,
-        output_channels,
-        pointwise_kernel_size,
-        1,
-        activation=None,
-        name=f"{name}_conv_pwl",
     )
     if has_skip:
         x = layers.Add()([x, inputs])
@@ -189,7 +141,7 @@ class MobileNetV2(FeatureExtractor):
                     )
                 elif block_type == "ir":
                     x = apply_inverted_residual_block(
-                        x, c, k, 1, 1, s, e, name=name
+                        x, c, k, 1, 1, s, e, activation="relu6", name=name
                     )
                 current_stride *= s
             features[f"BLOCK{current_block_idx}_S{current_stride}"] = x

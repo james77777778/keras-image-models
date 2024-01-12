@@ -10,6 +10,7 @@ from keras.src.applications import imagenet_utils
 from kimm.blocks import apply_conv2d_block
 from kimm.models.feature_extractor import FeatureExtractor
 from kimm.utils import make_divisible
+from kimm.utils.model_registry import add_model_to_registry
 
 DEFAULT_CONFIG = [
     # type, repeat, kernel_size, strides, expansion_ratio, channels
@@ -444,3 +445,10 @@ class MobileNet140V2(MobileNetV2):
             name=name,
             **kwargs,
         )
+
+
+add_model_to_registry(MobileNet050V2, True)
+add_model_to_registry(MobileNet100V2, True)
+add_model_to_registry(MobileNet110V2, True)
+add_model_to_registry(MobileNet120V2, True)
+add_model_to_registry(MobileNet140V2, True)

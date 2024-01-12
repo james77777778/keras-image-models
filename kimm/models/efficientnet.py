@@ -11,9 +11,14 @@ from kimm.blocks import apply_conv2d_block
 from kimm.blocks import apply_se_block
 from kimm.models.feature_extractor import FeatureExtractor
 from kimm.utils import make_divisible
+from kimm.utils.model_registry import add_model_to_registry
 
+# type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
+# ds: depthwise separation block
+# ir: inverted residual block
+# er: edge residual block
+# cn: normal conv block
 DEFAULT_V1_CONFIG = [
-    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
     ["ds", 1, 3, 1, 1, 16, 0.25],
     ["ir", 2, 3, 2, 6, 24, 0.25],
     ["ir", 2, 5, 2, 6, 40, 0.25],
@@ -23,7 +28,6 @@ DEFAULT_V1_CONFIG = [
     ["ir", 1, 3, 1, 6, 320, 0.25],
 ]
 DEFAULT_V1_LITE_CONFIG = [
-    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
     ["ds", 1, 3, 1, 1, 16, 0.0],
     ["ir", 2, 3, 2, 6, 24, 0.0],
     ["ir", 2, 5, 2, 6, 40, 0.0],
@@ -33,7 +37,6 @@ DEFAULT_V1_LITE_CONFIG = [
     ["ir", 1, 3, 1, 6, 320, 0.0],
 ]
 DEFAULT_V2_S_CONFIG = [
-    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
     ["cn", 2, 3, 1, 1, 24, 0.0],
     ["er", 4, 3, 2, 4, 48, 0.0],
     ["er", 4, 3, 2, 4, 64, 0.0],
@@ -42,7 +45,6 @@ DEFAULT_V2_S_CONFIG = [
     ["ir", 15, 3, 2, 6, 256, 0.25],
 ]
 DEFAULT_V2_M_CONFIG = [
-    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
     ["cn", 3, 3, 1, 1, 24, 0.0],
     ["er", 5, 3, 2, 4, 48, 0.0],
     ["er", 5, 3, 2, 4, 80, 0.0],
@@ -52,7 +54,6 @@ DEFAULT_V2_M_CONFIG = [
     ["ir", 5, 3, 1, 6, 512, 0.25],
 ]
 DEFAULT_V2_L_CONFIG = [
-    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
     ["cn", 4, 3, 1, 1, 32, 0.0],
     ["er", 7, 3, 2, 4, 64, 0.0],
     ["er", 7, 3, 2, 4, 96, 0.0],
@@ -62,7 +63,6 @@ DEFAULT_V2_L_CONFIG = [
     ["ir", 7, 3, 1, 6, 640, 0.25],
 ]
 DEFAULT_V2_XL_CONFIG = [
-    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
     ["cn", 4, 3, 1, 1, 32, 0.0],
     ["er", 8, 3, 2, 4, 64, 0.0],
     ["er", 8, 3, 2, 4, 96, 0.0],
@@ -72,7 +72,6 @@ DEFAULT_V2_XL_CONFIG = [
     ["ir", 8, 3, 1, 6, 640, 0.25],
 ]
 DEFAULT_V2_BASE_CONFIG = [
-    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
     ["cn", 1, 3, 1, 1, 16, 0.0],
     ["er", 2, 3, 2, 4, 32, 0.0],
     ["er", 2, 3, 2, 4, 48, 0.0],
@@ -150,7 +149,6 @@ def apply_inverted_residual_block(
     has_skip = strides == 1 and input_channels == output_channels
 
     x = inputs
-
     # Point-wise expansion
     x = apply_conv2d_block(
         x,
@@ -217,7 +215,6 @@ def apply_edge_residual_block(
     has_skip = strides == 1 and input_channels == output_channels
 
     x = inputs
-
     # Expansion
     x = apply_conv2d_block(
         x,
@@ -277,7 +274,7 @@ class EfficientNet(FeatureExtractor):
         config: typing.Union[str, typing.List] = "default",
         **kwargs,
     ):
-        available_configs = [
+        _available_configs = [
             "v1",
             "v1_lite",
             "v2_s",
@@ -303,16 +300,17 @@ class EfficientNet(FeatureExtractor):
         else:
             if isinstance(config, str):
                 raise ValueError(
-                    f"config must be one of {available_configs} using string. "
+                    f"config must be one of {_available_configs} using string. "
                     f"Received: config={config}"
                 )
         # TF default config
         default_size = kwargs.pop("default_size", 224)
         bn_epsilon = kwargs.pop("bn_epsilon", 1e-5)
         padding = kwargs.pop("padding", None)
-
         # EfficientNetV2Base config
         round_limit = kwargs.pop("round_limit", 0.9)
+        # TinyNet config
+        round_fn = kwargs.pop("round_fn", math.ceil)
 
         # Prepare feature extraction
         features = {}
@@ -344,7 +342,7 @@ class EfficientNet(FeatureExtractor):
                 mean=[0.485, 0.456, 0.406], variance=[0.229, 0.224, 0.225]
             )(x)
 
-        # stem
+        # Stem block
         stem_channel = (
             stem_channels
             if fix_stem_and_head_channels
@@ -362,7 +360,7 @@ class EfficientNet(FeatureExtractor):
         )
         features["STEM_S2"] = x
 
-        # blocks
+        # Blocks
         current_stride = 2
         for current_block_idx, cfg in enumerate(config):
             block_type, r, k, s, e, c, se = cfg
@@ -372,7 +370,7 @@ class EfficientNet(FeatureExtractor):
             ):
                 r = r
             else:
-                r = int(math.ceil(r * depth))
+                r = int(round_fn(r * depth))
             for current_layer_idx in range(r):
                 s = s if current_layer_idx == 0 else 1
                 common_kwargs = {
@@ -405,7 +403,7 @@ class EfficientNet(FeatureExtractor):
                 current_stride *= s
             features[f"BLOCK{current_block_idx}_S{current_stride}"] = x
 
-        # last conv
+        # Last conv block
         if fix_stem_and_head_channels:
             conv_head_channels = head_channels
         else:
@@ -420,6 +418,7 @@ class EfficientNet(FeatureExtractor):
             name="conv_head",
         )
 
+        # Head
         if include_top:
             x = layers.GlobalAveragePooling2D(name="avg_pool")(x)
             x = layers.Dropout(rate=dropout_rate, name="conv_head_dropout")(x)
@@ -456,6 +455,8 @@ class EfficientNet(FeatureExtractor):
 
     @staticmethod
     def available_feature_keys():
+        # for: v1, v1_lite, v2_m, v2_l, v2_xl, tinynet
+        # not for: v2_s, v2_base
         feature_keys = ["STEM_S2"]
         feature_keys.extend(
             [
@@ -1432,3 +1433,236 @@ class EfficientNetV2B3(EfficientNet):
             [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
         )
         return feature_keys
+
+
+class TinyNetA(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v1",
+        name: str = "TinyNetA",
+        **kwargs,
+    ):
+        super().__init__(
+            1.0,
+            1.2,
+            32,
+            1280,
+            False,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=192,
+            round_fn=round,  # tinynet config
+            **kwargs,
+        )
+
+
+class TinyNetB(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v1",
+        name: str = "TinyNetB",
+        **kwargs,
+    ):
+        super().__init__(
+            0.75,
+            1.1,
+            32,
+            1280,
+            True,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=192,
+            round_fn=round,  # tinynet config
+            **kwargs,
+        )
+
+
+class TinyNetC(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v1",
+        name: str = "TinyNetC",
+        **kwargs,
+    ):
+        super().__init__(
+            0.54,
+            0.85,
+            32,
+            1280,
+            True,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=188,
+            round_fn=round,  # tinynet config
+            **kwargs,
+        )
+
+
+class TinyNetD(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v1",
+        name: str = "TinyNetD",
+        **kwargs,
+    ):
+        super().__init__(
+            0.54,
+            0.695,
+            32,
+            1280,
+            True,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=152,
+            round_fn=round,  # tinynet config
+            **kwargs,
+        )
+
+
+class TinyNetE(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "v1",
+        name: str = "TinyNetE",
+        **kwargs,
+    ):
+        super().__init__(
+            0.51,
+            0.6,
+            32,
+            1280,
+            True,
+            False,
+            "swish",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=106,
+            round_fn=round,  # tinynet config
+            **kwargs,
+        )
+
+
+add_model_to_registry(EfficientNetB0, True)
+add_model_to_registry(EfficientNetB1, True)
+add_model_to_registry(EfficientNetB2, True)
+add_model_to_registry(EfficientNetB3, True)
+add_model_to_registry(EfficientNetB4, True)
+add_model_to_registry(EfficientNetB5, True)
+add_model_to_registry(EfficientNetB6, True)
+add_model_to_registry(EfficientNetB7, True)
+add_model_to_registry(EfficientNetLiteB0, True)
+add_model_to_registry(EfficientNetLiteB1, True)
+add_model_to_registry(EfficientNetLiteB2, True)
+add_model_to_registry(EfficientNetLiteB3, True)
+add_model_to_registry(EfficientNetLiteB4, True)
+add_model_to_registry(EfficientNetV2S, True)
+add_model_to_registry(EfficientNetV2M, True)
+add_model_to_registry(EfficientNetV2L, True)
+add_model_to_registry(EfficientNetV2XL, True)
+add_model_to_registry(EfficientNetV2B0, True)
+add_model_to_registry(EfficientNetV2B1, True)
+add_model_to_registry(EfficientNetV2B2, True)
+add_model_to_registry(EfficientNetV2B3, True)
+add_model_to_registry(TinyNetA, True)
+add_model_to_registry(TinyNetB, True)
+add_model_to_registry(TinyNetC, True)
+add_model_to_registry(TinyNetD, True)
+add_model_to_registry(TinyNetE, True)

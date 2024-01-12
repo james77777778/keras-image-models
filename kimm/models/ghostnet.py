@@ -11,6 +11,7 @@ from kimm.blocks import apply_conv2d_block
 from kimm.blocks import apply_se_block
 from kimm.models.feature_extractor import FeatureExtractor
 from kimm.utils import make_divisible
+from kimm.utils.model_registry import add_model_to_registry
 
 DEFAULT_CONFIG = [
     # k, t, c, SE, s
@@ -597,3 +598,11 @@ class GhostNet160V2(GhostNet):
             name=name,
             **kwargs,
         )
+
+
+add_model_to_registry(GhostNet050, False)
+add_model_to_registry(GhostNet100, True)
+add_model_to_registry(GhostNet130, True)
+add_model_to_registry(GhostNet100V2, True)
+add_model_to_registry(GhostNet130V2, True)
+add_model_to_registry(GhostNet160V2, True)

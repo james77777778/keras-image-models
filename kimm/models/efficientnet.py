@@ -22,6 +22,16 @@ DEFAULT_CONFIG = [
     ["ir", 4, 5, 2, 6, 192, 0.25],
     ["ir", 1, 3, 1, 6, 320, 0.25],
 ]
+DEFAULT_LITE_CONFIG = [
+    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
+    ["ds", 1, 3, 1, 1, 16, 0.0],
+    ["ir", 2, 3, 2, 6, 24, 0.0],
+    ["ir", 2, 5, 2, 6, 40, 0.0],
+    ["ir", 3, 3, 2, 6, 80, 0.0],
+    ["ir", 3, 5, 1, 6, 112, 0.0],
+    ["ir", 4, 5, 2, 6, 192, 0.0],
+    ["ir", 1, 3, 1, 6, 320, 0.0],
+]
 
 
 def apply_depthwise_separation_block(
@@ -147,6 +157,8 @@ class EfficientNet(FeatureExtractor):
         width: float = 1.0,
         depth: float = 1.0,
         fix_stem_and_head_channels: bool = False,
+        fix_first_and_last_blocks: bool = False,
+        activation="swish",
         input_tensor: keras.KerasTensor = None,
         input_shape: typing.Optional[typing.Sequence[int]] = None,
         include_preprocessing: bool = True,
@@ -161,6 +173,14 @@ class EfficientNet(FeatureExtractor):
     ):
         if config == "default":
             config = DEFAULT_CONFIG
+        elif config == "lite":
+            config = DEFAULT_LITE_CONFIG
+        else:
+            if isinstance(config, str):
+                raise ValueError(
+                    "config must be one of ('default', 'lite') using string. "
+                    f"Received: config={config}"
+                )
         # TF default config
         default_size = kwargs.pop("default_size", 224)
         bn_epsilon = kwargs.pop("bn_epsilon", 1e-5)
@@ -205,7 +225,7 @@ class EfficientNet(FeatureExtractor):
             stem_channel,
             3,
             2,
-            activation="swish",
+            activation=activation,
             bn_epsilon=bn_epsilon,
             padding=padding,
             name="conv_stem",
@@ -217,7 +237,12 @@ class EfficientNet(FeatureExtractor):
         for current_block_idx, cfg in enumerate(config):
             block_type, r, k, s, e, c, se = cfg
             c = make_divisible(c * width)
-            r = int(math.ceil(r * depth))
+            if fix_first_and_last_blocks and (
+                current_block_idx in (0, len(config) - 1)
+            ):
+                r = r
+            else:
+                r = int(math.ceil(r * depth))
             for current_layer_idx in range(r):
                 s = s if current_layer_idx == 0 else 1
                 common_kwargs = {
@@ -227,11 +252,11 @@ class EfficientNet(FeatureExtractor):
                 }
                 if block_type == "ds":
                     x = apply_depthwise_separation_block(
-                        x, c, k, 1, s, se, "swish", **common_kwargs
+                        x, c, k, 1, s, se, activation, **common_kwargs
                     )
                 elif block_type == "ir":
                     x = apply_inverted_residual_block(
-                        x, c, k, 1, 1, s, e, se, "swish", **common_kwargs
+                        x, c, k, 1, 1, s, e, se, activation, **common_kwargs
                     )
                 elif block_type == "cn":
                     x = apply_conv2d_block(
@@ -239,20 +264,23 @@ class EfficientNet(FeatureExtractor):
                         filters=c,
                         kernel_size=k,
                         strides=s,
-                        activation="swish",
+                        activation=activation,
                         **common_kwargs,
                     )
                 current_stride *= s
             features[f"BLOCK{current_block_idx}_S{current_stride}"] = x
 
         # last conv
-        conv_head_channels = make_divisible(1280 * width)
+        if fix_stem_and_head_channels:
+            conv_head_channels = 1280
+        else:
+            conv_head_channels = make_divisible(1280 * width)
         x = apply_conv2d_block(
             x,
             conv_head_channels,
             1,
             1,
-            activation="swish",
+            activation=activation,
             bn_epsilon=bn_epsilon,
             name="conv_head",
         )
@@ -347,6 +375,8 @@ class EfficientNetB0(EfficientNet):
             1.0,
             1.0,
             False,
+            False,
+            "swish",
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -386,6 +416,8 @@ class EfficientNetB1(EfficientNet):
             1.0,
             1.1,
             False,
+            False,
+            "swish",
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -425,6 +457,8 @@ class EfficientNetB2(EfficientNet):
             1.1,
             1.2,
             False,
+            False,
+            "swish",
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -464,6 +498,8 @@ class EfficientNetB3(EfficientNet):
             1.2,
             1.4,
             False,
+            False,
+            "swish",
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -503,6 +539,8 @@ class EfficientNetB4(EfficientNet):
             1.4,
             1.8,
             False,
+            False,
+            "swish",
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -542,6 +580,8 @@ class EfficientNetB5(EfficientNet):
             1.6,
             2.2,
             False,
+            False,
+            "swish",
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -581,6 +621,8 @@ class EfficientNetB6(EfficientNet):
             1.8,
             2.6,
             False,
+            False,
+            "swish",
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -620,6 +662,8 @@ class EfficientNetB7(EfficientNet):
             2.0,
             3.1,
             False,
+            False,
+            "swish",
             input_tensor,
             input_shape,
             include_preprocessing,
@@ -632,6 +676,211 @@ class EfficientNetB7(EfficientNet):
             config,
             name=name,
             default_size=600,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+
+class EfficientNetLiteB0(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "lite",
+        name: str = "EfficientNetLiteB0",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.0,
+            1.0,
+            True,
+            True,
+            "relu6",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=224,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+
+class EfficientNetLiteB1(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "lite",
+        name: str = "EfficientNetLiteB1",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.0,
+            1.1,
+            True,
+            True,
+            "relu6",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=240,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+
+class EfficientNetLiteB2(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "lite",
+        name: str = "EfficientNetLiteB2",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.1,
+            1.2,
+            True,
+            True,
+            "relu6",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=260,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+
+class EfficientNetLiteB3(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "lite",
+        name: str = "EfficientNetLiteB3",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.2,
+            1.4,
+            True,
+            True,
+            "relu6",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=300,
+            bn_epsilon=1e-3,
+            padding="same",
+            **kwargs,
+        )
+
+
+class EfficientNetLiteB4(EfficientNet):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "lite",
+        name: str = "EfficientNetLiteB4",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.4,
+            1.8,
+            True,
+            True,
+            "relu6",
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            default_size=380,
             bn_epsilon=1e-3,
             padding="same",
             **kwargs,

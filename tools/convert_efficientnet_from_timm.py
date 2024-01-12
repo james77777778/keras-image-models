@@ -22,6 +22,11 @@ timm_model_names = [
     "tf_efficientnet_b5.ns_jft_in1k",
     "tf_efficientnet_b6.ns_jft_in1k",
     "tf_efficientnet_b7.ns_jft_in1k",
+    "tf_efficientnet_lite0.in1k",
+    "tf_efficientnet_lite1.in1k",
+    "tf_efficientnet_lite2.in1k",
+    "tf_efficientnet_lite3.in1k",
+    "tf_efficientnet_lite4.in1k",
 ]
 keras_model_classes = [
     efficientnet.EfficientNetB0,
@@ -32,6 +37,11 @@ keras_model_classes = [
     efficientnet.EfficientNetB5,
     efficientnet.EfficientNetB6,
     efficientnet.EfficientNetB7,
+    efficientnet.EfficientNetLiteB0,
+    efficientnet.EfficientNetLiteB1,
+    efficientnet.EfficientNetLiteB2,
+    efficientnet.EfficientNetLiteB3,
+    efficientnet.EfficientNetLiteB4,
 ]
 
 for timm_model_name, keras_model_class in zip(

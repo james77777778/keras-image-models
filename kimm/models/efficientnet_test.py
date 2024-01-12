@@ -4,6 +4,8 @@ from keras.src import testing
 
 from kimm.models.efficientnet import EfficientNetB0
 from kimm.models.efficientnet import EfficientNetB2
+from kimm.models.efficientnet import EfficientNetLiteB0
+from kimm.models.efficientnet import EfficientNetLiteB2
 from kimm.utils import make_divisible
 
 
@@ -12,6 +14,8 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
         [
             (EfficientNetB0.__name__, EfficientNetB0, 224),
             (EfficientNetB2.__name__, EfficientNetB2, 260),
+            (EfficientNetLiteB0.__name__, EfficientNetLiteB0, 224),
+            (EfficientNetLiteB2.__name__, EfficientNetLiteB2, 260),
         ]
     )
     def test_efficentnet_base(self, model_class, image_size):
@@ -27,6 +31,8 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
         [
             (EfficientNetB0.__name__, EfficientNetB0, 1.0),
             (EfficientNetB2.__name__, EfficientNetB2, 1.1),
+            (EfficientNetLiteB0.__name__, EfficientNetLiteB0, 1.0),
+            (EfficientNetLiteB2.__name__, EfficientNetLiteB2, 1.1),
         ]
     )
     def test_efficentnet_feature_extractor(self, model_class, width):

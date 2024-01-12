@@ -311,6 +311,9 @@ class EfficientNet(FeatureExtractor):
         bn_epsilon = kwargs.pop("bn_epsilon", 1e-5)
         padding = kwargs.pop("padding", None)
 
+        # EfficientNetV2Base config
+        round_limit = kwargs.pop("round_limit", 0.9)
+
         # Prepare feature extraction
         features = {}
 
@@ -363,7 +366,7 @@ class EfficientNet(FeatureExtractor):
         current_stride = 2
         for current_block_idx, cfg in enumerate(config):
             block_type, r, k, s, e, c, se = cfg
-            c = make_divisible(c * width)
+            c = make_divisible(c * width, round_limit=round_limit)
             if fix_first_and_last_blocks and (
                 current_block_idx in (0, len(config) - 1)
             ):
@@ -1347,7 +1350,7 @@ class EfficientNetV2B2(EfficientNet):
         super().__init__(
             1.1,
             1.2,
-            32,
+            make_divisible(32 * 1.1),
             make_divisible(1280 * 1.1),
             True,
             False,
@@ -1366,6 +1369,7 @@ class EfficientNetV2B2(EfficientNet):
             default_size=208,
             bn_epsilon=1e-3,
             padding="same",
+            round_limit=0.0,  # fix
             **kwargs,
         )
 
@@ -1378,7 +1382,6 @@ class EfficientNetV2B2(EfficientNet):
         return feature_keys
 
 
-# TODO: fix pretrained weights for EfficientNetV2B3
 class EfficientNetV2B3(EfficientNet):
     def __init__(
         self,
@@ -1399,7 +1402,7 @@ class EfficientNetV2B3(EfficientNet):
         super().__init__(
             1.2,
             1.4,
-            32,
+            make_divisible(32 * 1.2),
             make_divisible(1280 * 1.2),
             True,
             False,
@@ -1418,6 +1421,7 @@ class EfficientNetV2B3(EfficientNet):
             default_size=240,
             bn_epsilon=1e-3,
             padding="same",
+            round_limit=0.0,  # fix
             **kwargs,
         )
 

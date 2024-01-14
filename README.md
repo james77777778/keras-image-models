@@ -13,7 +13,72 @@ pip install keras kimm
 
 ## Quickstart
 
-WIP
+### Use Pretrained Model
+
+```python
+from keras import random
+
+import kimm
+
+# Use `kimm.list_models` to get the list of available models
+print(kimm.list_models())
+
+# Specify the name and other arguments to filter the result
+print(kimm.list_models("efficientnet", has_pretrained=True))  # fuzzy search
+
+# Initialize the model with pretrained weights
+model = kimm.models.EfficientNetV2B0(weights="imagenet")
+
+# Predict
+x = random.uniform([1, 192, 192, 3]) * 255.0
+y = model.predict(x)
+print(y.shape)
+
+# Initialize the model as a feature extractor with pretrained weights
+model = kimm.models.EfficientNetV2B0(
+    as_feature_extractor=True, weights="imagenet"
+)
+
+# Extract features for downstream tasks
+y = model.predict(x)
+print(y.keys())
+print(y["BLOCK5_S32"].shape)
+```
+
+### Transfer Learning
+
+```python
+from keras import layers
+from keras import models
+from keras import random
+
+import kimm
+
+# Initialize the model as a backbone with pretrained weights
+backbone = kimm.models.EfficientNetV2B0(
+    input_shape=[224, 224, 3],
+    include_top=False,
+    pooling="avg",
+    weights="imagenet",
+)
+
+# Freeze the backbone for transfer learning
+backbone.trainable = False
+
+# Construct the model with new head
+inputs = layers.Input([224, 224, 3])
+x = backbone(inputs, training=False)
+x = layers.Dropout(0.2)(x)
+outputs = layers.Dense(2)(x)
+model = models.Model(inputs, outputs)
+
+# Train the new model (put your own logic here)
+
+# Predict
+x = random.uniform([1, 224, 224, 3]) * 255.0
+y = model.predict(x)
+print(y.shape)
+```
 
 ## License
 

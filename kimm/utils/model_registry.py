@@ -9,6 +9,23 @@ import typing
 MODEL_REGISTRY: typing.List[typing.Dict[str, typing.Union[str, bool]]] = []
 
 
+def _match_string(query: str, target: str):
+    query = query.lower().replace(" ", "").replace("_", "").replace(".", "")
+    target = target.lower()
+    matched_idx = -1
+    for q_char in query:
+        matched = False
+        for idx, t_char in enumerate(target):
+            if matched:
+                break
+            if q_char == t_char and idx > matched_idx:
+                matched_idx = idx
+                matched = True
+        if not matched:
+            return False
+    return True
+
+
 def clear_registry():
     MODEL_REGISTRY.clear()
 
@@ -47,9 +64,10 @@ def list_models(
         result_names.add(info["name"])
         need_remove = False
 
-        # filter by the args
-        if name is not None and name.lower() not in info["name"].lower():
-            need_remove = True
+        # match string (simple implementation)
+        if name is not None:
+            need_remove = not _match_string(name, info["name"])
+        # filter by support_feature and has_pretrained
         if (
             support_feature is not None
             and info["support_feature"] is not support_feature

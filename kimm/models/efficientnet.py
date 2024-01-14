@@ -12,8 +12,8 @@ from kimm.blocks import apply_depthwise_separation_block
 from kimm.blocks import apply_inverted_residual_block
 from kimm.blocks import apply_se_block
 from kimm.models.feature_extractor import FeatureExtractor
+from kimm.utils import add_model_to_registry
 from kimm.utils import make_divisible
-from kimm.utils.model_registry import add_model_to_registry
 
 # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio
 # ds: depthwise separation block

@@ -12,8 +12,8 @@ from kimm.blocks import apply_conv2d_block
 from kimm.blocks import apply_inverted_residual_block
 from kimm.blocks import apply_transformer_block
 from kimm.models.feature_extractor import FeatureExtractor
+from kimm.utils import add_model_to_registry
 from kimm.utils import make_divisible
-from kimm.utils.model_registry import add_model_to_registry
 
 # type, repeat, channels, strides, expansion_ratio, transformer_dim,
 # transformer_depth, patch_size

@@ -8,7 +8,7 @@ from keras.src.applications import imagenet_utils
 
 from kimm.blocks import apply_conv2d_block
 from kimm.models.feature_extractor import FeatureExtractor
-from kimm.utils.model_registry import add_model_to_registry
+from kimm.utils import add_model_to_registry
 
 
 def apply_basic_block(

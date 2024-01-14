@@ -15,12 +15,14 @@ def apply_depthwise_separation_block(
     se_activation="relu",
     se_gate_activation="sigmoid",
     se_make_divisible_number=None,
+    pw_activation=None,
+    skip=True,
     bn_epsilon=1e-5,
     padding=None,
     name="depthwise_separation_block",
 ):
     input_channels = inputs.shape[-1]
-    has_skip = strides == 1 and input_channels == output_channels
+    has_skip = skip and (strides == 1 and input_channels == output_channels)
 
     x = inputs
     x = apply_conv2d_block(
@@ -47,7 +49,7 @@ def apply_depthwise_separation_block(
         output_channels,
         pointwise_kernel_size,
         1,
-        activation=None,
+        activation=pw_activation,
         bn_epsilon=bn_epsilon,
         padding=padding,
         name=f"{name}_conv_pw",

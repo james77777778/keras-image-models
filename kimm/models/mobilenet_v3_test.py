@@ -2,6 +2,7 @@ from absl.testing import parameterized
 from keras import random
 from keras.src import testing
 
+from kimm.models.mobilenet_v3 import LCNet100
 from kimm.models.mobilenet_v3 import MobileNet100V3Large
 from kimm.models.mobilenet_v3 import MobileNet100V3Small
 from kimm.utils import make_divisible
@@ -12,6 +13,7 @@ class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
         [
             (MobileNet100V3Small.__name__, MobileNet100V3Small),
             (MobileNet100V3Large.__name__, MobileNet100V3Large),
+            (LCNet100.__name__, LCNet100),
         ]
     )
     def test_mobilenet_v3_base(self, model_class):
@@ -81,3 +83,35 @@ class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
                 list(y["BLOCK5_S32"].shape),
                 [1, 7, 7, make_divisible(160 * width)],
             )
+
+    @parameterized.named_parameters([(LCNet100.__name__, LCNet100, 1.0)])
+    def test_lcnet_feature_extractor(self, model_class, width):
+        x = random.uniform([1, 224, 224, 3]) * 255.0
+        model = model_class(as_feature_extractor=True)
+
+        y = model.predict(x)
+
+        self.assertIsInstance(y, dict)
+        self.assertAllEqual(
+            list(y.keys()), model_class.available_feature_keys()
+        )
+        self.assertEqual(
+            list(y["STEM_S2"].shape),
+            [1, 112, 112, make_divisible(16 * width)],
+        )
+        self.assertEqual(
+            list(y["BLOCK1_S4"].shape),
+            [1, 56, 56, make_divisible(64 * width)],
+        )
+        self.assertEqual(
+            list(y["BLOCK2_S8"].shape),
+            [1, 28, 28, make_divisible(128 * width)],
+        )
+        self.assertEqual(
+            list(y["BLOCK3_S16"].shape),
+            [1, 14, 14, make_divisible(256 * width)],
+        )
+        self.assertEqual(
+            list(y["BLOCK5_S32"].shape),
+            [1, 7, 7, make_divisible(512 * width)],
+        )

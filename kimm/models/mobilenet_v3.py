@@ -61,6 +61,25 @@ DEFAULT_LARGE_CONFIG = [
     # stage6
     [["cn", 1, 1, 1, 1.0, 960, 0.0, "hard_swish"]],
 ]
+DEFAULT_LCNET_CONFIG = [
+    # type, repeat, kernel_size, strides, expansion_ratio, channels, se_ratio,
+    # activation
+    # stage0
+    [["dsa", 1, 3, 1, 1.0, 32, 0.0, "hard_swish"]],
+    # stage1
+    [["dsa", 2, 3, 2, 1.0, 64, 0.0, "hard_swish"]],
+    # stage2
+    [["dsa", 2, 3, 2, 1.0, 128, 0.0, "hard_swish"]],
+    # stage3
+    [
+        ["dsa", 1, 3, 2, 1.0, 256, 0.0, "hard_swish"],
+        ["dsa", 1, 5, 1, 1.0, 256, 0.0, "hard_swish"],
+    ],
+    # stage4
+    [["dsa", 4, 5, 1, 1.0, 256, 0.0, "hard_swish"]],
+    # stage5
+    [["dsa", 2, 5, 2, 1.0, 512, 0.25, "hard_swish"]],
+]
 
 
 class MobileNetV3(FeatureExtractor):
@@ -87,6 +106,9 @@ class MobileNetV3(FeatureExtractor):
             conv_head_channels = 1024
         elif config == "large":
             config = DEFAULT_LARGE_CONFIG
+            conv_head_channels = 1280
+        elif config == "lcnet":
+            config = DEFAULT_LCNET_CONFIG
             conv_head_channels = 1280
         if minimal:
             force_activation = "relu"
@@ -174,7 +196,7 @@ class MobileNetV3(FeatureExtractor):
                             f"{current_block_idx + current_layer_idx}"
                         ),
                     }
-                    if block_type == "ds":
+                    if block_type in ("ds", "dsa"):
                         x = apply_depthwise_separation_block(
                             x,
                             c,
@@ -186,6 +208,8 @@ class MobileNetV3(FeatureExtractor):
                             se_activation="relu",
                             se_gate_activation="hard_sigmoid",
                             se_make_divisible_number=8,
+                            pw_activation=act if block_type == "dsa" else None,
+                            skip=False if block_type == "dsa" else True,
                             **common_kwargs,
                         )
                     elif block_type == "ir":
@@ -565,9 +589,237 @@ class MobileNet100V3LargeMinimal(MobileNetV3):
         return feature_keys
 
 
+class LCNet035(MobileNetV3):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "lcnet",
+        name: str = "LCNet035",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            0.35,
+            1.0,
+            False,
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            **kwargs,
+        )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["STEM_S2"]
+        feature_keys.extend(
+            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
+        )
+        return feature_keys
+
+
+class LCNet050(MobileNetV3):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "lcnet",
+        name: str = "LCNet050",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            0.5,
+            1.0,
+            False,
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            **kwargs,
+        )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["STEM_S2"]
+        feature_keys.extend(
+            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
+        )
+        return feature_keys
+
+
+class LCNet075(MobileNetV3):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "lcnet",
+        name: str = "LCNet075",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            0.75,
+            1.0,
+            False,
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            **kwargs,
+        )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["STEM_S2"]
+        feature_keys.extend(
+            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
+        )
+        return feature_keys
+
+
+class LCNet100(MobileNetV3):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "lcnet",
+        name: str = "LCNet100",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.0,
+            1.0,
+            False,
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            **kwargs,
+        )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["STEM_S2"]
+        feature_keys.extend(
+            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
+        )
+        return feature_keys
+
+
+class LCNet150(MobileNetV3):
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: typing.Union[str, typing.List] = "lcnet",
+        name: str = "LCNet150",
+        **kwargs,
+    ):
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            1.5,
+            1.0,
+            False,
+            input_tensor,
+            input_shape,
+            include_preprocessing,
+            include_top,
+            pooling,
+            dropout_rate,
+            classes,
+            classifier_activation,
+            weights,
+            config,
+            name=name,
+            **kwargs,
+        )
+
+    @staticmethod
+    def available_feature_keys():
+        feature_keys = ["STEM_S2"]
+        feature_keys.extend(
+            [
+                f"BLOCK{i}_S{j}"
+                for i, j in zip(range(7), [2, 4, 8, 16, 16, 32, 32])
+            ]
+        )
+        return feature_keys
+
+
 add_model_to_registry(MobileNet050V3Small, True)
 add_model_to_registry(MobileNet075V3Small, True)
 add_model_to_registry(MobileNet100V3Small, True)
 add_model_to_registry(MobileNet100V3SmallMinimal, True)
 add_model_to_registry(MobileNet100V3Large, True)
 add_model_to_registry(MobileNet100V3LargeMinimal, True)
+add_model_to_registry(LCNet035, False)
+add_model_to_registry(LCNet050, True)
+add_model_to_registry(LCNet075, True)
+add_model_to_registry(LCNet100, True)
+add_model_to_registry(LCNet150, False)

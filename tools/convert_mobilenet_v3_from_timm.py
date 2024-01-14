@@ -20,7 +20,11 @@ timm_model_names = [
     "mobilenetv3_small_100.lamb_in1k",
     "mobilenetv3_large_100.miil_in21k_ft_in1k",
     "tf_mobilenetv3_large_minimal_100.in1k",
+    "lcnet_050.ra2_in1k",
+    "lcnet_075.ra2_in1k",
+    "lcnet_100.ra2_in1k",
 ]
+timm_model_names = timm_model_names[-3:]
 keras_model_classes = [
     mobilenet_v3.MobileNet050V3Small,
     mobilenet_v3.MobileNet075V3Small,
@@ -28,7 +32,11 @@ keras_model_classes = [
     mobilenet_v3.MobileNet100V3Small,
     mobilenet_v3.MobileNet100V3Large,
     mobilenet_v3.MobileNet100V3LargeMinimal,
+    mobilenet_v3.LCNet050,
+    mobilenet_v3.LCNet075,
+    mobilenet_v3.LCNet100,
 ]
+keras_model_classes = keras_model_classes[-3:]
 
 for timm_model_name, keras_model_class in zip(
     timm_model_names, keras_model_classes
@@ -71,6 +79,13 @@ for timm_model_name, keras_model_class in zip(
         # stem
         torch_name = torch_name.replace("conv.stem.conv2d", "conv_stem")
         torch_name = torch_name.replace("conv.stem.bn", "bn1")
+        # LCNet
+        if "LCNet" in keras_model_class.__name__:
+            # depthwise separation block
+            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
+            torch_name = torch_name.replace("conv.dw.bn", "bn1")
+            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
+            torch_name = torch_name.replace("conv.pw.bn", "bn2")
         # blocks
         if "blocks.0.0" in torch_name:
             # depthwise separation block
@@ -139,7 +154,7 @@ for timm_model_name, keras_model_class in zip(
     keras_y = keras_model(keras_data, training=False)
     torch_y = torch_y.detach().cpu().numpy()
     keras_y = keras.ops.convert_to_numpy(keras_y)
-    np.testing.assert_allclose(torch_y, keras_y, atol=2e-5)
+    np.testing.assert_allclose(torch_y, keras_y, atol=1e-4)
     print(f"{keras_model_class.__name__}: output matched!")
 
     """

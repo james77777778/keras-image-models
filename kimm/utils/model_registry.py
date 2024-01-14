@@ -1,4 +1,5 @@
 import typing
+import warnings
 
 # {
 #     "name",
@@ -40,7 +41,7 @@ def add_model_to_registry(model_cls, has_pretrained=False):
         available_feature_keys = model_cls.available_feature_keys()
     for info in MODEL_REGISTRY:
         if info["name"] == model_cls.__name__:
-            raise ValueError(
+            warnings.warn(
                 f"MODEL_REGISTRY already contains name={model_cls.__name__}!"
             )
     MODEL_REGISTRY.append(

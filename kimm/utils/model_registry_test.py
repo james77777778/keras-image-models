@@ -44,9 +44,7 @@ class ModelRegistryTest(testing.TestCase):
     def test_add_model_to_registry_invalid(self):
         clear_registry()
         add_model_to_registry(DummyModel, False)
-        with self.assertRaisesRegex(
-            ValueError, "MODEL_REGISTRY already contains"
-        ):
+        with self.assertWarnsRegex(Warning, "MODEL_REGISTRY already contains"):
             add_model_to_registry(DummyModel, False)
 
     def test_list_models(self):

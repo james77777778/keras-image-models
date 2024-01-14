@@ -29,7 +29,7 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
         x = random.uniform([1, image_size, image_size, 3]) * 255.0
         model = model_class()
 
-        y = model.predict(x)
+        y = model(x, training=False)
 
         self.assertEqual(y.shape, (1, 1000))
 
@@ -50,7 +50,7 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
             input_shape=[224, 224, 3], as_feature_extractor=True
         )
 
-        y = model.predict(x)
+        y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
         self.assertAllEqual(
@@ -88,7 +88,7 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
             input_shape=[224, 224, 3], as_feature_extractor=True
         )
 
-        y = model.predict(x)
+        y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
         self.assertAllEqual(

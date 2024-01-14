@@ -21,7 +21,7 @@ class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
         x = random.uniform([1, 224, 224, 3]) * 255.0
         model = model_class()
 
-        y = model.predict(x)
+        y = model(x, training=False)
 
         self.assertEqual(y.shape, (1, 1000))
 
@@ -35,7 +35,7 @@ class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
         x = random.uniform([1, 224, 224, 3]) * 255.0
         model = model_class(as_feature_extractor=True)
 
-        y = model.predict(x)
+        y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
         self.assertAllEqual(
@@ -89,7 +89,7 @@ class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
         x = random.uniform([1, 224, 224, 3]) * 255.0
         model = model_class(as_feature_extractor=True)
 
-        y = model.predict(x)
+        y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
         self.assertAllEqual(

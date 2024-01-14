@@ -8,8 +8,8 @@ from keras import utils
 from keras.src.applications import imagenet_utils
 
 from kimm.blocks import apply_conv2d_block
+from kimm.blocks import apply_depthwise_separation_block
 from kimm.blocks import apply_inverted_residual_block
-from kimm.blocks import apply_se_block
 from kimm.models.feature_extractor import FeatureExtractor
 from kimm.utils import make_divisible
 from kimm.utils.model_registry import add_model_to_registry
@@ -61,56 +61,6 @@ DEFAULT_LARGE_CONFIG = [
     # stage6
     [["cn", 1, 1, 1, 1.0, 960, 0.0, "hard_swish"]],
 ]
-
-
-def apply_depthwise_separation_block(
-    inputs,
-    output_channels,
-    depthwise_kernel_size=3,
-    pointwise_kernel_size=1,
-    strides=1,
-    se_ratio=0.0,
-    activation="relu",
-    bn_epsilon=1e-5,
-    padding=None,
-    name="depthwise_separation_block",
-):
-    input_channels = inputs.shape[-1]
-    has_skip = strides == 1 and input_channels == output_channels
-
-    x = inputs
-    x = apply_conv2d_block(
-        x,
-        kernel_size=depthwise_kernel_size,
-        strides=strides,
-        activation=activation,
-        use_depthwise=True,
-        bn_epsilon=bn_epsilon,
-        padding=padding,
-        name=f"{name}_conv_dw",
-    )
-    if se_ratio > 0:
-        x = apply_se_block(
-            x,
-            se_ratio,
-            activation="relu",
-            gate_activation="hard_sigmoid",
-            make_divisible_number=8,
-            name=f"{name}_se",
-        )
-    x = apply_conv2d_block(
-        x,
-        output_channels,
-        pointwise_kernel_size,
-        1,
-        activation=None,
-        bn_epsilon=bn_epsilon,
-        padding=padding,
-        name=f"{name}_conv_pw",
-    )
-    if has_skip:
-        x = layers.Add()([x, inputs])
-    return x
 
 
 class MobileNetV3(FeatureExtractor):
@@ -226,7 +176,17 @@ class MobileNetV3(FeatureExtractor):
                     }
                     if block_type == "ds":
                         x = apply_depthwise_separation_block(
-                            x, c, k, 1, s, se, act, **common_kwargs
+                            x,
+                            c,
+                            k,
+                            1,
+                            s,
+                            se,
+                            act,
+                            se_activation="relu",
+                            se_gate_activation="hard_sigmoid",
+                            se_make_divisible_number=8,
+                            **common_kwargs,
                         )
                     elif block_type == "ir":
                         x = apply_inverted_residual_block(

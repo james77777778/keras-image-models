@@ -8,6 +8,7 @@ from keras import utils
 from keras.src.applications import imagenet_utils
 
 from kimm.blocks import apply_conv2d_block
+from kimm.blocks import apply_depthwise_separation_block
 from kimm.blocks import apply_inverted_residual_block
 from kimm.blocks import apply_se_block
 from kimm.models.feature_extractor import FeatureExtractor
@@ -80,55 +81,6 @@ DEFAULT_V2_BASE_CONFIG = [
     ["ir", 5, 3, 1, 6, 112, 0.25],
     ["ir", 8, 3, 2, 6, 192, 0.25],
 ]
-
-
-def apply_depthwise_separation_block(
-    inputs,
-    output_channels,
-    depthwise_kernel_size=3,
-    pointwise_kernel_size=1,
-    strides=1,
-    se_ratio=0.0,
-    activation="swish",
-    bn_epsilon=1e-5,
-    padding=None,
-    name="depthwise_separation_block",
-):
-    input_channels = inputs.shape[-1]
-    has_skip = strides == 1 and input_channels == output_channels
-
-    x = inputs
-    x = apply_conv2d_block(
-        x,
-        kernel_size=depthwise_kernel_size,
-        strides=strides,
-        activation=activation,
-        use_depthwise=True,
-        bn_epsilon=bn_epsilon,
-        padding=padding,
-        name=f"{name}_conv_dw",
-    )
-    if se_ratio > 0:
-        x = apply_se_block(
-            x,
-            se_ratio,
-            activation=activation,
-            gate_activation="sigmoid",
-            name=f"{name}_se",
-        )
-    x = apply_conv2d_block(
-        x,
-        output_channels,
-        pointwise_kernel_size,
-        1,
-        activation=None,
-        bn_epsilon=bn_epsilon,
-        padding=padding,
-        name=f"{name}_conv_pw",
-    )
-    if has_skip:
-        x = layers.Add()([x, inputs])
-    return x
 
 
 def apply_edge_residual_block(
@@ -314,11 +266,29 @@ class EfficientNet(FeatureExtractor):
                 }
                 if block_type == "ds":
                     x = apply_depthwise_separation_block(
-                        x, c, k, 1, s, se, activation, **common_kwargs
+                        x,
+                        c,
+                        k,
+                        1,
+                        s,
+                        se,
+                        activation=activation,
+                        se_activation=activation,
+                        **common_kwargs,
                     )
                 elif block_type == "ir":
                     x = apply_inverted_residual_block(
-                        x, c, k, 1, 1, s, e, se, activation, **common_kwargs
+                        x,
+                        c,
+                        k,
+                        1,
+                        1,
+                        s,
+                        e,
+                        se,
+                        activation,
+                        se_input_channels=x.shape[-1],
+                        **common_kwargs,
                     )
                 elif block_type == "cn":
                     x = apply_conv2d_block(

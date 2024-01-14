@@ -8,6 +8,7 @@ from keras import utils
 from keras.src.applications import imagenet_utils
 
 from kimm.blocks import apply_conv2d_block
+from kimm.blocks import apply_depthwise_separation_block
 from kimm.blocks import apply_inverted_residual_block
 from kimm.models.feature_extractor import FeatureExtractor
 from kimm.utils import make_divisible
@@ -23,40 +24,6 @@ DEFAULT_CONFIG = [
     ["ir", 3, 3, 2, 6, 160],
     ["ir", 1, 3, 1, 6, 320],
 ]
-
-
-def apply_depthwise_separation_block(
-    inputs,
-    output_channels,
-    depthwise_kernel_size=3,
-    pointwise_kernel_size=1,
-    strides=1,
-    activation="relu6",
-    name="depthwise_separation_block",
-):
-    input_channels = inputs.shape[-1]
-    has_skip = strides == 1 and input_channels == output_channels
-
-    x = inputs
-    x = apply_conv2d_block(
-        x,
-        kernel_size=depthwise_kernel_size,
-        strides=strides,
-        activation=activation,
-        use_depthwise=True,
-        name=f"{name}_conv_dw",
-    )
-    x = apply_conv2d_block(
-        x,
-        output_channels,
-        pointwise_kernel_size,
-        1,
-        activation=None,
-        name=f"{name}_conv_pw",
-    )
-    if has_skip:
-        x = layers.Add()([x, inputs])
-    return x
 
 
 class MobileNetV2(FeatureExtractor):
@@ -137,7 +104,13 @@ class MobileNetV2(FeatureExtractor):
                 name = f"blocks_{current_block_idx}_{current_layer_idx}"
                 if block_type == "ds":
                     x = apply_depthwise_separation_block(
-                        x, c, k, 1, s, name=name
+                        x,
+                        c,
+                        k,
+                        1,
+                        s,
+                        activation="relu6",
+                        name=name,
                     )
                 elif block_type == "ir":
                     x = apply_inverted_residual_block(

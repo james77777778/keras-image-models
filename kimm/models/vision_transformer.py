@@ -9,7 +9,7 @@ from keras.src.applications import imagenet_utils
 from kimm import layers as kimm_layers
 from kimm.blocks import apply_transformer_block
 from kimm.models.feature_extractor import FeatureExtractor
-from kimm.utils.model_registry import add_model_to_registry
+from kimm.utils import add_model_to_registry
 
 
 class VisionTransformer(FeatureExtractor):
@@ -152,6 +152,20 @@ class VisionTransformer(FeatureExtractor):
         )
         return config
 
+    def fix_config(self, config):
+        unused_kwargs = [
+            "patch_size",
+            "embed_dim",
+            "depth",
+            "num_heads",
+            "mlp_ratio",
+            "use_qkv_bias",
+            "use_qk_norm",
+        ]
+        for k in unused_kwargs:
+            config.pop(k, None)
+        return config
+
 
 """
 Model Definition
@@ -177,6 +191,7 @@ class VisionTransformerTiny16(VisionTransformer):
         name: str = "VisionTransformerTiny16",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             192,
@@ -225,6 +240,7 @@ class VisionTransformerTiny32(VisionTransformer):
         name: str = "VisionTransformerTiny32",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             32,
             192,
@@ -273,6 +289,7 @@ class VisionTransformerSmall16(VisionTransformer):
         name: str = "VisionTransformerSmall16",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             384,
@@ -321,6 +338,7 @@ class VisionTransformerSmall32(VisionTransformer):
         name: str = "VisionTransformerSmall32",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             32,
             384,
@@ -369,6 +387,7 @@ class VisionTransformerBase16(VisionTransformer):
         name: str = "VisionTransformerBase16",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             768,
@@ -417,6 +436,7 @@ class VisionTransformerBase32(VisionTransformer):
         name: str = "VisionTransformerBase32",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             32,
             768,
@@ -465,6 +485,7 @@ class VisionTransformerLarge16(VisionTransformer):
         name: str = "VisionTransformerLarge16",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             1024,
@@ -513,6 +534,7 @@ class VisionTransformerLarge32(VisionTransformer):
         name: str = "VisionTransformerLarge32",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             32,
             1024,

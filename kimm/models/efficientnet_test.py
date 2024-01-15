@@ -1,4 +1,5 @@
 from absl.testing import parameterized
+from keras import models
 from keras import random
 from keras.src import testing
 
@@ -29,7 +30,7 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
         x = random.uniform([1, image_size, image_size, 3]) * 255.0
         model = model_class()
 
-        y = model.predict(x)
+        y = model(x, training=False)
 
         self.assertEqual(y.shape, (1, 1000))
 
@@ -50,7 +51,7 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
             input_shape=[224, 224, 3], as_feature_extractor=True
         )
 
-        y = model.predict(x)
+        y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
         self.assertAllEqual(
@@ -88,7 +89,7 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
             input_shape=[224, 224, 3], as_feature_extractor=True
         )
 
-        y = model.predict(x)
+        y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
         self.assertAllEqual(
@@ -121,3 +122,23 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
                 list(y["BLOCK5_S32"].shape),
                 [1, 7, 7, make_divisible(192 * width)],
             )
+
+    @parameterized.named_parameters(
+        [
+            (EfficientNetB0.__name__, EfficientNetB0, 224),
+            (EfficientNetLiteB0.__name__, EfficientNetLiteB0, 224),
+            (TinyNetE.__name__, TinyNetE, 106),
+            (EfficientNetV2S.__name__, EfficientNetV2S, 300),
+        ]
+    )
+    def test_efficientnet_serialization(self, model_class, image_size):
+        x = random.uniform([1, image_size, image_size, 3]) * 255.0
+        temp_dir = self.get_temp_dir()
+        model1 = model_class()
+        y1 = model1(x, training=False)
+        model1.save(temp_dir + "/model.keras")
+
+        model2 = models.load_model(temp_dir + "/model.keras")
+        y2 = model2(x, training=False)
+
+        self.assertAllClose(y1, y2)

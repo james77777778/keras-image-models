@@ -8,10 +8,11 @@ from keras import utils
 from keras.src.applications import imagenet_utils
 
 from kimm.blocks import apply_conv2d_block
+from kimm.blocks import apply_depthwise_separation_block
 from kimm.blocks import apply_inverted_residual_block
 from kimm.models.feature_extractor import FeatureExtractor
+from kimm.utils import add_model_to_registry
 from kimm.utils import make_divisible
-from kimm.utils.model_registry import add_model_to_registry
 
 DEFAULT_CONFIG = [
     # type, repeat, kernel_size, strides, expansion_ratio, channels
@@ -23,40 +24,6 @@ DEFAULT_CONFIG = [
     ["ir", 3, 3, 2, 6, 160],
     ["ir", 1, 3, 1, 6, 320],
 ]
-
-
-def apply_depthwise_separation_block(
-    inputs,
-    output_channels,
-    depthwise_kernel_size=3,
-    pointwise_kernel_size=1,
-    strides=1,
-    activation="relu6",
-    name="depthwise_separation_block",
-):
-    input_channels = inputs.shape[-1]
-    has_skip = strides == 1 and input_channels == output_channels
-
-    x = inputs
-    x = apply_conv2d_block(
-        x,
-        kernel_size=depthwise_kernel_size,
-        strides=strides,
-        activation=activation,
-        use_depthwise=True,
-        name=f"{name}_conv_dw",
-    )
-    x = apply_conv2d_block(
-        x,
-        output_channels,
-        pointwise_kernel_size,
-        1,
-        activation=None,
-        name=f"{name}_conv_pw",
-    )
-    if has_skip:
-        x = layers.Add()([x, inputs])
-    return x
 
 
 class MobileNetV2(FeatureExtractor):
@@ -77,8 +44,14 @@ class MobileNetV2(FeatureExtractor):
         config: typing.Union[str, typing.List] = "default",
         **kwargs,
     ):
+        _available_configs = ["default"]
         if config == "default":
-            config = DEFAULT_CONFIG
+            _config = DEFAULT_CONFIG
+        else:
+            raise ValueError(
+                f"config must be one of {_available_configs} using string. "
+                f"Received: config={config}"
+            )
 
         # Prepare feature extraction
         features = {}
@@ -126,18 +99,24 @@ class MobileNetV2(FeatureExtractor):
 
         # blocks
         current_stride = 2
-        for current_block_idx, cfg in enumerate(config):
+        for current_block_idx, cfg in enumerate(_config):
             block_type, r, k, s, e, c = cfg
             c = make_divisible(c * width)
             # no depth multiplier at first and last block
-            if current_block_idx not in (0, len(config) - 1):
+            if current_block_idx not in (0, len(_config) - 1):
                 r = int(math.ceil(r * depth))
             for current_layer_idx in range(r):
                 s = s if current_layer_idx == 0 else 1
                 name = f"blocks_{current_block_idx}_{current_layer_idx}"
                 if block_type == "ds":
                     x = apply_depthwise_separation_block(
-                        x, c, k, 1, s, name=name
+                        x,
+                        c,
+                        k,
+                        1,
+                        s,
+                        activation="relu6",
+                        name=name,
                     )
                 elif block_type == "ir":
                     x = apply_inverted_residual_block(
@@ -205,6 +184,8 @@ class MobileNetV2(FeatureExtractor):
         config.update(
             {
                 "width": self.width,
+                "depth": self.depth,
+                "fix_stem_and_head_channels": self.fix_stem_and_head_channels,
                 "input_shape": self.input_shape[1:],
                 "include_preprocessing": self.include_preprocessing,
                 "include_top": self.include_top,
@@ -216,6 +197,12 @@ class MobileNetV2(FeatureExtractor):
                 "config": self.config,
             }
         )
+        return config
+
+    def fix_config(self, config):
+        unused_kwargs = ["width", "depth", "fix_stem_and_head_channels"]
+        for k in unused_kwargs:
+            config.pop(k, None)
         return config
 
 
@@ -240,6 +227,7 @@ class MobileNet050V2(MobileNetV2):
         name: str = "MobileNet050V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.5,
             1.0,
@@ -275,6 +263,7 @@ class MobileNet100V2(MobileNetV2):
         name: str = "MobileNet100V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.0,
             1.0,
@@ -310,6 +299,7 @@ class MobileNet110V2(MobileNetV2):
         name: str = "MobileNet110V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.1,
             1.2,
@@ -345,6 +335,7 @@ class MobileNet120V2(MobileNetV2):
         name: str = "MobileNet120V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.2,
             1.4,
@@ -380,6 +371,7 @@ class MobileNet140V2(MobileNetV2):
         name: str = "MobileNet140V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.4,
             1.0,

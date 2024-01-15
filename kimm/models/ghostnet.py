@@ -10,8 +10,8 @@ from keras.src.applications import imagenet_utils
 from kimm.blocks import apply_conv2d_block
 from kimm.blocks import apply_se_block
 from kimm.models.feature_extractor import FeatureExtractor
+from kimm.utils import add_model_to_registry
 from kimm.utils import make_divisible
-from kimm.utils.model_registry import add_model_to_registry
 
 DEFAULT_CONFIG = [
     # k, t, c, SE, s
@@ -248,8 +248,14 @@ class GhostNet(FeatureExtractor):
         version: str = "v1",
         **kwargs,
     ):
+        _available_configs = ["default"]
         if config == "default":
-            config = DEFAULT_CONFIG
+            _config = DEFAULT_CONFIG
+        else:
+            raise ValueError(
+                f"config must be one of {_available_configs} using string. "
+                f"Received: config={config}"
+            )
         if version not in ("v1", "v2"):
             raise ValueError(
                 "`version` must be one of ('v1', 'v2'). "
@@ -296,7 +302,7 @@ class GhostNet(FeatureExtractor):
         # blocks
         total_layer_idx = 0
         current_stride = 2
-        for current_block_idx, cfg in enumerate(config):
+        for current_block_idx, cfg in enumerate(_config):
             for current_layer_idx, (k, e, c, se, s) in enumerate(cfg):
                 output_channels = make_divisible(c * width, 4)
                 hidden_channels = make_divisible(e * width, 4)
@@ -393,6 +399,12 @@ class GhostNet(FeatureExtractor):
         )
         return config
 
+    def fix_config(self, config):
+        unused_kwargs = ["width", "version"]
+        for k in unused_kwargs:
+            config.pop(k, None)
+        return config
+
 
 """
 Model Definition
@@ -415,6 +427,7 @@ class GhostNet050(GhostNet):
         name: str = "GhostNet050",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.5,
             input_tensor,
@@ -427,6 +440,7 @@ class GhostNet050(GhostNet):
             classifier_activation,
             weights,
             config,
+            "v1",
             name=name,
             **kwargs,
         )
@@ -448,6 +462,7 @@ class GhostNet100(GhostNet):
         name: str = "GhostNet100",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.0,
             input_tensor,
@@ -460,6 +475,7 @@ class GhostNet100(GhostNet):
             classifier_activation,
             weights,
             config,
+            "v1",
             name=name,
             **kwargs,
         )
@@ -481,6 +497,7 @@ class GhostNet130(GhostNet):
         name: str = "GhostNet130",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.3,
             input_tensor,
@@ -493,6 +510,7 @@ class GhostNet130(GhostNet):
             classifier_activation,
             weights,
             config,
+            "v1",
             name=name,
             **kwargs,
         )
@@ -514,6 +532,7 @@ class GhostNet100V2(GhostNet):
         name: str = "GhostNet100V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.0,
             input_tensor,
@@ -548,6 +567,7 @@ class GhostNet130V2(GhostNet):
         name: str = "GhostNet130V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.3,
             input_tensor,
@@ -582,6 +602,7 @@ class GhostNet160V2(GhostNet):
         name: str = "GhostNet160V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.6,
             input_tensor,

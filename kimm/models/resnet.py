@@ -8,7 +8,7 @@ from keras.src.applications import imagenet_utils
 
 from kimm.blocks import apply_conv2d_block
 from kimm.models.feature_extractor import FeatureExtractor
-from kimm.utils.model_registry import add_model_to_registry
+from kimm.utils import add_model_to_registry
 
 
 def apply_basic_block(
@@ -248,6 +248,12 @@ class ResNet(FeatureExtractor):
         )
         return config
 
+    def fix_config(self, config):
+        unused_kwargs = ["block_fn", "num_blocks"]
+        for k in unused_kwargs:
+            config.pop(k, None)
+        return config
+
 
 """
 Model Definition
@@ -269,6 +275,7 @@ class ResNet18(ResNet):
         name: str = "ResNet18",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "basic",
             [2, 2, 2, 2],
@@ -301,6 +308,7 @@ class ResNet34(ResNet):
         name: str = "ResNet34",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "basic",
             [3, 4, 6, 3],
@@ -333,6 +341,7 @@ class ResNet50(ResNet):
         name: str = "ResNet50",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "bottleneck",
             [3, 4, 6, 3],
@@ -365,6 +374,7 @@ class ResNet101(ResNet):
         name: str = "ResNet101",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "bottleneck",
             [3, 4, 23, 3],
@@ -397,6 +407,7 @@ class ResNet152(ResNet):
         name: str = "ResNet152",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "bottleneck",
             [3, 8, 36, 3],

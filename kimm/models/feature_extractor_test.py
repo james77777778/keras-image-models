@@ -47,7 +47,7 @@ class GhostNetTest(testing.TestCase, parameterized.TestCase):
         # as_feature_extractor=False
         model = SampleModel()
 
-        y = model(x)
+        y = model(x, training=False)
 
         self.assertNotIsInstance(y, dict)
         self.assertEqual(list(y.shape), [1, 7, 7, 3])
@@ -55,7 +55,7 @@ class GhostNetTest(testing.TestCase, parameterized.TestCase):
         # as_feature_extractor=True
         model = SampleModel(as_feature_extractor=True)
 
-        y = model(x)
+        y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
         self.assertEqual(list(y["S2"].shape), [1, 112, 112, 3])
@@ -66,7 +66,7 @@ class GhostNetTest(testing.TestCase, parameterized.TestCase):
             as_feature_extractor=True, feature_keys=["S2", "S16", "S32"]
         )
 
-        y = model(x)
+        y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
         self.assertNotIn("S4", y)

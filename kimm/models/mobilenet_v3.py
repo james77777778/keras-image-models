@@ -101,15 +101,21 @@ class MobileNetV3(FeatureExtractor):
         minimal: bool = False,
         **kwargs,
     ):
+        _available_configs = ["small", "large", "lcnet"]
         if config == "small":
-            config = DEFAULT_SMALL_CONFIG
+            _config = DEFAULT_SMALL_CONFIG
             conv_head_channels = 1024
         elif config == "large":
-            config = DEFAULT_LARGE_CONFIG
+            _config = DEFAULT_LARGE_CONFIG
             conv_head_channels = 1280
         elif config == "lcnet":
-            config = DEFAULT_LCNET_CONFIG
+            _config = DEFAULT_LCNET_CONFIG
             conv_head_channels = 1280
+        else:
+            raise ValueError(
+                f"config must be one of {_available_configs} using string. "
+                f"Received: config={config}"
+            )
         if minimal:
             force_activation = "relu"
             force_kernel_size = 3
@@ -170,7 +176,7 @@ class MobileNetV3(FeatureExtractor):
 
         # blocks
         current_stride = 2
-        for current_stage_idx, cfg in enumerate(config):
+        for current_stage_idx, cfg in enumerate(_config):
             for current_block_idx, sub_cfg in enumerate(cfg):
                 block_type, r, k, s, e, c, se, act = sub_cfg
 
@@ -184,7 +190,7 @@ class MobileNetV3(FeatureExtractor):
 
                 c = make_divisible(c * width)
                 # no depth multiplier at first and last block
-                if current_block_idx not in (0, len(config) - 1):
+                if current_block_idx not in (0, len(_config) - 1):
                     r = int(math.ceil(r * depth))
                 for current_layer_idx in range(r):
                     s = s if current_layer_idx == 0 else 1
@@ -288,6 +294,7 @@ class MobileNetV3(FeatureExtractor):
         self.classifier_activation = classifier_activation
         self._weights = weights  # `self.weights` is been used internally
         self.config = config
+        self.minimal = minimal
 
     @staticmethod
     def available_feature_keys():
@@ -298,6 +305,8 @@ class MobileNetV3(FeatureExtractor):
         config.update(
             {
                 "width": self.width,
+                "depth": self.depth,
+                "fix_stem_and_head_channels": self.fix_stem_and_head_channels,
                 "input_shape": self.input_shape[1:],
                 "include_preprocessing": self.include_preprocessing,
                 "include_top": self.include_top,
@@ -307,8 +316,20 @@ class MobileNetV3(FeatureExtractor):
                 "classifier_activation": self.classifier_activation,
                 "weights": self._weights,
                 "config": self.config,
+                "minimal": self.minimal,
             }
         )
+        return config
+
+    def fix_config(self, config):
+        unused_kwargs = [
+            "width",
+            "depth",
+            "fix_stem_and_head_channels",
+            "minimal",
+        ]
+        for k in unused_kwargs:
+            config.pop(k, None)
         return config
 
 
@@ -333,6 +354,7 @@ class MobileNet050V3Small(MobileNetV3):
         name: str = "MobileNet050V3Small",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.5,
             1.0,
@@ -376,6 +398,7 @@ class MobileNet075V3Small(MobileNetV3):
         name: str = "MobileNet075V3Small",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.75,
             1.0,
@@ -419,6 +442,7 @@ class MobileNet100V3Small(MobileNetV3):
         name: str = "MobileNet100V3Small",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.0,
             1.0,
@@ -462,6 +486,7 @@ class MobileNet100V3SmallMinimal(MobileNetV3):
         name: str = "MobileNet100V3SmallMinimal",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -509,6 +534,7 @@ class MobileNet100V3Large(MobileNetV3):
         name: str = "MobileNet100V3Large",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.0,
             1.0,
@@ -555,6 +581,7 @@ class MobileNet100V3LargeMinimal(MobileNetV3):
         name: str = "MobileNet100V3LargeMinimal",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -605,6 +632,7 @@ class LCNet035(MobileNetV3):
         name: str = "LCNet035",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             0.35,
@@ -649,6 +677,7 @@ class LCNet050(MobileNetV3):
         name: str = "LCNet050",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             0.5,
@@ -693,6 +722,7 @@ class LCNet075(MobileNetV3):
         name: str = "LCNet075",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             0.75,
@@ -737,6 +767,7 @@ class LCNet100(MobileNetV3):
         name: str = "LCNet100",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -781,6 +812,7 @@ class LCNet150(MobileNetV3):
         name: str = "LCNet150",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.5,

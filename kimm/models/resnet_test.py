@@ -1,4 +1,5 @@
 from absl.testing import parameterized
+from keras import models
 from keras import random
 from keras.src import testing
 
@@ -45,3 +46,18 @@ class ResNetTest(testing.TestCase, parameterized.TestCase):
         self.assertEqual(
             list(y["BLOCK3_S32"].shape), [1, 7, 7, 512 * expansion]
         )
+
+    @parameterized.named_parameters(
+        [(ResNet18.__name__, ResNet18, 224), (ResNet50.__name__, ResNet50, 224)]
+    )
+    def test_resnet_serialization(self, model_class, image_size):
+        x = random.uniform([1, image_size, image_size, 3]) * 255.0
+        temp_dir = self.get_temp_dir()
+        model1 = model_class()
+        y1 = model1(x, training=False)
+        model1.save(temp_dir + "/model.keras")
+
+        model2 = models.load_model(temp_dir + "/model.keras")
+        y2 = model2(x, training=False)
+
+        self.assertAllClose(y1, y2)

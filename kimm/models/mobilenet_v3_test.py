@@ -1,4 +1,5 @@
 from absl.testing import parameterized
+from keras import models
 from keras import random
 from keras.src import testing
 
@@ -115,3 +116,22 @@ class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
             list(y["BLOCK5_S32"].shape),
             [1, 7, 7, make_divisible(512 * width)],
         )
+
+    @parameterized.named_parameters(
+        [
+            (MobileNet100V3Small.__name__, MobileNet100V3Small, 224),
+            (MobileNet100V3Large.__name__, MobileNet100V3Large, 224),
+            (LCNet100.__name__, LCNet100, 224),
+        ]
+    )
+    def test_mobilenet_v3_serialization(self, model_class, image_size):
+        x = random.uniform([1, image_size, image_size, 3]) * 255.0
+        temp_dir = self.get_temp_dir()
+        model1 = model_class()
+        y1 = model1(x, training=False)
+        model1.save(temp_dir + "/model.keras")
+
+        model2 = models.load_model(temp_dir + "/model.keras")
+        y2 = model2(x, training=False)
+
+        self.assertAllClose(y1, y2)

@@ -181,12 +181,18 @@ class MobileViT(FeatureExtractor):
         config: str = "v1_s",
         **kwargs,
     ):
+        _available_configs = ["v1_s", "v1_xs", "v1_xss"]
         if config == "v1_s":
-            config = DEFAULT_V1_S_CONFIG
+            _config = DEFAULT_V1_S_CONFIG
         elif config == "v1_xs":
-            config = DEFAULT_V1_XS_CONFIG
+            _config = DEFAULT_V1_XS_CONFIG
         elif config == "v1_xxs":
-            config = DEFAULT_V1_XXS_CONFIG
+            _config = DEFAULT_V1_XXS_CONFIG
+        else:
+            raise ValueError(
+                f"config must be one of {_available_configs} using string. "
+                f"Received: config={config}"
+            )
 
         # Prepare feature extraction
         features = {}
@@ -226,7 +232,7 @@ class MobileViT(FeatureExtractor):
 
         # blocks
         current_stride = 2
-        for current_block_idx, cfg in enumerate(config):
+        for current_block_idx, cfg in enumerate(_config):
             (
                 block_type,
                 r,
@@ -336,6 +342,12 @@ class MobileViT(FeatureExtractor):
         )
         return config
 
+    def fix_config(self, config):
+        unused_kwargs = ["stem_channels", "head_channels", "activation"]
+        for k in unused_kwargs:
+            config.pop(k, None)
+        return config
+
 
 class MobileViTS(MobileViT):
     def __init__(
@@ -349,9 +361,11 @@ class MobileViTS(MobileViT):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: str = "v1_s",
         name="MobileViTS",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             640,
@@ -365,7 +379,7 @@ class MobileViTS(MobileViT):
             classes,
             classifier_activation,
             weights,
-            "v1_s",
+            config,
             name=name,
             **kwargs,
         )
@@ -383,9 +397,11 @@ class MobileViTXS(MobileViT):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: str = "v1_xs",
         name="MobileViTXS",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             384,
@@ -399,7 +415,7 @@ class MobileViTXS(MobileViT):
             classes,
             classifier_activation,
             weights,
-            "v1_xs",
+            config,
             name=name,
             **kwargs,
         )
@@ -417,9 +433,11 @@ class MobileViTXXS(MobileViT):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = None,  # TODO: imagenet
+        config: str = "v1_xxs",
         name="MobileViTXXS",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             320,
@@ -433,7 +451,7 @@ class MobileViTXXS(MobileViT):
             classes,
             classifier_activation,
             weights,
-            "v1_xxs",
+            config,
             name=name,
             **kwargs,
         )

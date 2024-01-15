@@ -170,25 +170,24 @@ class EfficientNet(FeatureExtractor):
             "v2_base",
         ]
         if config == "v1":
-            config = DEFAULT_V1_CONFIG
+            _config = DEFAULT_V1_CONFIG
         elif config == "v1_lite":
-            config = DEFAULT_V1_LITE_CONFIG
+            _config = DEFAULT_V1_LITE_CONFIG
         elif config == "v2_s":
-            config = DEFAULT_V2_S_CONFIG
+            _config = DEFAULT_V2_S_CONFIG
         elif config == "v2_m":
-            config = DEFAULT_V2_M_CONFIG
+            _config = DEFAULT_V2_M_CONFIG
         elif config == "v2_l":
-            config = DEFAULT_V2_L_CONFIG
+            _config = DEFAULT_V2_L_CONFIG
         elif config == "v2_xl":
-            config = DEFAULT_V2_XL_CONFIG
+            _config = DEFAULT_V2_XL_CONFIG
         elif config == "v2_base":
-            config = DEFAULT_V2_BASE_CONFIG
+            _config = DEFAULT_V2_BASE_CONFIG
         else:
-            if isinstance(config, str):
-                raise ValueError(
-                    f"config must be one of {_available_configs} using string. "
-                    f"Received: config={config}"
-                )
+            raise ValueError(
+                f"config must be one of {_available_configs} using string. "
+                f"Received: config={config}"
+            )
         # TF default config
         default_size = kwargs.pop("default_size", 224)
         bn_epsilon = kwargs.pop("bn_epsilon", 1e-5)
@@ -248,11 +247,11 @@ class EfficientNet(FeatureExtractor):
 
         # Blocks
         current_stride = 2
-        for current_block_idx, cfg in enumerate(config):
+        for current_block_idx, cfg in enumerate(_config):
             block_type, r, k, s, e, c, se = cfg
             c = make_divisible(c * width, round_limit=round_limit)
             if fix_first_and_last_blocks and (
-                current_block_idx in (0, len(config) - 1)
+                current_block_idx in (0, len(_config) - 1)
             ):
                 r = r
             else:
@@ -347,7 +346,11 @@ class EfficientNet(FeatureExtractor):
         # All references to `self` below this line
         self.width = width
         self.depth = depth
+        self.stem_channels = stem_channels
+        self.head_channels = head_channels
         self.fix_stem_and_head_channels = fix_stem_and_head_channels
+        self.fix_first_and_last_blocks = fix_first_and_last_blocks
+        self.activation = activation
         self.include_preprocessing = include_preprocessing
         self.include_top = include_top
         self.pooling = pooling
@@ -375,6 +378,12 @@ class EfficientNet(FeatureExtractor):
         config.update(
             {
                 "width": self.width,
+                "depth": self.depth,
+                "stem_channels": self.stem_channels,
+                "head_channels": self.head_channels,
+                "fix_stem_and_head_channels": self.fix_stem_and_head_channels,
+                "fix_first_and_last_blocks": self.fix_first_and_last_blocks,
+                "activation": self.activation,
                 "input_shape": self.input_shape[1:],
                 "include_preprocessing": self.include_preprocessing,
                 "include_top": self.include_top,
@@ -386,6 +395,20 @@ class EfficientNet(FeatureExtractor):
                 "config": self.config,
             }
         )
+        return config
+
+    def fix_config(self, config: typing.Dict):
+        unused_kwargs = [
+            "width",
+            "depth",
+            "stem_channels",
+            "head_channels",
+            "fix_stem_and_head_channels",
+            "fix_first_and_last_blocks",
+            "activation",
+        ]
+        for k in unused_kwargs:
+            config.pop(k, None)
         return config
 
 
@@ -410,6 +433,7 @@ class EfficientNetB0(EfficientNet):
         name: str = "EfficientNetB0",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -453,6 +477,7 @@ class EfficientNetB1(EfficientNet):
         name: str = "EfficientNetB1",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -496,6 +521,7 @@ class EfficientNetB2(EfficientNet):
         name: str = "EfficientNetB2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.1,
@@ -539,6 +565,7 @@ class EfficientNetB3(EfficientNet):
         name: str = "EfficientNetB3",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.2,
@@ -582,6 +609,7 @@ class EfficientNetB4(EfficientNet):
         name: str = "EfficientNetB4",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.4,
@@ -625,6 +653,7 @@ class EfficientNetB5(EfficientNet):
         name: str = "EfficientNetB5",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.6,
@@ -668,6 +697,7 @@ class EfficientNetB6(EfficientNet):
         name: str = "EfficientNetB6",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.8,
@@ -711,6 +741,7 @@ class EfficientNetB7(EfficientNet):
         name: str = "EfficientNetB7",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             2.0,
@@ -754,6 +785,7 @@ class EfficientNetLiteB0(EfficientNet):
         name: str = "EfficientNetLiteB0",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -797,6 +829,7 @@ class EfficientNetLiteB1(EfficientNet):
         name: str = "EfficientNetLiteB1",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -840,6 +873,7 @@ class EfficientNetLiteB2(EfficientNet):
         name: str = "EfficientNetLiteB2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.1,
@@ -883,6 +917,7 @@ class EfficientNetLiteB3(EfficientNet):
         name: str = "EfficientNetLiteB3",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.2,
@@ -926,6 +961,7 @@ class EfficientNetLiteB4(EfficientNet):
         name: str = "EfficientNetLiteB4",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.4,
@@ -969,6 +1005,7 @@ class EfficientNetV2S(EfficientNet):
         name: str = "EfficientNetV2S",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1020,6 +1057,7 @@ class EfficientNetV2M(EfficientNet):
         name: str = "EfficientNetV2M",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1063,6 +1101,7 @@ class EfficientNetV2L(EfficientNet):
         name: str = "EfficientNetV2L",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1106,6 +1145,7 @@ class EfficientNetV2XL(EfficientNet):
         name: str = "EfficientNetV2XL",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1149,6 +1189,7 @@ class EfficientNetV2B0(EfficientNet):
         name: str = "EfficientNetV2B0",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1200,6 +1241,7 @@ class EfficientNetV2B1(EfficientNet):
         name: str = "EfficientNetV2B1",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1251,6 +1293,7 @@ class EfficientNetV2B2(EfficientNet):
         name: str = "EfficientNetV2B2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.1,
@@ -1303,6 +1346,7 @@ class EfficientNetV2B3(EfficientNet):
         name: str = "EfficientNetV2B3",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.2,
@@ -1355,6 +1399,7 @@ class TinyNetA(EfficientNet):
         name: str = "TinyNetA",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.0,
             1.2,
@@ -1396,6 +1441,7 @@ class TinyNetB(EfficientNet):
         name: str = "TinyNetB",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.75,
             1.1,
@@ -1437,6 +1483,7 @@ class TinyNetC(EfficientNet):
         name: str = "TinyNetC",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.54,
             0.85,
@@ -1478,6 +1525,7 @@ class TinyNetD(EfficientNet):
         name: str = "TinyNetD",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.54,
             0.695,
@@ -1519,6 +1567,7 @@ class TinyNetE(EfficientNet):
         name: str = "TinyNetE",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.51,
             0.6,

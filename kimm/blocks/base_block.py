@@ -34,6 +34,8 @@ def apply_conv2d_block(
         raise ValueError(
             f"kernel_size must be passed. Received: kernel_size={kernel_size}"
         )
+    if isinstance(kernel_size, int):
+        kernel_size = [kernel_size, kernel_size]
     input_channels = inputs.shape[-1]
     has_skip = add_skip and strides == 1 and input_channels == filters
     x = inputs
@@ -42,7 +44,9 @@ def apply_conv2d_block(
         padding = "same"
         if strides > 1:
             padding = "valid"
-            x = layers.ZeroPadding2D(kernel_size // 2, name=f"{name}_pad")(x)
+            x = layers.ZeroPadding2D(
+                (kernel_size[0] // 2, kernel_size[1] // 2), name=f"{name}_pad"
+            )(x)
 
     if not use_depthwise:
         x = layers.Conv2D(

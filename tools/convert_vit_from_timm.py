@@ -136,6 +136,6 @@ for timm_model_name, keras_model_class in zip(
     Save converted model
     """
     os.makedirs("exported", exist_ok=True)
-    export_path = f"exported/{keras_model.name.lower()}_imagenet_384.keras"
+    export_path = f"exported/{keras_model.name.lower()}_{timm_model_name}.keras"
     keras_model.save(export_path)
     print(f"Export to {export_path}")

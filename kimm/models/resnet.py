@@ -7,7 +7,7 @@ from keras import utils
 from keras.src.applications import imagenet_utils
 
 from kimm.blocks import apply_conv2d_block
-from kimm.models.feature_extractor import FeatureExtractor
+from kimm.models.base_model import BaseModel
 from kimm.utils import add_model_to_registry
 
 
@@ -106,7 +106,7 @@ def apply_bottleneck_block(
     return x
 
 
-class ResNet(FeatureExtractor):
+class ResNet(BaseModel):
     def __init__(
         self,
         block_fn: str,

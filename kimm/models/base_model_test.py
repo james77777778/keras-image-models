@@ -3,10 +3,10 @@ from keras import layers
 from keras import random
 from keras.src import testing
 
-from kimm.models.feature_extractor import FeatureExtractor
+from kimm.models.base_model import BaseModel
 
 
-class SampleModel(FeatureExtractor):
+class SampleModel(BaseModel):
     def __init__(self, **kwargs):
         inputs = layers.Input(shape=[224, 224, 3])
 
@@ -34,7 +34,7 @@ class SampleModel(FeatureExtractor):
         return super().get_config()
 
 
-class GhostNetTest(testing.TestCase, parameterized.TestCase):
+class BaseModelTest(testing.TestCase, parameterized.TestCase):
     def test_feature_extractor(self):
         x = random.uniform([1, 224, 224, 3])
 

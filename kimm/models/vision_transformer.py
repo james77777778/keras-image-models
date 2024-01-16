@@ -8,11 +8,11 @@ from keras.src.applications import imagenet_utils
 
 from kimm import layers as kimm_layers
 from kimm.blocks import apply_transformer_block
-from kimm.models.feature_extractor import FeatureExtractor
+from kimm.models.base_model import BaseModel
 from kimm.utils import add_model_to_registry
 
 
-class VisionTransformer(FeatureExtractor):
+class VisionTransformer(BaseModel):
     def __init__(
         self,
         patch_size: int,

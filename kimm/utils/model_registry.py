@@ -32,11 +32,11 @@ def clear_registry():
 
 
 def add_model_to_registry(model_cls, has_pretrained=False):
-    from kimm.models.feature_extractor import FeatureExtractor
+    from kimm.models.base_model import BaseModel
 
     support_feature = False
     available_feature_keys = []
-    if issubclass(model_cls, FeatureExtractor):
+    if issubclass(model_cls, BaseModel):
         support_feature = True
         available_feature_keys = model_cls.available_feature_keys()
     for info in MODEL_REGISTRY:

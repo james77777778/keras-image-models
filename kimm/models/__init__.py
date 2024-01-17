@@ -1,7 +1,10 @@
 from kimm.models.base_model import BaseModel
+from kimm.models.densenet import *  # noqa:F403
 from kimm.models.efficientnet import *  # noqa:F403
 from kimm.models.ghostnet import *  # noqa:F403
+from kimm.models.inception_v3 import * # noqa:F403
 from kimm.models.mobilenet_v2 import *  # noqa:F403
 from kimm.models.mobilenet_v3 import *  # noqa:F403
+from kimm.models.mobilevit import * # noqa:F403
 from kimm.models.resnet import *  # noqa:F403
 from kimm.models.vision_transformer import *  # noqa:F403

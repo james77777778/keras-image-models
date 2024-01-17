@@ -333,4 +333,4 @@ class InceptionV3(InceptionV3Base):
         )
 
 
-add_model_to_registry(InceptionV3, True)
+add_model_to_registry(InceptionV3, "imagenet")

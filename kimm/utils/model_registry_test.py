@@ -23,34 +23,32 @@ class ModelRegistryTest(testing.TestCase):
         clear_registry()
         self.assertEqual(len(MODEL_REGISTRY), 0)
 
-        add_model_to_registry(DummyModel, False)
+        add_model_to_registry(DummyModel, None)
         self.assertEqual(len(MODEL_REGISTRY), 1)
         self.assertEqual(MODEL_REGISTRY[0]["name"], DummyModel.__name__)
-        self.assertEqual(MODEL_REGISTRY[0]["support_feature"], False)
-        self.assertEqual(MODEL_REGISTRY[0]["available_feature_keys"], [])
-        self.assertEqual(MODEL_REGISTRY[0]["has_pretrained"], False)
+        self.assertEqual(MODEL_REGISTRY[0]["feature_extractor"], False)
+        self.assertEqual(MODEL_REGISTRY[0]["feature_keys"], [])
+        self.assertEqual(MODEL_REGISTRY[0]["weights"], None)
 
-        add_model_to_registry(DummyFeatureExtractor, True)
+        add_model_to_registry(DummyFeatureExtractor, "imagenet")
         self.assertEqual(len(MODEL_REGISTRY), 2)
         self.assertEqual(
             MODEL_REGISTRY[1]["name"], DummyFeatureExtractor.__name__
         )
-        self.assertEqual(MODEL_REGISTRY[1]["support_feature"], True)
-        self.assertEqual(
-            MODEL_REGISTRY[1]["available_feature_keys"], ["A", "B", "C"]
-        )
-        self.assertEqual(MODEL_REGISTRY[1]["has_pretrained"], True)
+        self.assertEqual(MODEL_REGISTRY[1]["feature_extractor"], True)
+        self.assertEqual(MODEL_REGISTRY[1]["feature_keys"], ["A", "B", "C"])
+        self.assertEqual(MODEL_REGISTRY[1]["weights"], "imagenet")
 
     def test_add_model_to_registry_invalid(self):
         clear_registry()
-        add_model_to_registry(DummyModel, False)
+        add_model_to_registry(DummyModel, None)
         with self.assertWarnsRegex(Warning, "MODEL_REGISTRY already contains"):
-            add_model_to_registry(DummyModel, False)
+            add_model_to_registry(DummyModel, None)
 
     def test_list_models(self):
         clear_registry()
-        add_model_to_registry(DummyModel, False)
-        add_model_to_registry(DummyFeatureExtractor, True)
+        add_model_to_registry(DummyModel, None)
+        add_model_to_registry(DummyFeatureExtractor, "imagenet")
 
         # all models
         result = list_models()
@@ -65,24 +63,26 @@ class ModelRegistryTest(testing.TestCase):
         self.assertTrue(DummyFeatureExtractor.__name__ not in result)
 
         # filter support_feature
-        result = list_models(support_feature=True)
+        result = list_models(feature_extractor=True)
         self.assertEqual(len(result), 1)
         self.assertTrue(DummyModel.__name__ not in result)
         self.assertTrue(DummyFeatureExtractor.__name__ in result)
 
         # filter pretrained
-        result = list_models(has_pretrained=True)
+        result = list_models(weights="imagenet")
         self.assertEqual(len(result), 1)
         self.assertTrue(DummyModel.__name__ not in result)
         self.assertTrue(DummyFeatureExtractor.__name__ in result)
 
         # filter multiple conditions
-        result = list_models(support_feature=True, has_pretrained=False)
+        result = list_models(feature_extractor=True, weights=False)
         self.assertEqual(len(result), 0)
         self.assertTrue(DummyModel.__name__ not in result)
         self.assertTrue(DummyFeatureExtractor.__name__ not in result)
 
-        result = list_models("Dummy", support_feature=True, has_pretrained=True)
+        result = list_models(
+            "Dummy", feature_extractor=True, weights="imagenet"
+        )
         self.assertEqual(len(result), 1)
         self.assertTrue(DummyModel.__name__ not in result)
         self.assertTrue(DummyFeatureExtractor.__name__ in result)

@@ -24,7 +24,7 @@ import kimm
 print(kimm.list_models())
 
 # Specify the name and other arguments to filter the result
-print(kimm.list_models("efficientnet", has_pretrained=True))  # fuzzy search
+print(kimm.list_models("efficientnet", weights="imagenet"))  # fuzzy search
 
 # Initialize the model with pretrained weights
 model = kimm.models.EfficientNetV2B0(weights="imagenet")
@@ -36,7 +36,7 @@ print(y.shape)
 
 # Initialize the model as a feature extractor with pretrained weights
 model = kimm.models.EfficientNetV2B0(
-    as_feature_extractor=True, weights="imagenet"
+    feature_extractor=True, weights="imagenet"
 )
 
 # Extract features for downstream tasks

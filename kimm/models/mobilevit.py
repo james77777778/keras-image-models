@@ -417,6 +417,6 @@ class MobileViTXXS(MobileViT):
         )
 
 
-add_model_to_registry(MobileViTS, True)
-add_model_to_registry(MobileViTXS, True)
-add_model_to_registry(MobileViTXXS, True)
+add_model_to_registry(MobileViTS, "imagenet")
+add_model_to_registry(MobileViTXS, "imagenet")
+add_model_to_registry(MobileViTXXS, "imagenet")

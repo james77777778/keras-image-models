@@ -351,8 +351,8 @@ class MobileNet140V2(MobileNetV2):
         )
 
 
-add_model_to_registry(MobileNet050V2, True)
-add_model_to_registry(MobileNet100V2, True)
-add_model_to_registry(MobileNet110V2, True)
-add_model_to_registry(MobileNet120V2, True)
-add_model_to_registry(MobileNet140V2, True)
+add_model_to_registry(MobileNet050V2, "imagenet")
+add_model_to_registry(MobileNet100V2, "imagenet")
+add_model_to_registry(MobileNet110V2, "imagenet")
+add_model_to_registry(MobileNet120V2, "imagenet")
+add_model_to_registry(MobileNet140V2, "imagenet")

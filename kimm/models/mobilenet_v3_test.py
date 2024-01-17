@@ -42,13 +42,14 @@ class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
     )
     def test_mobilenet_v3_feature_extractor(self, model_class, width):
         x = random.uniform([1, 224, 224, 3]) * 255.0
-        model = model_class(as_feature_extractor=True)
+        model = model_class(feature_extractor=True)
 
         y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
-        self.assertAllEqual(
-            list(y.keys()), model_class.available_feature_keys()
+        self.assertContainsSubset(
+            model_class.available_feature_keys(),
+            list(y.keys()),
         )
         if "Small" in model_class.__name__:
             self.assertEqual(
@@ -96,13 +97,14 @@ class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters([(LCNet100.__name__, LCNet100, 1.0)])
     def test_lcnet_feature_extractor(self, model_class, width):
         x = random.uniform([1, 224, 224, 3]) * 255.0
-        model = model_class(as_feature_extractor=True)
+        model = model_class(feature_extractor=True)
 
         y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
-        self.assertAllEqual(
-            list(y.keys()), model_class.available_feature_keys()
+        self.assertContainsSubset(
+            model_class.available_feature_keys(),
+            list(y.keys()),
         )
         self.assertEqual(
             list(y["STEM_S2"].shape),

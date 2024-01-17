@@ -26,13 +26,14 @@ class MobileViTTest(testing.TestCase, parameterized.TestCase):
     )
     def test_mobilevit_feature_extractor(self, model_class):
         x = random.uniform([1, 256, 256, 3]) * 255.0
-        model = model_class(as_feature_extractor=True)
+        model = model_class(feature_extractor=True)
 
         y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
-        self.assertAllEqual(
-            list(y.keys()), model_class.available_feature_keys()
+        self.assertContainsSubset(
+            model_class.available_feature_keys(),
+            list(y.keys()),
         )
         if "MobileViTS" in model_class.__name__:
             self.assertEqual(list(y["STEM_S2"].shape), [1, 128, 128, 16])

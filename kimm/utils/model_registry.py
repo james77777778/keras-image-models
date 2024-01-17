@@ -2,10 +2,10 @@ import typing
 import warnings
 
 # {
-#     "name",
-#     "support_feature",
-#     "available_feature_keys",
-#     "has_pretrained",
+#     "name",  # str
+#     "feature_extractor",  # bool
+#     "feature_keys",  # list of str
+#     "weights",  # None or str
 # }
 MODEL_REGISTRY: typing.List[typing.Dict[str, typing.Union[str, bool]]] = []
 
@@ -31,33 +31,40 @@ def clear_registry():
     MODEL_REGISTRY.clear()
 
 
-def add_model_to_registry(model_cls, has_pretrained=False):
+def add_model_to_registry(model_cls, weights: typing.Optional[str] = None):
     from kimm.models.base_model import BaseModel
 
-    support_feature = False
-    available_feature_keys = []
+    feature_extractor = False
+    feature_keys = []
     if issubclass(model_cls, BaseModel):
-        support_feature = True
-        available_feature_keys = model_cls.available_feature_keys()
+        feature_extractor = True
+        feature_keys = model_cls.available_feature_keys()
     for info in MODEL_REGISTRY:
         if info["name"] == model_cls.__name__:
             warnings.warn(
                 f"MODEL_REGISTRY already contains name={model_cls.__name__}!"
             )
+    if weights is not None:
+        if not isinstance(weights, str):
+            raise ValueError(
+                "`weights` must be one of (None, str). "
+                f"Recieved: weight={weights}"
+            )
+        weights = weights.lower()
     MODEL_REGISTRY.append(
         {
             "name": model_cls.__name__,
-            "support_feature": support_feature,
-            "available_feature_keys": available_feature_keys,
-            "has_pretrained": has_pretrained,
+            "feature_extractor": feature_extractor,
+            "feature_keys": feature_keys,
+            "weights": weights,
         }
     )
 
 
 def list_models(
     name: typing.Optional[str] = None,
-    support_feature: typing.Optional[bool] = None,
-    has_pretrained: typing.Optional[bool] = None,
+    feature_extractor: typing.Optional[bool] = None,
+    weights: typing.Optional[typing.Union[bool, str]] = None,
 ):
     result_names: typing.Set = set()
     for info in MODEL_REGISTRY:
@@ -68,17 +75,21 @@ def list_models(
         # match string (simple implementation)
         if name is not None:
             need_remove = not _match_string(name, info["name"])
-        # filter by support_feature and has_pretrained
+
+        # filter by feature_extractor and weights
         if (
-            support_feature is not None
-            and info["support_feature"] is not support_feature
+            feature_extractor is not None
+            and info["feature_extractor"] is not feature_extractor
         ):
             need_remove = True
-        if (
-            has_pretrained is not None
-            and info["has_pretrained"] is not has_pretrained
-        ):
-            need_remove = True
+        if weights is not None and info["weights"] != weights:
+            if weights is True and info["weights"] is None:
+                need_remove = True
+            elif weights is False and info["weights"] is not None:
+                need_remove = True
+            elif isinstance(weights, str):
+                if weights.lower() != info["weights"]:
+                    need_remove = True
 
         if need_remove:
             result_names.remove(info["name"])

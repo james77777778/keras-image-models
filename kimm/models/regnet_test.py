@@ -8,11 +8,11 @@ from kimm.models.regnet import RegNetX002
 from kimm.models.regnet import RegNetY002
 
 
-class ResNetTest(testing.TestCase, parameterized.TestCase):
+class RegNetTest(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters(
         [(RegNetX002.__name__, RegNetX002), (RegNetY002.__name__, RegNetY002)]
     )
-    def test_resnet_base(self, model_class):
+    def test_regnet_base(self, model_class):
         # TODO: test the correctness of the real image
         x = random.uniform([1, 224, 224, 3]) * 255.0
         model = model_class()
@@ -24,7 +24,7 @@ class ResNetTest(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters(
         [(RegNetX002.__name__, RegNetX002), (RegNetY002.__name__, RegNetY002)]
     )
-    def test_resnet_feature_extractor(self, model_class):
+    def test_regnet_feature_extractor(self, model_class):
         x = random.uniform([1, 224, 224, 3]) * 255.0
         model = model_class(feature_extractor=True)
 
@@ -48,7 +48,7 @@ class ResNetTest(testing.TestCase, parameterized.TestCase):
             (RegNetY002.__name__, RegNetY002, 224),
         ]
     )
-    def test_resnet_serialization(self, model_class, image_size):
+    def test_regnet_serialization(self, model_class, image_size):
         x = random.uniform([1, image_size, image_size, 3]) * 255.0
         temp_dir = self.get_temp_dir()
         model1 = model_class()

@@ -1,3 +1,4 @@
+import pytest
 from absl.testing import parameterized
 from keras import models
 from keras import random
@@ -124,6 +125,7 @@ class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
             [1, 7, 7, make_divisible(512 * width)],
         )
 
+    @pytest.mark.serialization
     @parameterized.named_parameters(
         [
             (MobileNet100V3Small.__name__, MobileNet100V3Small, 224),

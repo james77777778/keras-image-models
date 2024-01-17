@@ -1,3 +1,4 @@
+import pytest
 from absl.testing import parameterized
 from keras import models
 from keras import random
@@ -62,6 +63,7 @@ class GhostNetTest(testing.TestCase, parameterized.TestCase):
         self.assertEqual(list(y["BLOCK5_S16"].shape), [1, 14, 14, 80])
         self.assertEqual(list(y["BLOCK7_S32"].shape), [1, 7, 7, 160])
 
+    @pytest.mark.serialization
     @parameterized.named_parameters(
         [
             (GhostNet100.__name__, GhostNet100, 224),

@@ -1,3 +1,4 @@
+import pytest
 from absl.testing import parameterized
 from keras import models
 from keras import random
@@ -123,6 +124,7 @@ class EfficientNetTest(testing.TestCase, parameterized.TestCase):
                 [1, 7, 7, make_divisible(192 * width)],
             )
 
+    @pytest.mark.serialization
     @parameterized.named_parameters(
         [
             (EfficientNetB0.__name__, EfficientNetB0, 224),

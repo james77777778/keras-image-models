@@ -1,3 +1,4 @@
+import pytest
 from absl.testing import parameterized
 from keras import models
 from keras import random
@@ -18,7 +19,7 @@ class DenseNetTest(testing.TestCase, parameterized.TestCase):
         self.assertEqual(y.shape, (1, 1000))
 
     @parameterized.named_parameters([(DenseNet121.__name__, DenseNet121)])
-    def test_mobilenet_v2_feature_extractor(self, model_class):
+    def test_densenet_feature_extractor(self, model_class):
         x = random.uniform([1, 224, 224, 3]) * 255.0
         model = model_class(
             input_shape=[224, 224, 3], as_feature_extractor=True
@@ -36,8 +37,9 @@ class DenseNetTest(testing.TestCase, parameterized.TestCase):
         self.assertEqual(list(y["BLOCK2_S32"].shape), [1, 7, 7, 512])
         self.assertEqual(list(y["BLOCK3_S32"].shape), [1, 7, 7, 1024])
 
+    @pytest.mark.serialization
     @parameterized.named_parameters([(DenseNet121.__name__, DenseNet121, 224)])
-    def test_mobilenet_v2_serialization(self, model_class, image_size):
+    def test_densenet_serialization(self, model_class, image_size):
         x = random.uniform([1, image_size, image_size, 3]) * 255.0
         temp_dir = self.get_temp_dir()
         model1 = model_class(input_shape=[224, 224, 3])

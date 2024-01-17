@@ -1,3 +1,4 @@
+import pytest
 from absl.testing import parameterized
 from keras import models
 from keras import random
@@ -34,6 +35,7 @@ class InceptionV3Test(testing.TestCase, parameterized.TestCase):
         self.assertEqual(list(y["BLOCK2_S16"].shape), [1, 17, 17, 768])
         self.assertEqual(list(y["BLOCK3_S32"].shape), [1, 8, 8, 2048])
 
+    @pytest.mark.serialization
     @parameterized.named_parameters([(InceptionV3.__name__, InceptionV3, 299)])
     def test_inception_v3_serialization(self, model_class, image_size):
         x = random.uniform([1, image_size, image_size, 3]) * 255.0

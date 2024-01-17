@@ -236,9 +236,7 @@ class EfficientNet(BaseModel):
                 elif block_type == "cn":
                     x = apply_conv2d_block(x, c, k, s, add_skip=True, **_kwargs)
                 elif block_type == "er":
-                    x = apply_edge_residual_block(
-                        x, c, k, 1, s, e, **_kwargs
-                    )
+                    x = apply_edge_residual_block(x, c, k, 1, s, e, **_kwargs)
                 current_stride *= s
             features[f"BLOCK{current_block_idx}_S{current_stride}"] = x
 

@@ -1,3 +1,4 @@
+import sys
 import typing
 import warnings
 
@@ -34,6 +35,15 @@ def clear_registry():
 def add_model_to_registry(model_cls, weights: typing.Optional[str] = None):
     from kimm.models.base_model import BaseModel
 
+    # deal with __all__
+    mod = sys.modules[model_cls.__module__]
+    model_name = model_cls.__name__
+    if hasattr(mod, "__all__"):
+        mod.__all__.append(model_name)
+    else:
+        mod.__all__ = [model_name]
+
+    # add model information
     feature_extractor = False
     feature_keys = []
     if issubclass(model_cls, BaseModel):

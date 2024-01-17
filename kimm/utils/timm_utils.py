@@ -57,10 +57,10 @@ def assign_weights(
     keras_name: str, keras_weight: keras.Variable, torch_weight: np.ndarray
 ):
     if len(keras_weight.shape) == 4:
-        if "dwconv2d" in keras_name:
+        if "dwconv2d" in keras_name or "depthwise" in keras_name:
             # depthwise conv2d layer
             keras_weight.assign(np.transpose(torch_weight, [2, 3, 0, 1]))
-        elif "conv" in keras_name:
+        elif "conv" in keras_name or "pointwise" in keras_name:
             # conventional conv2d layer
             keras_weight.assign(np.transpose(torch_weight, [2, 3, 1, 0]))
         else:

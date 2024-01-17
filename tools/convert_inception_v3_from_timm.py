@@ -9,36 +9,18 @@ import numpy as np
 import timm
 import torch
 
-from kimm.models import mobilenet_v3
+from kimm.models import inception_v3
 from kimm.utils.timm_utils import assign_weights
 from kimm.utils.timm_utils import is_same_weights
 from kimm.utils.timm_utils import separate_keras_weights
 from kimm.utils.timm_utils import separate_torch_state_dict
 
 timm_model_names = [
-    "mobilenetv3_small_050.lamb_in1k",
-    "mobilenetv3_small_075.lamb_in1k",
-    "tf_mobilenetv3_small_minimal_100.in1k",
-    "mobilenetv3_small_100.lamb_in1k",
-    "mobilenetv3_large_100.miil_in21k_ft_in1k",
-    "tf_mobilenetv3_large_minimal_100.in1k",
-    "lcnet_050.ra2_in1k",
-    "lcnet_075.ra2_in1k",
-    "lcnet_100.ra2_in1k",
+    "inception_v3.gluon_in1k",
 ]
-timm_model_names = timm_model_names[-3:]
 keras_model_classes = [
-    mobilenet_v3.MobileNet050V3Small,
-    mobilenet_v3.MobileNet075V3Small,
-    mobilenet_v3.MobileNet100V3SmallMinimal,
-    mobilenet_v3.MobileNet100V3Small,
-    mobilenet_v3.MobileNet100V3Large,
-    mobilenet_v3.MobileNet100V3LargeMinimal,
-    mobilenet_v3.LCNet050,
-    mobilenet_v3.LCNet075,
-    mobilenet_v3.LCNet100,
+    inception_v3.InceptionV3,
 ]
-keras_model_classes = keras_model_classes[-3:]
 
 for timm_model_name, keras_model_class in zip(
     timm_model_names, keras_model_classes
@@ -46,13 +28,16 @@ for timm_model_name, keras_model_class in zip(
     """
     Prepare timm model and keras model
     """
-    input_shape = [224, 224, 3]
-    torch_model = timm.create_model(timm_model_name, pretrained=True)
+    input_shape = [299, 299, 3]
+    torch_model = timm.create_model(
+        timm_model_name, pretrained=True, aux_logits=True
+    )
     torch_model = torch_model.eval()
     trainable_state_dict, non_trainable_state_dict = separate_torch_state_dict(
         torch_model.state_dict()
     )
     keras_model = keras_model_class(
+        has_aux_logits=True,
         input_shape=input_shape,
         include_preprocessing=False,
         classifier_activation="linear",
@@ -72,51 +57,43 @@ for timm_model_name, keras_model_class in zip(
     # exit()
 
     """
+    Preprocess
+    """
+    new_dict = {}
+    old_keys = trainable_state_dict.keys()
+    new_keys = []
+    for k in old_keys:
+        new_key = k.replace("_", ".")
+        new_key = new_key.replace("running.mean", "running_mean")
+        new_key = new_key.replace("running.var", "running_var")
+        new_keys.append(new_key)
+    for k1, k2 in zip(trainable_state_dict.keys(), new_keys):
+        new_dict[k2] = trainable_state_dict[k1]
+    trainable_state_dict = new_dict
+
+    new_dict = {}
+    old_keys = non_trainable_state_dict.keys()
+    new_keys = []
+    for k in old_keys:
+        new_key = k.replace("_", ".")
+        new_key = new_key.replace("running.mean", "running_mean")
+        new_key = new_key.replace("running.var", "running_var")
+        new_keys.append(new_key)
+    for k1, k2 in zip(non_trainable_state_dict.keys(), new_keys):
+        new_dict[k2] = non_trainable_state_dict[k1]
+    non_trainable_state_dict = new_dict
+
+    """
     Assign weights
     """
     for keras_weight, keras_name in trainable_weights + non_trainable_weights:
         keras_name: str
         torch_name = keras_name
         torch_name = torch_name.replace("_", ".")
-        # stem
-        torch_name = torch_name.replace("conv.stem.conv2d", "conv_stem")
-        torch_name = torch_name.replace("conv.stem.bn", "bn1")
-        # LCNet
-        if "LCNet" in keras_model_class.__name__:
-            # depthwise separation block
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn1")
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn2")
-        # blocks
-        if "blocks.0.0" in torch_name:
-            # depthwise separation block
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn1")
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn2")
-        else:
-            # inverted residual block
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn1")
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn2")
-            torch_name = torch_name.replace("conv.pwl.conv2d", "conv_pwl")
-            torch_name = torch_name.replace("conv.pwl.bn", "bn3")
-        # se
-        torch_name = torch_name.replace("se.conv.reduce", "se.conv_reduce")
-        torch_name = torch_name.replace("se.conv.expand", "se.conv_expand")
-        # last conv block
-        if "Small" in keras_model_class.__name__:
-            if "blocks.5.0" in torch_name:
-                torch_name = torch_name.replace("conv2d", "conv")
-                torch_name = torch_name.replace("bn", "bn1")
-        if "Large" in keras_model_class.__name__:
-            if "blocks.6.0" in torch_name:
-                torch_name = torch_name.replace("conv2d", "conv")
-                torch_name = torch_name.replace("bn", "bn1")
-        # conv head
-        torch_name = torch_name.replace("conv.head", "conv_head")
+        # general
+        torch_name = torch_name.replace("conv2d", "conv")
+        # head
+        torch_name = torch_name.replace("classifier", "fc")
 
         # weights naming mapping
         torch_name = torch_name.replace("kernel", "weight")  # conv2d
@@ -153,10 +130,15 @@ for timm_model_name, keras_model_class in zip(
     keras_data = np.random.uniform(size=[1] + input_shape).astype("float32")
     torch_data = torch.from_numpy(np.transpose(keras_data, [0, 3, 1, 2]))
     torch_y = torch_model(torch_data)
+    torch_y, torch_y_aux = torch_y[0], torch_y[1]
     keras_y = keras_model(keras_data, training=False)
+    keras_y, keras_y_aux = keras_y[0], keras_y[1]
     torch_y = torch_y.detach().cpu().numpy()
+    torch_y_aux = torch_y_aux.detach().cpu().numpy()
     keras_y = keras.ops.convert_to_numpy(keras_y)
-    np.testing.assert_allclose(torch_y, keras_y, atol=1e-4)
+    keras_y_aux = keras.ops.convert_to_numpy(keras_y_aux)
+    np.testing.assert_allclose(torch_y, keras_y, atol=1e-5)
+    np.testing.assert_allclose(torch_y_aux, keras_y_aux, atol=1e-5)
     print(f"{keras_model_class.__name__}: output matched!")
 
     """

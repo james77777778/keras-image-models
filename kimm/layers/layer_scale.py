@@ -35,18 +35,3 @@ class LayerScale(layers.Layer):
             }
         )
         return config
-
-
-if __name__ == "__main__":
-    from keras import models
-    from keras import random
-
-    inputs = layers.Input(shape=[197, 768])
-    outputs = LayerScale(768)(inputs)
-
-    model = models.Model(inputs, outputs)
-    model.summary()
-
-    inputs = random.uniform([1, 197, 768])
-    outputs = model(inputs)
-    print(outputs.shape)

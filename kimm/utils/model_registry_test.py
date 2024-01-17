@@ -1,7 +1,7 @@
 from keras import models
 from keras.src import testing
 
-from kimm.models.feature_extractor import FeatureExtractor
+from kimm.models.base_model import BaseModel
 from kimm.utils.model_registry import MODEL_REGISTRY
 from kimm.utils.model_registry import add_model_to_registry
 from kimm.utils.model_registry import clear_registry
@@ -12,7 +12,7 @@ class DummyModel(models.Model):
     pass
 
 
-class DummyFeatureExtractor(FeatureExtractor):
+class DummyFeatureExtractor(BaseModel):
     @staticmethod
     def available_feature_keys():
         return ["A", "B", "C"]

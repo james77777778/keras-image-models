@@ -1,18 +1,16 @@
 import typing
 
 import keras
-from keras import backend
 from keras import layers
 from keras import utils
-from keras.src.applications import imagenet_utils
 
 from kimm import layers as kimm_layers
 from kimm.blocks import apply_transformer_block
-from kimm.models.feature_extractor import FeatureExtractor
+from kimm.models.base_model import BaseModel
 from kimm.utils import add_model_to_registry
 
 
-class VisionTransformer(FeatureExtractor):
+class VisionTransformer(BaseModel):
     def __init__(
         self,
         patch_size: int,
@@ -22,44 +20,28 @@ class VisionTransformer(FeatureExtractor):
         mlp_ratio: float = 4.0,
         use_qkv_bias: bool = True,
         use_qk_norm: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
         pos_dropout_rate: float = 0.0,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
         **kwargs,
     ):
-        # Prepare feature extraction
-        features = {}
-
-        # Determine proper input shape
-        input_shape = imagenet_utils.obtain_input_shape(
-            input_shape,
-            default_size=384,
-            min_size=32,
-            data_format=backend.image_data_format(),
-            require_flatten=include_top,
-            weights=weights,
+        parsed_kwargs = self.parse_kwargs(kwargs, 384)
+        if parsed_kwargs["pooling"] is not None:
+            raise ValueError(
+                "`VisionTransformer` doesn't support `pooling`. "
+                f"Received: pooling={parsed_kwargs['pooling']}"
+            )
+        img_input = self.determine_input_tensor(
+            parsed_kwargs["input_tensor"],
+            parsed_kwargs["input_shape"],
+            parsed_kwargs["default_size"],
+            static_shape=True,
         )
-
-        if input_tensor is None:
-            img_input = layers.Input(shape=input_shape)
-        else:
-            if not backend.is_keras_tensor(input_tensor):
-                img_input = layers.Input(tensor=input_tensor, shape=input_shape)
-            else:
-                img_input = input_tensor
-
         x = img_input
 
-        # [0, 255] to [-1, 1]
-        if include_preprocessing:
-            x = layers.Rescaling(scale=1.0 / 127.5, offset=-1.0)(x)
+        if parsed_kwargs["include_preprocessing"]:
+            x = self.build_preprocessing(x, "-1_1")
+
+        # Prepare feature extraction
+        features = {}
 
         # patch embedding
         x = layers.Conv2D(
@@ -89,27 +71,26 @@ class VisionTransformer(FeatureExtractor):
             features[f"BLOCK{i}"] = x
         x = layers.LayerNormalization(epsilon=1e-6, name="norm")(x)
 
-        if include_top:
-            x = x[:, 0]  # class token
-            x = layers.Dropout(dropout_rate, name="head_drop")(x)
-            x = layers.Dense(
-                classes, activation=classifier_activation, name="head"
-            )(x)
-        else:
-            if pooling == "avg":
-                x = layers.GlobalAveragePooling2D(name="avg_pool")(x)
-            elif pooling == "max":
-                x = layers.GlobalMaxPooling2D(name="max_pool")(x)
+        # Head
+        if parsed_kwargs["include_top"]:
+            x = self.build_top(
+                x,
+                parsed_kwargs["classes"],
+                parsed_kwargs["classifier_activation"],
+                parsed_kwargs["dropout_rate"],
+            )
 
         # Ensure that the model takes into account
         # any potential predecessors of `input_tensor`.
-        if input_tensor is not None:
-            inputs = utils.get_source_inputs(input_tensor)
+        if parsed_kwargs["input_tensor"] is not None:
+            inputs = utils.get_source_inputs(parsed_kwargs["input_tensor"])
         else:
             inputs = img_input
 
         super().__init__(inputs=inputs, outputs=x, features=features, **kwargs)
 
+        # All references to `self` below this line
+        self.add_references(parsed_kwargs)
         self.patch_size = patch_size
         self.embed_dim = embed_dim
         self.depth = depth
@@ -117,13 +98,15 @@ class VisionTransformer(FeatureExtractor):
         self.mlp_ratio = mlp_ratio
         self.use_qkv_bias = use_qkv_bias
         self.use_qk_norm = use_qk_norm
-        self.include_preprocessing = include_preprocessing
-        self.include_top = include_top
-        self.pooling = pooling
-        self.dropout_rate = dropout_rate
-        self.classes = classes
-        self.classifier_activation = classifier_activation
-        self._weights = weights  # `self.weights` is been used internally
+        self.pos_dropout_rate = pos_dropout_rate
+
+    def build_top(self, inputs, classes, classifier_activation, dropout_rate):
+        x = inputs[:, 0]  # class token
+        x = layers.Dropout(dropout_rate, name="head_drop")(x)
+        x = layers.Dense(
+            classes, activation=classifier_activation, name="head"
+        )(x)
+        return x
 
     @staticmethod
     def available_feature_keys():
@@ -140,14 +123,7 @@ class VisionTransformer(FeatureExtractor):
                 "mlp_ratio": self.mlp_ratio,
                 "use_qkv_bias": self.use_qkv_bias,
                 "use_qk_norm": self.use_qk_norm,
-                "input_shape": self.input_shape[1:],
-                "include_preprocessing": self.include_preprocessing,
-                "include_top": self.include_top,
-                "pooling": self.pooling,
-                "dropout_rate": self.dropout_rate,
-                "classes": self.classes,
-                "classifier_activation": self.classifier_activation,
-                "weights": self._weights,
+                "pos_dropout_rate": self.pos_dropout_rate,
             }
         )
         return config
@@ -161,6 +137,7 @@ class VisionTransformer(FeatureExtractor):
             "mlp_ratio",
             "use_qkv_bias",
             "use_qk_norm",
+            "pos_dropout_rate",
         ]
         for k in unused_kwargs:
             config.pop(k, None)
@@ -200,16 +177,16 @@ class VisionTransformerTiny16(VisionTransformer):
             mlp_ratio,
             use_qkv_bias,
             use_qk_norm,
-            input_tensor,
-            input_shape,
-            include_preprocessing,
-            include_top,
-            pooling,
             pos_dropout_rate,
-            dropout_rate,
-            classes,
-            classifier_activation,
-            weights,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
             name=name,
             **kwargs,
         )
@@ -249,16 +226,16 @@ class VisionTransformerTiny32(VisionTransformer):
             mlp_ratio,
             use_qkv_bias,
             use_qk_norm,
-            input_tensor,
-            input_shape,
-            include_preprocessing,
-            include_top,
-            pooling,
             pos_dropout_rate,
-            dropout_rate,
-            classes,
-            classifier_activation,
-            weights,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
             name=name,
             **kwargs,
         )
@@ -298,16 +275,16 @@ class VisionTransformerSmall16(VisionTransformer):
             mlp_ratio,
             use_qkv_bias,
             use_qk_norm,
-            input_tensor,
-            input_shape,
-            include_preprocessing,
-            include_top,
-            pooling,
             pos_dropout_rate,
-            dropout_rate,
-            classes,
-            classifier_activation,
-            weights,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
             name=name,
             **kwargs,
         )
@@ -347,16 +324,16 @@ class VisionTransformerSmall32(VisionTransformer):
             mlp_ratio,
             use_qkv_bias,
             use_qk_norm,
-            input_tensor,
-            input_shape,
-            include_preprocessing,
-            include_top,
-            pooling,
             pos_dropout_rate,
-            dropout_rate,
-            classes,
-            classifier_activation,
-            weights,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
             name=name,
             **kwargs,
         )
@@ -396,16 +373,16 @@ class VisionTransformerBase16(VisionTransformer):
             mlp_ratio,
             use_qkv_bias,
             use_qk_norm,
-            input_tensor,
-            input_shape,
-            include_preprocessing,
-            include_top,
-            pooling,
             pos_dropout_rate,
-            dropout_rate,
-            classes,
-            classifier_activation,
-            weights,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
             name=name,
             **kwargs,
         )
@@ -445,16 +422,16 @@ class VisionTransformerBase32(VisionTransformer):
             mlp_ratio,
             use_qkv_bias,
             use_qk_norm,
-            input_tensor,
-            input_shape,
-            include_preprocessing,
-            include_top,
-            pooling,
             pos_dropout_rate,
-            dropout_rate,
-            classes,
-            classifier_activation,
-            weights,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
             name=name,
             **kwargs,
         )
@@ -494,16 +471,16 @@ class VisionTransformerLarge16(VisionTransformer):
             mlp_ratio,
             use_qkv_bias,
             use_qk_norm,
-            input_tensor,
-            input_shape,
-            include_preprocessing,
-            include_top,
-            pooling,
             pos_dropout_rate,
-            dropout_rate,
-            classes,
-            classifier_activation,
-            weights,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
             name=name,
             **kwargs,
         )
@@ -543,16 +520,16 @@ class VisionTransformerLarge32(VisionTransformer):
             mlp_ratio,
             use_qkv_bias,
             use_qk_norm,
-            input_tensor,
-            input_shape,
-            include_preprocessing,
-            include_top,
-            pooling,
             pos_dropout_rate,
-            dropout_rate,
-            classes,
-            classifier_activation,
-            weights,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
             name=name,
             **kwargs,
         )

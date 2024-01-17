@@ -5,115 +5,73 @@ from keras import layers
 from keras import utils
 
 from kimm.blocks import apply_conv2d_block
-from kimm.models.base_model import BaseModel
+from kimm.models import BaseModel
 from kimm.utils import add_model_to_registry
 
 
-def apply_basic_block(
-    inputs,
-    output_channels: int,
-    strides: int = 1,
-    activation="relu",
-    name="basic_block",
+def apply_dense_layer(
+    inputs, growth_rate, expansion_ratio=4.0, name="dense_layer"
 ):
-    input_channels = inputs.shape[-1]
-    shortcut = inputs
     x = inputs
+    x = layers.BatchNormalization(
+        momentum=0.9, epsilon=1e-5, name=f"{name}_norm1"
+    )(x)
+    x = layers.ReLU()(x)
     x = apply_conv2d_block(
         x,
-        output_channels,
-        3,
-        strides,
-        activation=activation,
+        int(growth_rate * expansion_ratio),
+        1,
+        1,
+        activation="relu",
         name=f"{name}_conv1",
     )
-    x = apply_conv2d_block(
-        x,
-        output_channels,
-        3,
-        1,
-        activation=None,
-        name=f"{name}_conv2",
-    )
-
-    # downsampling
-    if strides != 1 or input_channels != output_channels:
-        shortcut = apply_conv2d_block(
-            shortcut,
-            output_channels,
-            1,
-            strides,
-            activation=None,
-            name=f"{name}_downsample",
-        )
-
-    x = layers.Add(name=f"{name}_add")([x, shortcut])
-    x = layers.Activation(activation=activation, name=f"{name}")(x)
+    x = layers.Conv2D(
+        growth_rate, 3, 1, padding="same", use_bias=False, name=f"{name}_conv2"
+    )(x)
     return x
 
 
-def apply_bottleneck_block(
-    inputs,
-    output_channels: int,
-    strides: int = 1,
-    activation="relu",
-    name="bottleneck_block",
+def apply_dense_block(
+    inputs, num_layers, growth_rate, expansion_ratio=4.0, name="dense_block"
 ):
-    input_channels = inputs.shape[-1]
-    expansion = 4
-    shortcut = inputs
     x = inputs
-    x = apply_conv2d_block(
-        x,
-        output_channels,
-        1,
-        1,
-        activation=activation,
-        name=f"{name}_conv1",
-    )
-    x = apply_conv2d_block(
-        x,
-        output_channels,
-        3,
-        strides,
-        activation=activation,
-        name=f"{name}_conv2",
-    )
-    x = apply_conv2d_block(
-        x,
-        output_channels * expansion,
-        1,
-        1,
-        activation=None,
-        name=f"{name}_conv3",
-    )
 
-    # downsampling
-    if strides != 1 or input_channels != output_channels * expansion:
-        shortcut = apply_conv2d_block(
-            shortcut,
-            output_channels * expansion,
-            1,
-            strides,
-            activation=None,
-            name=f"{name}_downsample",
+    features = [x]
+    for i in range(num_layers):
+        new_features = layers.Concatenate()(features)
+        new_features = apply_dense_layer(
+            new_features,
+            growth_rate,
+            expansion_ratio,
+            name=f"{name}_denselayer{i + 1}",
         )
-
-    x = layers.Add(name=f"{name}_add")([x, shortcut])
-    x = layers.Activation(activation=activation, name=f"{name}")(x)
+        features.append(new_features)
+    x = layers.Concatenate()(features)
     return x
 
 
-class ResNet(BaseModel):
+def apply_dense_transition_block(
+    inputs, output_channels, name="dense_transition_block"
+):
+    x = inputs
+    x = layers.BatchNormalization(
+        momentum=0.9, epsilon=1e-5, name=f"{name}_norm"
+    )(x)
+    x = layers.ReLU()(x)
+    x = layers.Conv2D(
+        output_channels, 1, 1, "same", use_bias=False, name=f"{name}_conv"
+    )(x)
+    x = layers.AveragePooling2D(2, 2, name=f"{name}_pool")(x)
+    return x
+
+
+class DenseNet(BaseModel):
     def __init__(
-        self, block_fn: str, num_blocks: typing.Sequence[int], **kwargs
+        self,
+        growth_rate: float = 32,
+        num_blocks: typing.Sequence[int] = [6, 12, 24, 16],
+        **kwargs,
     ):
-        if block_fn not in ("basic", "bottleneck"):
-            raise ValueError(
-                "`block_fn` must be one of ('basic', 'bottelneck'). "
-                f"Received: block_fn={block_fn}"
-            )
-
         parsed_kwargs = self.parse_kwargs(kwargs)
         img_input = self.determine_input_tensor(
             parsed_kwargs["input_tensor"],
@@ -128,37 +86,43 @@ class ResNet(BaseModel):
         # Prepare feature extraction
         features = {}
 
-        # stem
-        stem_channels = 64
+        # Stem block
+        stem_channel = growth_rate * 2
         x = apply_conv2d_block(
-            x, stem_channels, 7, 2, activation="relu", name="conv_stem"
+            x, stem_channel, 7, 2, activation="relu", name="features_conv0"
         )
-        features["STEM_S2"] = x
+        x = layers.ZeroPadding2D(1, name="features_pad0")(x)
+        x = layers.MaxPooling2D(3, 2, name="features_pool0")(x)
+        features["STEM_S4"] = x
 
-        # max pooling
-        x = layers.ZeroPadding2D(padding=1)(x)
-        x = layers.MaxPooling2D(3, strides=2)(x)
-
-        # stages
-        output_channels = [64, 128, 256, 512]
+        # Blocks
         current_stride = 4
-        for current_stage_idx, (c, n) in enumerate(
-            zip(output_channels, num_blocks)
-        ):
-            stride = 1 if current_stage_idx == 0 else 2
-            current_stride *= stride
-            # blocks
-            for current_block_idx in range(n):
-                stride = stride if current_block_idx == 0 else 1
-                name = f"layer{current_stage_idx + 1}_{current_block_idx}"
-                if block_fn == "basic":
-                    x = apply_basic_block(x, c, stride, name=name)
-                elif block_fn == "bottleneck":
-                    x = apply_bottleneck_block(x, c, stride, name=name)
-                else:
-                    raise NotImplementedError
-            # add feature
-            features[f"BLOCK{current_stage_idx}_S{current_stride}"] = x
+        input_channels = stem_channel
+        for current_block_idx, num_layers in enumerate(num_blocks):
+            x = apply_dense_block(
+                x,
+                num_layers,
+                growth_rate,
+                expansion_ratio=4.0,
+                name=f"features_denseblock{current_block_idx + 1}",
+            )
+            input_channels = input_channels + num_layers * growth_rate
+            if current_block_idx != len(num_blocks) - 1:
+                current_stride *= 2
+                x = apply_dense_transition_block(
+                    x,
+                    input_channels // 2,
+                    name=f"features_transition{current_block_idx + 1}",
+                )
+                input_channels = input_channels // 2
+
+            features[f"BLOCK{current_block_idx}_S{current_stride}"] = x
+
+        # Final batch norm
+        x = layers.BatchNormalization(
+            momentum=0.9, epsilon=1e-5, name="features_norm5"
+        )(x)
+        x = layers.ReLU()(x)
 
         # Head
         if parsed_kwargs["include_top"]:
@@ -185,26 +149,26 @@ class ResNet(BaseModel):
 
         # All references to `self` below this line
         self.add_references(parsed_kwargs)
-        self.block_fn = block_fn
+        self.growth_rate = growth_rate
         self.num_blocks = num_blocks
 
     @staticmethod
     def available_feature_keys():
-        feature_keys = ["STEM_S2"]
+        feature_keys = ["STEM_S4"]
         feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(4), [4, 8, 16, 32])]
+            [f"BLOCK{i}_S{j}" for i, j in zip(range(4), [8, 16, 32, 32])]
         )
         return feature_keys
 
     def get_config(self):
         config = super().get_config()
         config.update(
-            {"block_fn": self.block_fn, "num_blocks": self.num_blocks}
+            {"growth_rate": self.growth_rate, "num_blocks": self.num_blocks}
         )
         return config
 
-    def fix_config(self, config):
-        unused_kwargs = ["block_fn", "num_blocks"]
+    def fix_config(self, config: typing.Dict):
+        unused_kwargs = ["growth_rate", "num_blocks"]
         for k in unused_kwargs:
             config.pop(k, None)
         return config
@@ -215,7 +179,7 @@ Model Definition
 """
 
 
-class ResNet18(ResNet):
+class DenseNet121(DenseNet):
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -226,14 +190,14 @@ class ResNet18(ResNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        name: str = "ResNet18",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        name: str = "DenseNet121",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
         super().__init__(
-            "basic",
-            [2, 2, 2, 2],
+            32,
+            [6, 12, 24, 16],
             input_tensor=input_tensor,
             input_shape=input_shape,
             include_preprocessing=include_preprocessing,
@@ -244,11 +208,12 @@ class ResNet18(ResNet):
             classifier_activation=classifier_activation,
             weights=weights,
             name=name,
+            default_size=288,
             **kwargs,
         )
 
 
-class ResNet34(ResNet):
+class DenseNet161(DenseNet):
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -259,14 +224,14 @@ class ResNet34(ResNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        name: str = "ResNet34",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        name: str = "DenseNet161",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
         super().__init__(
-            "basic",
-            [3, 4, 6, 3],
+            48,
+            [6, 12, 36, 24],
             input_tensor=input_tensor,
             input_shape=input_shape,
             include_preprocessing=include_preprocessing,
@@ -277,11 +242,12 @@ class ResNet34(ResNet):
             classifier_activation=classifier_activation,
             weights=weights,
             name=name,
+            default_size=224,
             **kwargs,
         )
 
 
-class ResNet50(ResNet):
+class DenseNet169(DenseNet):
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -292,14 +258,14 @@ class ResNet50(ResNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        name: str = "ResNet50",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        name: str = "DenseNet169",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
         super().__init__(
-            "bottleneck",
-            [3, 4, 6, 3],
+            32,
+            [6, 12, 32, 32],
             input_tensor=input_tensor,
             input_shape=input_shape,
             include_preprocessing=include_preprocessing,
@@ -310,11 +276,12 @@ class ResNet50(ResNet):
             classifier_activation=classifier_activation,
             weights=weights,
             name=name,
+            default_size=224,
             **kwargs,
         )
 
 
-class ResNet101(ResNet):
+class DenseNet201(DenseNet):
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -325,14 +292,14 @@ class ResNet101(ResNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        name: str = "ResNet101",
+        weights: typing.Optional[str] = None,  # TODO: imagenet
+        name: str = "DenseNet201",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
         super().__init__(
-            "bottleneck",
-            [3, 4, 23, 3],
+            32,
+            [6, 12, 48, 32],
             input_tensor=input_tensor,
             input_shape=input_shape,
             include_preprocessing=include_preprocessing,
@@ -343,45 +310,12 @@ class ResNet101(ResNet):
             classifier_activation=classifier_activation,
             weights=weights,
             name=name,
+            default_size=224,
             **kwargs,
         )
 
 
-class ResNet152(ResNet):
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        name: str = "ResNet152",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            "bottleneck",
-            [3, 8, 36, 3],
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
-
-
-add_model_to_registry(ResNet18, True)
-add_model_to_registry(ResNet34, True)
-add_model_to_registry(ResNet50, True)
-add_model_to_registry(ResNet101, True)
-add_model_to_registry(ResNet152, True)
+add_model_to_registry(DenseNet121, True)
+add_model_to_registry(DenseNet161, True)
+add_model_to_registry(DenseNet169, True)
+add_model_to_registry(DenseNet201, True)

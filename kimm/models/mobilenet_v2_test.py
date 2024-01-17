@@ -1,3 +1,4 @@
+import pytest
 from absl.testing import parameterized
 from keras import models
 from keras import random
@@ -56,6 +57,7 @@ class MobileNetV2Test(testing.TestCase, parameterized.TestCase):
             list(y["BLOCK5_S32"].shape), [1, 7, 7, make_divisible(160 * width)]
         )
 
+    @pytest.mark.serialization
     @parameterized.named_parameters(
         [(MobileNet050V2.__name__, MobileNet050V2, 224)]
     )

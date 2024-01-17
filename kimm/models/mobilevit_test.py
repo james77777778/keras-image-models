@@ -1,3 +1,4 @@
+import pytest
 from absl.testing import parameterized
 from keras import models
 from keras import random
@@ -46,6 +47,7 @@ class MobileViTTest(testing.TestCase, parameterized.TestCase):
             self.assertEqual(list(y["BLOCK3_S16"].shape), [1, 16, 16, 80])
             self.assertEqual(list(y["BLOCK4_S32"].shape), [1, 8, 8, 96])
 
+    @pytest.mark.serialization
     @parameterized.named_parameters(
         [
             (MobileViTS.__name__, MobileViTS, 256),

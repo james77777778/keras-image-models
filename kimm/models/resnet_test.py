@@ -1,3 +1,4 @@
+import pytest
 from absl.testing import parameterized
 from keras import models
 from keras import random
@@ -47,6 +48,7 @@ class ResNetTest(testing.TestCase, parameterized.TestCase):
             list(y["BLOCK3_S32"].shape), [1, 7, 7, 512 * expansion]
         )
 
+    @pytest.mark.serialization
     @parameterized.named_parameters(
         [(ResNet18.__name__, ResNet18, 224), (ResNet50.__name__, ResNet50, 224)]
     )

@@ -9,36 +9,24 @@ import numpy as np
 import timm
 import torch
 
-from kimm.models import mobilenet_v3
+from kimm.models import densenet
 from kimm.utils.timm_utils import assign_weights
 from kimm.utils.timm_utils import is_same_weights
 from kimm.utils.timm_utils import separate_keras_weights
 from kimm.utils.timm_utils import separate_torch_state_dict
 
 timm_model_names = [
-    "mobilenetv3_small_050.lamb_in1k",
-    "mobilenetv3_small_075.lamb_in1k",
-    "tf_mobilenetv3_small_minimal_100.in1k",
-    "mobilenetv3_small_100.lamb_in1k",
-    "mobilenetv3_large_100.miil_in21k_ft_in1k",
-    "tf_mobilenetv3_large_minimal_100.in1k",
-    "lcnet_050.ra2_in1k",
-    "lcnet_075.ra2_in1k",
-    "lcnet_100.ra2_in1k",
+    "densenet121.ra_in1k",
+    "densenet161.tv_in1k",
+    "densenet169.tv_in1k",
+    "densenet201.tv_in1k",
 ]
-timm_model_names = timm_model_names[-3:]
 keras_model_classes = [
-    mobilenet_v3.MobileNet050V3Small,
-    mobilenet_v3.MobileNet075V3Small,
-    mobilenet_v3.MobileNet100V3SmallMinimal,
-    mobilenet_v3.MobileNet100V3Small,
-    mobilenet_v3.MobileNet100V3Large,
-    mobilenet_v3.MobileNet100V3LargeMinimal,
-    mobilenet_v3.LCNet050,
-    mobilenet_v3.LCNet075,
-    mobilenet_v3.LCNet100,
+    densenet.DenseNet121,
+    densenet.DenseNet161,
+    densenet.DenseNet169,
+    densenet.DenseNet201,
 ]
-keras_model_classes = keras_model_classes[-3:]
 
 for timm_model_name, keras_model_class in zip(
     timm_model_names, keras_model_classes
@@ -79,44 +67,11 @@ for timm_model_name, keras_model_class in zip(
         torch_name = keras_name
         torch_name = torch_name.replace("_", ".")
         # stem
-        torch_name = torch_name.replace("conv.stem.conv2d", "conv_stem")
-        torch_name = torch_name.replace("conv.stem.bn", "bn1")
-        # LCNet
-        if "LCNet" in keras_model_class.__name__:
-            # depthwise separation block
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn1")
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn2")
+        torch_name = torch_name.replace("conv0.conv2d", "conv0")
+        torch_name = torch_name.replace("conv0.bn", "norm0")
         # blocks
-        if "blocks.0.0" in torch_name:
-            # depthwise separation block
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn1")
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn2")
-        else:
-            # inverted residual block
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn1")
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn2")
-            torch_name = torch_name.replace("conv.pwl.conv2d", "conv_pwl")
-            torch_name = torch_name.replace("conv.pwl.bn", "bn3")
-        # se
-        torch_name = torch_name.replace("se.conv.reduce", "se.conv_reduce")
-        torch_name = torch_name.replace("se.conv.expand", "se.conv_expand")
-        # last conv block
-        if "Small" in keras_model_class.__name__:
-            if "blocks.5.0" in torch_name:
-                torch_name = torch_name.replace("conv2d", "conv")
-                torch_name = torch_name.replace("bn", "bn1")
-        if "Large" in keras_model_class.__name__:
-            if "blocks.6.0" in torch_name:
-                torch_name = torch_name.replace("conv2d", "conv")
-                torch_name = torch_name.replace("bn", "bn1")
-        # conv head
-        torch_name = torch_name.replace("conv.head", "conv_head")
+        torch_name = torch_name.replace("conv1.conv2d", "conv1")
+        torch_name = torch_name.replace("conv1.bn", "norm2")
 
         # weights naming mapping
         torch_name = torch_name.replace("kernel", "weight")  # conv2d
@@ -156,7 +111,7 @@ for timm_model_name, keras_model_class in zip(
     keras_y = keras_model(keras_data, training=False)
     torch_y = torch_y.detach().cpu().numpy()
     keras_y = keras.ops.convert_to_numpy(keras_y)
-    np.testing.assert_allclose(torch_y, keras_y, atol=1e-4)
+    np.testing.assert_allclose(torch_y, keras_y, atol=1e-5)
     print(f"{keras_model_class.__name__}: output matched!")
 
     """

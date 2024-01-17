@@ -2,6 +2,8 @@
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 pip install timm
 """
+import os
+
 import keras
 import numpy as np
 import timm
@@ -86,6 +88,8 @@ for timm_model_name, keras_model_class in zip(
         # final block
         torch_name = torch_name.replace("final.conv.conv2d", "final_conv.conv")
         torch_name = torch_name.replace("final.conv.bn", "final_conv.bn")
+        # head
+        torch_name = torch_name.replace("classifier", "head.fc")
 
         # weights naming mapping
         torch_name = torch_name.replace("kernel", "weight")  # conv2d
@@ -136,6 +140,7 @@ for timm_model_name, keras_model_class in zip(
     """
     Save converted model
     """
-    export_path = f"exported/{keras_model.name.lower()}_imagenet.keras"
+    os.makedirs("exported", exist_ok=True)
+    export_path = f"exported/{keras_model.name.lower()}_{timm_model_name}.keras"
     keras_model.save(export_path)
     print(f"Export to {export_path}")

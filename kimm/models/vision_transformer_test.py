@@ -1,3 +1,4 @@
+import pytest
 from absl.testing import parameterized
 from keras import models
 from keras import random
@@ -50,6 +51,7 @@ class VisionTransformerTest(testing.TestCase, parameterized.TestCase):
         elif patch_size == 32:
             self.assertEqual(list(y["BLOCK5"].shape), [1, 145, 192])
 
+    @pytest.mark.serialization
     @parameterized.named_parameters(
         [
             (VisionTransformerTiny16.__name__, VisionTransformerTiny16, 384),

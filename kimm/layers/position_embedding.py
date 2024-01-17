@@ -38,25 +38,3 @@ class PositionEmbedding(layers.Layer):
 
     def get_config(self):
         return super().get_config()
-
-
-if __name__ == "__main__":
-    from keras import models
-    from keras import random
-
-    inputs = layers.Input([224, 224, 3])
-    x = layers.Conv2D(
-        768,
-        16,
-        16,
-        use_bias=True,
-    )(inputs)
-    x = layers.Reshape((-1, 768))(x)
-    outputs = PositionEmbedding()(x)
-
-    model = models.Model(inputs, outputs)
-    model.summary()
-
-    inputs = random.uniform([1, 224, 224, 3])
-    outputs = model(inputs)
-    print(outputs.shape)

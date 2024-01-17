@@ -38,7 +38,7 @@ class VisionTransformer(BaseModel):
         x = img_input
 
         if parsed_kwargs["include_preprocessing"]:
-            x = self.build_preprocessing(x)
+            x = self.build_preprocessing(x, "-1_1")
 
         # Prepare feature extraction
         features = {}
@@ -99,11 +99,6 @@ class VisionTransformer(BaseModel):
         self.use_qkv_bias = use_qkv_bias
         self.use_qk_norm = use_qk_norm
         self.pos_dropout_rate = pos_dropout_rate
-
-    def build_preprocessing(self, inputs):
-        # [0, 255] to [-1, 1]
-        x = layers.Rescaling(scale=1.0 / 127.5, offset=-1.0)(inputs)
-        return x
 
     def build_top(self, inputs, classes, classifier_activation, dropout_rate):
         x = inputs[:, 0]  # class token

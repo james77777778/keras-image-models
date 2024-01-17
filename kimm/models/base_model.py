@@ -87,13 +87,33 @@ class BaseModel(models.Model):
                 x = input_tensor
         return x
 
-    def build_preprocessing(self, inputs):
-        # TODO: add docstring
-        raise NotImplementedError
+    def build_preprocessing(self, inputs, mode="imagenet"):
+        if mode == "imagenet":
+            # [0, 255] to [0, 1] and apply ImageNet mean and variance
+            x = layers.Rescaling(scale=1.0 / 255.0)(inputs)
+            x = layers.Normalization(
+                mean=[0.485, 0.456, 0.406], variance=[0.229, 0.224, 0.225]
+            )(x)
+        elif mode == "0_1":
+            # [0, 255] to [-1, 1]
+            x = layers.Rescaling(scale=1.0 / 255.0)(inputs)
+        elif mode == "-1_1":
+            # [0, 255] to [-1, 1]
+            x = layers.Rescaling(scale=1.0 / 127.5, offset=-1.0)(inputs)
+        else:
+            raise ValueError(
+                "`mode` must be one of ('imagenet', '0_1', '-1_1'). "
+                f"Received: mode={mode}"
+            )
+        return x
 
     def build_top(self, inputs, classes, classifier_activation, dropout_rate):
-        # TODO: add docstring
-        raise NotImplementedError
+        x = layers.GlobalAveragePooling2D(name="avg_pool")(inputs)
+        x = layers.Dropout(rate=dropout_rate, name="head_dropout")(x)
+        x = layers.Dense(
+            classes, activation=classifier_activation, name="classifier"
+        )(x)
+        return x
 
     def add_references(self, parsed_kwargs: typing.Dict[str, typing.Any]):
         self.include_preprocessing = parsed_kwargs["include_preprocessing"]
@@ -115,8 +135,10 @@ class BaseModel(models.Model):
         # Don't chain to super here. The default `get_config()` for functional
         # models is nested and cannot be passed to BaseModel.
         config = {
+            # models.Model
             "name": self.name,
             "trainable": self.trainable,
+            # feature extractor
             "as_feature_extractor": self.as_feature_extractor,
             "feature_keys": self.feature_keys,
             # common

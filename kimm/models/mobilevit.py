@@ -193,7 +193,7 @@ class MobileViT(BaseModel):
         x = img_input
 
         if parsed_kwargs["include_preprocessing"]:
-            x = self.build_preprocessing(x)
+            x = self.build_preprocessing(x, "imagenet")
 
         # Prepare feature extraction
         features = {}
@@ -284,22 +284,6 @@ class MobileViT(BaseModel):
         self.head_channels = head_channels
         self.activation = activation
         self.config = config
-
-    def build_preprocessing(self, inputs):
-        # [0, 255] to [0, 1] and apply ImageNet mean and variance
-        x = layers.Rescaling(scale=1.0 / 255.0)(inputs)
-        x = layers.Normalization(
-            mean=[0.485, 0.456, 0.406], variance=[0.229, 0.224, 0.225]
-        )(x)
-        return x
-
-    def build_top(self, inputs, classes, classifier_activation, dropout_rate):
-        x = layers.GlobalAveragePooling2D(name="avg_pool")(inputs)
-        x = layers.Dropout(dropout_rate, name="head_drop")(x)
-        x = layers.Dense(
-            classes, activation=classifier_activation, name="head_fc"
-        )(x)
-        return x
 
     @staticmethod
     def available_feature_keys():

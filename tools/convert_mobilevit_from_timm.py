@@ -88,6 +88,8 @@ for timm_model_name, keras_model_class in zip(
         # final block
         torch_name = torch_name.replace("final.conv.conv2d", "final_conv.conv")
         torch_name = torch_name.replace("final.conv.bn", "final_conv.bn")
+        # head
+        torch_name = torch_name.replace("classifier", "head.fc")
 
         # weights naming mapping
         torch_name = torch_name.replace("kernel", "weight")  # conv2d

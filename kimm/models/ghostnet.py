@@ -262,7 +262,7 @@ class GhostNet(BaseModel):
         x = img_input
 
         if parsed_kwargs["include_preprocessing"]:
-            x = self.build_preprocessing(x)
+            x = self.build_preprocessing(x, "imagenet")
 
         # Prepare feature extraction
         features = {}
@@ -336,14 +336,6 @@ class GhostNet(BaseModel):
         self.width = width
         self.config = config
         self.version = version
-
-    def build_preprocessing(self, inputs):
-        # [0, 255] to [0, 1] and apply ImageNet mean and variance
-        x = layers.Rescaling(scale=1.0 / 255.0)(inputs)
-        x = layers.Normalization(
-            mean=[0.485, 0.456, 0.406], variance=[0.229, 0.224, 0.225]
-        )(x)
-        return x
 
     def build_top(self, inputs, classes, classifier_activation, dropout_rate):
         x = layers.GlobalAveragePooling2D(name="avg_pool", keepdims=True)(

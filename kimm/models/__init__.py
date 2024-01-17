@@ -6,5 +6,6 @@ from kimm.models.inception_v3 import *  # noqa:F403
 from kimm.models.mobilenet_v2 import *  # noqa:F403
 from kimm.models.mobilenet_v3 import *  # noqa:F403
 from kimm.models.mobilevit import *  # noqa:F403
+from kimm.models.regnet import *  # noqa:F403
 from kimm.models.resnet import *  # noqa:F403
 from kimm.models.vision_transformer import *  # noqa:F403

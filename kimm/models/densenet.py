@@ -315,7 +315,7 @@ class DenseNet201(DenseNet):
         )
 
 
-add_model_to_registry(DenseNet121, True)
-add_model_to_registry(DenseNet161, True)
-add_model_to_registry(DenseNet169, True)
-add_model_to_registry(DenseNet201, True)
+add_model_to_registry(DenseNet121, "imagenet")
+add_model_to_registry(DenseNet161, "imagenet")
+add_model_to_registry(DenseNet169, "imagenet")
+add_model_to_registry(DenseNet201, "imagenet")

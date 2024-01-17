@@ -39,12 +39,12 @@ class BaseModelTest(testing.TestCase, parameterized.TestCase):
         x = random.uniform([1, 224, 224, 3])
 
         # availiable_feature_keys
-        self.assertEqual(
-            SampleModel.available_feature_keys(),
+        self.assertContainsSubset(
             ["S2", "S4", "S8", "S16", "S32"],
+            SampleModel.available_feature_keys(),
         )
 
-        # as_feature_extractor=False
+        # feature_extractor=False
         model = SampleModel()
 
         y = model(x, training=False)
@@ -52,8 +52,8 @@ class BaseModelTest(testing.TestCase, parameterized.TestCase):
         self.assertNotIsInstance(y, dict)
         self.assertEqual(list(y.shape), [1, 7, 7, 3])
 
-        # as_feature_extractor=True
-        model = SampleModel(as_feature_extractor=True)
+        # feature_extractor=True
+        model = SampleModel(feature_extractor=True)
 
         y = model(x, training=False)
 
@@ -61,9 +61,9 @@ class BaseModelTest(testing.TestCase, parameterized.TestCase):
         self.assertEqual(list(y["S2"].shape), [1, 112, 112, 3])
         self.assertEqual(list(y["S32"].shape), [1, 7, 7, 3])
 
-        # as_feature_extractor=True with feature_keys
+        # feature_extractor=True with feature_keys
         model = SampleModel(
-            as_feature_extractor=True, feature_keys=["S2", "S16", "S32"]
+            feature_extractor=True, feature_keys=["S2", "S16", "S32"]
         )
 
         y = model(x, training=False)

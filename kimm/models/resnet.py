@@ -380,8 +380,8 @@ class ResNet152(ResNet):
         )
 
 
-add_model_to_registry(ResNet18, True)
-add_model_to_registry(ResNet34, True)
-add_model_to_registry(ResNet50, True)
-add_model_to_registry(ResNet101, True)
-add_model_to_registry(ResNet152, True)
+add_model_to_registry(ResNet18, "imagenet")
+add_model_to_registry(ResNet34, "imagenet")
+add_model_to_registry(ResNet50, "imagenet")
+add_model_to_registry(ResNet101, "imagenet")
+add_model_to_registry(ResNet152, "imagenet")

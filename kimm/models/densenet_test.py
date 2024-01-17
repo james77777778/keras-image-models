@@ -21,15 +21,14 @@ class DenseNetTest(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters([(DenseNet121.__name__, DenseNet121)])
     def test_densenet_feature_extractor(self, model_class):
         x = random.uniform([1, 224, 224, 3]) * 255.0
-        model = model_class(
-            input_shape=[224, 224, 3], as_feature_extractor=True
-        )
+        model = model_class(input_shape=[224, 224, 3], feature_extractor=True)
 
         y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
-        self.assertAllEqual(
-            list(y.keys()), model_class.available_feature_keys()
+        self.assertContainsSubset(
+            model_class.available_feature_keys(),
+            list(y.keys()),
         )
         self.assertEqual(list(y["STEM_S4"].shape), [1, 56, 56, 64])
         self.assertEqual(list(y["BLOCK0_S8"].shape), [1, 28, 28, 128])

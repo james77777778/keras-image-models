@@ -17,13 +17,13 @@ class BaseModel(models.Model):
         feature_keys: typing.Optional[typing.List[str]] = None,
         **kwargs,
     ):
-        self.as_feature_extractor = kwargs.pop("as_feature_extractor", False)
+        self.feature_extractor = kwargs.pop("feature_extractor", False)
         self.feature_keys = feature_keys
-        if self.as_feature_extractor:
+        if self.feature_extractor:
             if features is None:
                 raise ValueError(
                     "`features` must be set when "
-                    f"`as_feature_extractor=True`. Got features={features}"
+                    f"`feature_extractor=True`. Received features={features}"
                 )
             if self.feature_keys is None:
                 self.feature_keys = list(features.keys())
@@ -35,6 +35,9 @@ class BaseModel(models.Model):
                         f"are: {list(features.keys())}"
                     )
                 filtered_features[k] = features[k]
+            # add outputs
+            if backend.is_keras_tensor(outputs):
+                filtered_features["TOP"] = outputs
             super().__init__(inputs=inputs, outputs=filtered_features, **kwargs)
         else:
             del features
@@ -139,7 +142,7 @@ class BaseModel(models.Model):
             "name": self.name,
             "trainable": self.trainable,
             # feature extractor
-            "as_feature_extractor": self.as_feature_extractor,
+            "feature_extractor": self.feature_extractor,
             "feature_keys": self.feature_keys,
             # common
             "input_shape": self.input_shape[1:],

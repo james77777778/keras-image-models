@@ -21,13 +21,14 @@ class InceptionV3Test(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters([(InceptionV3.__name__, InceptionV3)])
     def test_inception_v3_feature_extractor(self, model_class):
         x = random.uniform([1, 299, 299, 3]) * 255.0
-        model = model_class(as_feature_extractor=True)
+        model = model_class(feature_extractor=True)
 
         y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
-        self.assertAllEqual(
-            list(y.keys()), model_class.available_feature_keys()
+        self.assertContainsSubset(
+            model_class.available_feature_keys(),
+            list(y.keys()),
         )
         self.assertEqual(list(y["STEM_S2"].shape), [1, 147, 147, 64])
         self.assertEqual(list(y["BLOCK0_S4"].shape), [1, 71, 71, 192])

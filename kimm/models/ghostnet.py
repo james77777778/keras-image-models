@@ -595,9 +595,9 @@ class GhostNet160V2(GhostNet):
         )
 
 
-add_model_to_registry(GhostNet050, False)
-add_model_to_registry(GhostNet100, True)
-add_model_to_registry(GhostNet130, True)
-add_model_to_registry(GhostNet100V2, True)
-add_model_to_registry(GhostNet130V2, True)
-add_model_to_registry(GhostNet160V2, True)
+add_model_to_registry(GhostNet050)
+add_model_to_registry(GhostNet100, "imagenet")
+add_model_to_registry(GhostNet130, "imagenet")
+add_model_to_registry(GhostNet100V2, "imagenet")
+add_model_to_registry(GhostNet130V2, "imagenet")
+add_model_to_registry(GhostNet160V2, "imagenet")

@@ -22,13 +22,14 @@ class GhostNetTest(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters([(GhostNet100.__name__, GhostNet100)])
     def test_ghostnet_feature_extractor(self, model_class):
         x = random.uniform([1, 224, 224, 3]) * 255.0
-        model = model_class(as_feature_extractor=True)
+        model = model_class(feature_extractor=True)
 
         y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
-        self.assertAllEqual(
-            list(y.keys()), model_class.available_feature_keys()
+        self.assertContainsSubset(
+            model_class.available_feature_keys(),
+            list(y.keys()),
         )
         self.assertEqual(list(y["STEM_S2"].shape), [1, 112, 112, 16])
         self.assertEqual(list(y["BLOCK1_S4"].shape), [1, 56, 56, 24])
@@ -49,13 +50,14 @@ class GhostNetTest(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters([(GhostNet100V2.__name__, GhostNet100V2)])
     def test_ghostnetv2_feature_extractor(self, model_class):
         x = random.uniform([1, 224, 224, 3]) * 255.0
-        model = model_class(as_feature_extractor=True)
+        model = model_class(feature_extractor=True)
 
         y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
-        self.assertAllEqual(
-            list(y.keys()), model_class.available_feature_keys()
+        self.assertContainsSubset(
+            model_class.available_feature_keys(),
+            list(y.keys()),
         )
         self.assertEqual(list(y["STEM_S2"].shape), [1, 112, 112, 16])
         self.assertEqual(list(y["BLOCK1_S4"].shape), [1, 56, 56, 24])

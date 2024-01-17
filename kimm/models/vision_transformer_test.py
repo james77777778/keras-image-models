@@ -34,13 +34,14 @@ class VisionTransformerTest(testing.TestCase, parameterized.TestCase):
         self, model_class, patch_size
     ):
         x = random.uniform([1, 384, 384, 3]) * 255.0
-        model = model_class(as_feature_extractor=True)
+        model = model_class(feature_extractor=True)
 
         y = model(x, training=False)
 
         self.assertIsInstance(y, dict)
-        self.assertAllEqual(
-            list(y.keys()), model_class.available_feature_keys()
+        self.assertContainsSubset(
+            model_class.available_feature_keys(),
+            list(y.keys()),
         )
         if patch_size == 16:
             self.assertEqual(list(y["BLOCK0"].shape), [1, 577, 192])

@@ -541,11 +541,11 @@ class VisionTransformerLarge32(VisionTransformer):
         return feature_keys
 
 
-add_model_to_registry(VisionTransformerTiny16, True)
-add_model_to_registry(VisionTransformerTiny32, True)
-add_model_to_registry(VisionTransformerSmall16, True)
-add_model_to_registry(VisionTransformerSmall32, True)
-add_model_to_registry(VisionTransformerBase16, True)
-add_model_to_registry(VisionTransformerBase32, True)
-add_model_to_registry(VisionTransformerLarge16, True)
-add_model_to_registry(VisionTransformerLarge32, True)
+add_model_to_registry(VisionTransformerTiny16, "imagenet")
+add_model_to_registry(VisionTransformerTiny32, "imagenet")
+add_model_to_registry(VisionTransformerSmall16, "imagenet")
+add_model_to_registry(VisionTransformerSmall32, "imagenet")
+add_model_to_registry(VisionTransformerBase16, "imagenet")
+add_model_to_registry(VisionTransformerBase32, "imagenet")
+add_model_to_registry(VisionTransformerLarge16, "imagenet")
+add_model_to_registry(VisionTransformerLarge32, "imagenet")

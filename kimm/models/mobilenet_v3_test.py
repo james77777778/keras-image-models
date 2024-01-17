@@ -6,6 +6,7 @@ from keras.src import testing
 from kimm.models.mobilenet_v3 import LCNet100
 from kimm.models.mobilenet_v3 import MobileNet100V3Large
 from kimm.models.mobilenet_v3 import MobileNet100V3Small
+from kimm.models.mobilenet_v3 import MobileNet100V3SmallMinimal
 from kimm.utils import make_divisible
 
 
@@ -13,6 +14,7 @@ class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters(
         [
             (MobileNet100V3Small.__name__, MobileNet100V3Small),
+            (MobileNet100V3SmallMinimal.__name__, MobileNet100V3SmallMinimal),
             (MobileNet100V3Large.__name__, MobileNet100V3Large),
             (LCNet100.__name__, LCNet100),
         ]
@@ -29,6 +31,11 @@ class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters(
         [
             (MobileNet100V3Small.__name__, MobileNet100V3Small, 1.0),
+            (
+                MobileNet100V3SmallMinimal.__name__,
+                MobileNet100V3SmallMinimal,
+                1.0,
+            ),
             (MobileNet100V3Large.__name__, MobileNet100V3Large, 1.0),
         ]
     )
@@ -120,6 +127,11 @@ class MobileNetV3Test(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters(
         [
             (MobileNet100V3Small.__name__, MobileNet100V3Small, 224),
+            (
+                MobileNet100V3SmallMinimal.__name__,
+                MobileNet100V3SmallMinimal,
+                224,
+            ),
             (MobileNet100V3Large.__name__, MobileNet100V3Large, 224),
             (LCNet100.__name__, LCNet100, 224),
         ]

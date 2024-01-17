@@ -15,7 +15,7 @@ def apply_inverted_residual_block(
     expansion_ratio=1.0,
     se_ratio=0.0,
     activation="swish",
-    se_input_channels=None,
+    se_channels=None,
     se_activation=None,
     se_gate_activation="sigmoid",
     se_make_divisible_number=None,
@@ -57,7 +57,7 @@ def apply_inverted_residual_block(
             se_ratio,
             activation=se_activation or activation,
             gate_activation=se_gate_activation,
-            se_input_channels=se_input_channels,
+            se_input_channels=se_channels,
             make_divisible_number=se_make_divisible_number,
             name=f"{name}_se",
         )

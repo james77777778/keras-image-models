@@ -213,7 +213,7 @@ class MobileViT(BaseModel):
                 k,
                 c,
                 s,
-                expansion_ratio,
+                e,
                 transformer_dim,
                 transformer_depth,
                 patch_size,
@@ -223,15 +223,7 @@ class MobileViT(BaseModel):
                 s = s if current_layer_idx == 0 else 1
                 name = f"stages_{current_block_idx}_{current_layer_idx}"
                 x = apply_inverted_residual_block(
-                    x,
-                    c,
-                    k,
-                    1,
-                    1,
-                    s,
-                    expansion_ratio,
-                    activation=activation,
-                    name=name,
+                    x, c, k, 1, 1, s, e, activation=activation, name=name
                 )
                 current_stride *= s
             if block_type == "mobilevit":

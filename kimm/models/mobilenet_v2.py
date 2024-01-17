@@ -83,13 +83,7 @@ class MobileNetV2(BaseModel):
                 name = f"blocks_{current_block_idx}_{current_layer_idx}"
                 if block_type == "ds":
                     x = apply_depthwise_separation_block(
-                        x,
-                        c,
-                        k,
-                        1,
-                        s,
-                        activation="relu6",
-                        name=name,
+                        x, c, k, 1, s, activation="relu6", name=name
                     )
                 elif block_type == "ir":
                     x = apply_inverted_residual_block(

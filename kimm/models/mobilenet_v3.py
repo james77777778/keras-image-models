@@ -167,7 +167,7 @@ class MobileNetV3(BaseModel):
                     r = int(math.ceil(r * depth))
                 for current_layer_idx in range(r):
                     s = s if current_layer_idx == 0 else 1
-                    common_kwargs = {
+                    _kwargs = {
                         "bn_epsilon": bn_epsilon,
                         "padding": padding,
                         "name": (
@@ -189,7 +189,7 @@ class MobileNetV3(BaseModel):
                             se_make_divisible_number=8,
                             pw_activation=act if block_type == "dsa" else None,
                             skip=False if block_type == "dsa" else True,
-                            **common_kwargs,
+                            **_kwargs,
                         )
                     elif block_type == "ir":
                         x = apply_inverted_residual_block(
@@ -202,20 +202,14 @@ class MobileNetV3(BaseModel):
                             e,
                             se,
                             act,
-                            se_input_channels=None,
                             se_activation="relu",
                             se_gate_activation="hard_sigmoid",
                             se_make_divisible_number=8,
-                            **common_kwargs,
+                            **_kwargs,
                         )
                     elif block_type == "cn":
                         x = apply_conv2d_block(
-                            x,
-                            filters=c,
-                            kernel_size=k,
-                            strides=s,
-                            activation=act,
-                            **common_kwargs,
+                            x, c, k, s, activation=act, **_kwargs
                         )
                     current_stride *= s
             features[f"BLOCK{current_stage_idx}_S{current_stride}"] = x

@@ -8,7 +8,6 @@ from keras import utils
 from kimm.blocks import apply_conv2d_block
 from kimm.blocks import apply_depthwise_separation_block
 from kimm.blocks import apply_inverted_residual_block
-from kimm.blocks import apply_se_block
 from kimm.models import BaseModel
 from kimm.utils import add_model_to_registry
 from kimm.utils import make_divisible
@@ -88,7 +87,6 @@ def apply_edge_residual_block(
     pointwise_kernel_size=1,
     strides=1,
     expansion_ratio=1.0,
-    se_ratio=0.0,
     activation="swish",
     bn_epsilon=1e-5,
     padding=None,
@@ -110,16 +108,6 @@ def apply_edge_residual_block(
         padding=padding,
         name=f"{name}_conv_exp",
     )
-    # Squeeze-and-excitation
-    if se_ratio > 0:
-        x = apply_se_block(
-            x,
-            se_ratio,
-            activation=activation,
-            gate_activation="sigmoid",
-            se_input_channels=input_channels,
-            name=f"{name}_se",
-        )
     # Point-wise linear projection
     x = apply_conv2d_block(
         x,
@@ -230,50 +218,26 @@ class EfficientNet(BaseModel):
                 r = int(round_fn(r * depth))
             for current_layer_idx in range(r):
                 s = s if current_layer_idx == 0 else 1
-                common_kwargs = {
+                _kwargs = {
                     "bn_epsilon": bn_epsilon,
                     "padding": padding,
                     "name": f"blocks_{current_block_idx}_{current_layer_idx}",
+                    "activation": activation,
                 }
                 if block_type == "ds":
                     x = apply_depthwise_separation_block(
-                        x,
-                        c,
-                        k,
-                        1,
-                        s,
-                        se,
-                        activation=activation,
-                        se_activation=activation,
-                        **common_kwargs,
+                        x, c, k, 1, s, se, se_activation=activation, **_kwargs
                     )
                 elif block_type == "ir":
+                    se_c = x.shape[-1]
                     x = apply_inverted_residual_block(
-                        x,
-                        c,
-                        k,
-                        1,
-                        1,
-                        s,
-                        e,
-                        se,
-                        activation,
-                        se_input_channels=x.shape[-1],
-                        **common_kwargs,
+                        x, c, k, 1, 1, s, e, se, se_channels=se_c, **_kwargs
                     )
                 elif block_type == "cn":
-                    x = apply_conv2d_block(
-                        x,
-                        filters=c,
-                        kernel_size=k,
-                        strides=s,
-                        activation=activation,
-                        add_skip=True,
-                        **common_kwargs,
-                    )
+                    x = apply_conv2d_block(x, c, k, s, add_skip=True, **_kwargs)
                 elif block_type == "er":
                     x = apply_edge_residual_block(
-                        x, c, k, 1, s, e, se, activation, **common_kwargs
+                        x, c, k, 1, s, e, **_kwargs
                     )
                 current_stride *= s
             features[f"BLOCK{current_block_idx}_S{current_stride}"] = x

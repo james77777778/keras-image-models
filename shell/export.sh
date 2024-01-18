@@ -4,6 +4,7 @@ set -Euxo pipefail
 export CUDA_VISIBLE_DEVICES=
 export TF_CPP_MIN_LOG_LEVEL=3
 export KERAS_BACKEND=tensorflow
+python3 -m tools.convert_convmixer_from_timm
 python3 -m tools.convert_densenet_from_timm
 python3 -m tools.convert_efficientnet_from_timm
 python3 -m tools.convert_ghostnet_from_timm

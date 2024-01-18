@@ -299,17 +299,13 @@ MODEL_CONFIGS = [
         kimm_models.VisionTransformerTiny16.__name__,
         kimm_models.VisionTransformerTiny16,
         384,
-        [
-            *((f"BLOCK{i}", [1, 577, 192]) for i in range(5))
-        ],
+        [*((f"BLOCK{i}", [1, 577, 192]) for i in range(5))],
     ),
     (
         kimm_models.VisionTransformerTiny32.__name__,
         kimm_models.VisionTransformerTiny32,
         384,
-        [
-            *((f"BLOCK{i}", [1, 145, 192]) for i in range(5))
-        ],
+        [*((f"BLOCK{i}", [1, 145, 192]) for i in range(5))],
     ),
     # xception
     (

@@ -19,6 +19,19 @@ MODEL_CONFIGS = [
             *((f"BLOCK{i}", [1, 32, 32, 768]) for i in range(32)),
         ],
     ),
+    # convnext
+    (
+        kimm_models.ConvNeXtAtto.__name__,
+        kimm_models.ConvNeXtAtto,
+        288,
+        [
+            ("STEM_S4", [1, 72, 72, 40]),
+            ("BLOCK0_S4", [1, 72, 72, 40]),
+            ("BLOCK1_S8", [1, 36, 36, 80]),
+            ("BLOCK2_S16", [1, 18, 18, 160]),
+            ("BLOCK3_S32", [1, 9, 9, 320]),
+        ],
+    ),
     # densenet
     (
         kimm_models.DenseNet121.__name__,

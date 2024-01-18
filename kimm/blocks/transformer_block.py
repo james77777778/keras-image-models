@@ -11,18 +11,29 @@ def apply_mlp_block(
     normalization=None,
     use_bias=True,
     dropout_rate=0.0,
+    use_conv_mlp=False,
     name="mlp_block",
 ):
     input_dim = inputs.shape[-1]
     output_dim = output_dim or input_dim
 
     x = inputs
-    x = layers.Dense(hidden_dim, use_bias=use_bias, name=f"{name}_fc1")(x)
+    if use_conv_mlp:
+        x = layers.Conv2D(
+            hidden_dim, 1, use_bias=use_bias, name=f"{name}_fc1_conv2d"
+        )(x)
+    else:
+        x = layers.Dense(hidden_dim, use_bias=use_bias, name=f"{name}_fc1")(x)
     x = layers.Activation(activation, name=f"{name}_act")(x)
     x = layers.Dropout(dropout_rate, name=f"{name}_drop1")(x)
     if normalization is not None:
         x = normalization(name=f"{name}_norm")(x)
-    x = layers.Dense(output_dim, use_bias=use_bias, name=f"{name}_fc2")(x)
+    if use_conv_mlp:
+        x = layers.Conv2D(
+            output_dim, 1, use_bias=use_bias, name=f"{name}_fc2_conv2d"
+        )(x)
+    else:
+        x = layers.Dense(output_dim, use_bias=use_bias, name=f"{name}_fc2")(x)
     x = layers.Dropout(dropout_rate, name=f"{name}_drop2")(x)
     return x
 

@@ -2,8 +2,6 @@ import math
 import typing
 
 import keras
-from keras import layers
-from keras import utils
 
 from kimm.blocks import apply_conv2d_block
 from kimm.blocks import apply_depthwise_separation_block
@@ -24,6 +22,7 @@ DEFAULT_CONFIG = [
 ]
 
 
+@keras.saving.register_keras_serializable(package="kimm")
 class MobileNetV2(BaseModel):
     def __init__(
         self,
@@ -42,16 +41,16 @@ class MobileNetV2(BaseModel):
                 f"Received: config={config}"
             )
 
-        parsed_kwargs = self.parse_kwargs(kwargs)
-        img_input = self.determine_input_tensor(
-            parsed_kwargs["input_tensor"],
-            parsed_kwargs["input_shape"],
-            parsed_kwargs["default_size"],
+        input_tensor = kwargs.pop("input_tensor", None)
+        self.set_properties(kwargs)
+        inputs = self.determine_input_tensor(
+            input_tensor,
+            self._input_shape,
+            self._default_size,
         )
-        x = img_input
+        x = inputs
 
-        if parsed_kwargs["include_preprocessing"]:
-            x = self.build_preprocessing(x, "imagenet")
+        x = self.build_preprocessing(x, "imagenet")
 
         # Prepare feature extraction
         features = {}
@@ -102,30 +101,11 @@ class MobileNetV2(BaseModel):
         )
 
         # Head
-        if parsed_kwargs["include_top"]:
-            x = self.build_top(
-                x,
-                parsed_kwargs["classes"],
-                parsed_kwargs["classifier_activation"],
-                parsed_kwargs["dropout_rate"],
-            )
-        else:
-            if parsed_kwargs["pooling"] == "avg":
-                x = layers.GlobalAveragePooling2D(name="avg_pool")(x)
-            elif parsed_kwargs["pooling"] == "max":
-                x = layers.GlobalMaxPooling2D(name="max_pool")(x)
-
-        # Ensure that the model takes into account
-        # any potential predecessors of `input_tensor`.
-        if parsed_kwargs["input_tensor"] is not None:
-            inputs = utils.get_source_inputs(parsed_kwargs["input_tensor"])
-        else:
-            inputs = img_input
+        x = self.build_head(x)
 
         super().__init__(inputs=inputs, outputs=x, features=features, **kwargs)
 
         # All references to `self` below this line
-        self.add_references(parsed_kwargs)
         self.width = width
         self.depth = depth
         self.fix_stem_and_head_channels = fix_stem_and_head_channels

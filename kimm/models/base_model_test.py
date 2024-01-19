@@ -8,6 +8,7 @@ from kimm.models.base_model import BaseModel
 
 class SampleModel(BaseModel):
     def __init__(self, **kwargs):
+        self.set_properties(kwargs)
         inputs = layers.Input(shape=[224, 224, 3])
 
         features = {}

@@ -2,7 +2,6 @@ import typing
 
 import keras
 from keras import layers
-from keras import utils
 
 from kimm import layers as kimm_layers
 from kimm.blocks import apply_transformer_block
@@ -10,6 +9,7 @@ from kimm.models.base_model import BaseModel
 from kimm.utils import add_model_to_registry
 
 
+@keras.saving.register_keras_serializable(package="kimm")
 class VisionTransformer(BaseModel):
     def __init__(
         self,
@@ -23,22 +23,22 @@ class VisionTransformer(BaseModel):
         pos_dropout_rate: float = 0.0,
         **kwargs,
     ):
-        parsed_kwargs = self.parse_kwargs(kwargs, 384)
-        if parsed_kwargs["pooling"] is not None:
+        input_tensor = kwargs.pop("input_tensor", None)
+        self.set_properties(kwargs, 384)
+        if self._pooling is not None:
             raise ValueError(
                 "`VisionTransformer` doesn't support `pooling`. "
-                f"Received: pooling={parsed_kwargs['pooling']}"
+                f"Received: pooling={self._pooling}"
             )
-        img_input = self.determine_input_tensor(
-            parsed_kwargs["input_tensor"],
-            parsed_kwargs["input_shape"],
-            parsed_kwargs["default_size"],
+        inputs = self.determine_input_tensor(
+            input_tensor,
+            self._input_shape,
+            self._default_size,
             static_shape=True,
         )
-        x = img_input
+        x = inputs
 
-        if parsed_kwargs["include_preprocessing"]:
-            x = self.build_preprocessing(x, "-1_1")
+        x = self.build_preprocessing(x, "-1_1")
 
         # Prepare feature extraction
         features = {}
@@ -72,25 +72,17 @@ class VisionTransformer(BaseModel):
         x = layers.LayerNormalization(epsilon=1e-6, name="norm")(x)
 
         # Head
-        if parsed_kwargs["include_top"]:
+        if self._include_top:
             x = self.build_top(
                 x,
-                parsed_kwargs["classes"],
-                parsed_kwargs["classifier_activation"],
-                parsed_kwargs["dropout_rate"],
+                self._classes,
+                self._classifier_activation,
+                self._dropout_rate,
             )
-
-        # Ensure that the model takes into account
-        # any potential predecessors of `input_tensor`.
-        if parsed_kwargs["input_tensor"] is not None:
-            inputs = utils.get_source_inputs(parsed_kwargs["input_tensor"])
-        else:
-            inputs = img_input
 
         super().__init__(inputs=inputs, outputs=x, features=features, **kwargs)
 
         # All references to `self` below this line
-        self.add_references(parsed_kwargs)
         self.patch_size = patch_size
         self.embed_dim = embed_dim
         self.depth = depth

@@ -336,7 +336,7 @@ MODEL_CONFIGS = [
 ]
 
 
-class ConvMixerTest(testing.TestCase, parameterized.TestCase):
+class ModelTest(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters(MODEL_CONFIGS)
     def test_model_base(self, model_class, image_size, features):
         # TODO: test the correctness of the real image

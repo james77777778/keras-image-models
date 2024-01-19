@@ -1,8 +1,10 @@
+import keras
 from keras import initializers
 from keras import layers
 from keras import ops
 
 
+@keras.saving.register_keras_serializable(package="kimm")
 class LayerScale(layers.Layer):
     def __init__(
         self,

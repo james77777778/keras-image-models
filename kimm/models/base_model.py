@@ -1,10 +1,13 @@
 import abc
+import pathlib
 import typing
+import urllib.parse
 
 from keras import KerasTensor
 from keras import backend
 from keras import layers
 from keras import models
+from keras import utils
 from keras.src.applications import imagenet_utils
 
 
@@ -14,53 +17,79 @@ class BaseModel(models.Model):
         inputs,
         outputs,
         features: typing.Optional[typing.Dict[str, KerasTensor]] = None,
-        feature_keys: typing.Optional[typing.List[str]] = None,
         **kwargs,
     ):
-        self.feature_extractor = kwargs.pop("feature_extractor", False)
-        self.feature_keys = feature_keys
-        if self.feature_extractor:
-            if features is None:
-                raise ValueError(
-                    "`features` must be set when "
-                    f"`feature_extractor=True`. Received features={features}"
-                )
-            if self.feature_keys is None:
-                self.feature_keys = list(features.keys())
-            filtered_features = {}
-            for k in self.feature_keys:
-                if k not in features:
-                    raise KeyError(
-                        f"'{k}' is not a key of `features`. Available keys "
-                        f"are: {list(features.keys())}"
-                    )
-                filtered_features[k] = features[k]
-            # add outputs
-            if backend.is_keras_tensor(outputs):
-                filtered_features["TOP"] = outputs
-            super().__init__(inputs=inputs, outputs=filtered_features, **kwargs)
-        else:
+        if not hasattr(self, "_feature_extractor"):
             del features
             super().__init__(inputs=inputs, outputs=outputs, **kwargs)
+        else:
+            if not hasattr(self, "_feature_keys"):
+                raise AttributeError(
+                    "`self._feature_keys` must be set when initializing "
+                    "BaseModel"
+                )
+            if self._feature_extractor:
+                if features is None:
+                    raise ValueError(
+                        "`features` must be set when `feature_extractor=True`. "
+                        f"Received features={features}"
+                    )
+                if self._feature_keys is None:
+                    self._feature_keys = list(features.keys())
+                filtered_features = {}
+                for k in self._feature_keys:
+                    if k not in features:
+                        raise KeyError(
+                            f"'{k}' is not a key of `features`. Available keys "
+                            f"are: {list(features.keys())}"
+                        )
+                    filtered_features[k] = features[k]
+                # Add outputs
+                if backend.is_keras_tensor(outputs):
+                    filtered_features["TOP"] = outputs
+                super().__init__(
+                    inputs=inputs, outputs=filtered_features, **kwargs
+                )
+            else:
+                del features
+                super().__init__(inputs=inputs, outputs=outputs, **kwargs)
 
-    def parse_kwargs(
+        if hasattr(self, "_weights_url"):
+            self.load_pretrained_weights(self._weights_url)
+
+    def set_properties(
         self, kwargs: typing.Dict[str, typing.Any], default_size: int = 224
     ):
-        result = {
-            "input_tensor": kwargs.pop("input_tensor", None),
-            "input_shape": kwargs.pop("input_shape", None),
-            "include_preprocessing": kwargs.pop("include_preprocessing", True),
-            "include_top": kwargs.pop("include_top", True),
-            "pooling": kwargs.pop("pooling", None),
-            "dropout_rate": kwargs.pop("dropout_rate", 0.0),
-            "classes": kwargs.pop("classes", 1000),
-            "classifier_activation": kwargs.pop(
-                "classifier_activation", "softmax"
-            ),
-            "weights": kwargs.pop("weights", "imagenet"),
-            "default_size": kwargs.pop("default_size", default_size),
-        }
-        return result
+        """Must be called in the initilization of the class.
+
+        This method will add following common properties to the model object:
+        - input_shape
+        - include_preprocessing
+        - include_top
+        - pooling
+        - dropout_rate
+        - classes
+        - classifier_activation
+        - _weights
+        - weights_url
+        - default_size
+        """
+        self._input_shape = kwargs.pop("input_shape", None)
+        self._include_preprocessing = kwargs.pop("include_preprocessing", True)
+        self._include_top = kwargs.pop("include_top", True)
+        self._pooling = kwargs.pop("pooling", None)
+        self._dropout_rate = kwargs.pop("dropout_rate", 0.0)
+        self._classes = kwargs.pop("classes", 1000)
+        self._classifier_activation = kwargs.pop(
+            "classifier_activation", "softmax"
+        )
+        self._weights = kwargs.pop("weights", None)
+        self._weights_url = kwargs.pop("weights_url", None)
+        self._default_size = kwargs.pop("default_size", default_size)
+        # feature extractor
+        self._feature_extractor = kwargs.pop("feature_extractor", False)
+        self._feature_keys = kwargs.pop("feature_keys", None)
+        print("self._feature_keys", self._feature_keys)
 
     def determine_input_tensor(
         self,
@@ -87,10 +116,12 @@ class BaseModel(models.Model):
             if not backend.is_keras_tensor(input_tensor):
                 x = layers.Input(tensor=input_tensor, shape=input_shape)
             else:
-                x = input_tensor
+                x = utils.get_source_inputs(input_tensor)
         return x
 
     def build_preprocessing(self, inputs, mode="imagenet"):
+        if self._include_preprocessing is False:
+            return inputs
         if mode == "imagenet":
             # [0, 255] to [0, 1] and apply ImageNet mean and variance
             x = layers.Rescaling(scale=1.0 / 255.0)(inputs)
@@ -118,15 +149,30 @@ class BaseModel(models.Model):
         )(x)
         return x
 
-    def add_references(self, parsed_kwargs: typing.Dict[str, typing.Any]):
-        self.include_preprocessing = parsed_kwargs["include_preprocessing"]
-        self.include_top = parsed_kwargs["include_top"]
-        self.pooling = parsed_kwargs["pooling"]
-        self.dropout_rate = parsed_kwargs["dropout_rate"]
-        self.classes = parsed_kwargs["classes"]
-        self.classifier_activation = parsed_kwargs["classifier_activation"]
-        # `self.weights` is been used internally
-        self._weights = parsed_kwargs["weights"]
+    def build_head(self, inputs):
+        x = inputs
+        if self._include_top:
+            x = self.build_top(
+                x,
+                self._classes,
+                self._classifier_activation,
+                self._dropout_rate,
+            )
+        else:
+            if self._pooling == "avg":
+                x = layers.GlobalAveragePooling2D(name="avg_pool")(x)
+            elif self._pooling == "max":
+                x = layers.GlobalMaxPooling2D(name="max_pool")(x)
+        return x
+
+    def load_pretrained_weights(self, weights_url: typing.Optional[str] = None):
+        if weights_url is not None:
+            result = urllib.parse.urlparse(weights_url)
+            file_name = pathlib.Path(result.path).name
+            weights_path = utils.get_file(
+                file_name, weights_url, cache_subdir="kimm_models"
+            )
+            self.load_weights(weights_path)
 
     @staticmethod
     @abc.abstractmethod
@@ -141,20 +187,25 @@ class BaseModel(models.Model):
             # models.Model
             "name": self.name,
             "trainable": self.trainable,
-            # feature extractor
-            "feature_extractor": self.feature_extractor,
-            "feature_keys": self.feature_keys,
-            # common
             "input_shape": self.input_shape[1:],
-            "include_preprocessing": self.include_preprocessing,
-            "include_top": self.include_top,
-            "pooling": self.pooling,
-            "dropout_rate": self.dropout_rate,
-            "classes": self.classes,
-            "classifier_activation": self.classifier_activation,
+            # common
+            "include_preprocessing": self._include_preprocessing,
+            "include_top": self._include_top,
+            "pooling": self._pooling,
+            "dropout_rate": self._dropout_rate,
+            "classes": self._classes,
+            "classifier_activation": self._classifier_activation,
             "weights": self._weights,
+            "weights_url": self._weights_url,
+            # feature extractor
+            "feature_extractor": self._feature_extractor,
+            "feature_keys": self._feature_keys,
         }
         return config
 
     def fix_config(self, config: typing.Dict):
         return config
+
+    @property
+    def default_origin(self):
+        return "https://github.com/james77777778/keras-aug/releases/download/v0.5.0"

@@ -299,6 +299,7 @@ class InceptionV3(InceptionV3Base):
     ):
         kwargs = self.fix_config(kwargs)
         if weights == "imagenet":
+            has_aux_logits = False
             file_name = "inceptionv3_inception_v3.gluon_in1k.keras"
             kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(

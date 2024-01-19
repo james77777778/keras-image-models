@@ -30,14 +30,14 @@ for timm_model_name, keras_model_class in zip(
     """
     input_shape = [299, 299, 3]
     torch_model = timm.create_model(
-        timm_model_name, pretrained=True, aux_logits=True
+        timm_model_name, pretrained=True, aux_logits=False
     )
     torch_model = torch_model.eval()
     trainable_state_dict, non_trainable_state_dict = separate_torch_state_dict(
         torch_model.state_dict()
     )
     keras_model = keras_model_class(
-        has_aux_logits=True,
+        has_aux_logits=False,
         input_shape=input_shape,
         include_preprocessing=False,
         classifier_activation="linear",
@@ -130,15 +130,10 @@ for timm_model_name, keras_model_class in zip(
     keras_data = np.random.uniform(size=[1] + input_shape).astype("float32")
     torch_data = torch.from_numpy(np.transpose(keras_data, [0, 3, 1, 2]))
     torch_y = torch_model(torch_data)
-    torch_y, torch_y_aux = torch_y[0], torch_y[1]
     keras_y = keras_model(keras_data, training=False)
-    keras_y, keras_y_aux = keras_y[0], keras_y[1]
     torch_y = torch_y.detach().cpu().numpy()
-    torch_y_aux = torch_y_aux.detach().cpu().numpy()
     keras_y = keras.ops.convert_to_numpy(keras_y)
-    keras_y_aux = keras.ops.convert_to_numpy(keras_y_aux)
     np.testing.assert_allclose(torch_y, keras_y, atol=1e-5)
-    np.testing.assert_allclose(torch_y_aux, keras_y_aux, atol=1e-5)
     print(f"{keras_model_class.__name__}: output matched!")
 
     """

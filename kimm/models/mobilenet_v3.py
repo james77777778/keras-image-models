@@ -3,7 +3,6 @@ import typing
 
 import keras
 from keras import layers
-from keras import utils
 
 from kimm.blocks import apply_conv2d_block
 from kimm.blocks import apply_depthwise_separation_block
@@ -80,6 +79,7 @@ DEFAULT_LCNET_CONFIG = [
 ]
 
 
+@keras.saving.register_keras_serializable(package="kimm")
 class MobileNetV3(BaseModel):
     def __init__(
         self,
@@ -117,16 +117,16 @@ class MobileNetV3(BaseModel):
         bn_epsilon = kwargs.pop("bn_epsilon", 1e-5)
         padding = kwargs.pop("padding", None)
 
-        parsed_kwargs = self.parse_kwargs(kwargs)
-        img_input = self.determine_input_tensor(
-            parsed_kwargs["input_tensor"],
-            parsed_kwargs["input_shape"],
-            parsed_kwargs["default_size"],
+        input_tensor = kwargs.pop("input_tensor", None)
+        self.set_properties(kwargs)
+        inputs = self.determine_input_tensor(
+            input_tensor,
+            self._input_shape,
+            self._default_size,
         )
-        x = img_input
+        x = inputs
 
-        if parsed_kwargs["include_preprocessing"]:
-            x = self.build_preprocessing(x, "imagenet")
+        x = self.build_preprocessing(x, "imagenet")
 
         # Prepare feature extraction
         features = {}
@@ -215,7 +215,7 @@ class MobileNetV3(BaseModel):
             features[f"BLOCK{current_stage_idx}_S{current_stride}"] = x
 
         # Head
-        if parsed_kwargs["include_top"]:
+        if self._include_top:
             if fix_stem_and_head_channels:
                 conv_head_channels = conv_head_channels
             else:
@@ -226,29 +226,21 @@ class MobileNetV3(BaseModel):
             head_activation = force_activation or "hard_swish"
             x = self.build_top(
                 x,
-                parsed_kwargs["classes"],
-                parsed_kwargs["classifier_activation"],
-                parsed_kwargs["dropout_rate"],
+                self._classes,
+                self._classifier_activation,
+                self._dropout_rate,
                 conv_head_channels=conv_head_channels,
                 head_activation=head_activation,
             )
         else:
-            if parsed_kwargs["pooling"] == "avg":
+            if self._pooling == "avg":
                 x = layers.GlobalAveragePooling2D(name="avg_pool")(x)
-            elif parsed_kwargs["pooling"] == "max":
+            elif self._pooling == "max":
                 x = layers.GlobalMaxPooling2D(name="max_pool")(x)
-
-        # Ensure that the model takes into account
-        # any potential predecessors of `input_tensor`.
-        if parsed_kwargs["input_tensor"] is not None:
-            inputs = utils.get_source_inputs(parsed_kwargs["input_tensor"])
-        else:
-            inputs = img_input
 
         super().__init__(inputs=inputs, outputs=x, features=features, **kwargs)
 
         # All references to `self` below this line
-        self.add_references(parsed_kwargs)
         self.width = width
         self.depth = depth
         self.fix_stem_and_head_channels = fix_stem_and_head_channels
@@ -647,12 +639,16 @@ class LCNet050(MobileNetV3):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",  # TODO: imagenet
         config: typing.Union[str, typing.List] = "lcnet",
         name: str = "LCNet050",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            origin = "https://github.com/james77777778/keras-aug/releases/download/v0.5.0"
+            file_name = "lcnet050_lcnet_050.ra2_in1k.keras"
+            kwargs["weights_url"] = f"{origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             0.5,

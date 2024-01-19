@@ -1,5 +1,6 @@
 from kimm.models.base_model import BaseModel
 from kimm.models.convmixer import *  # noqa:F403
+from kimm.models.convnext import *  # noqa:F403
 from kimm.models.densenet import *  # noqa:F403
 from kimm.models.efficientnet import *  # noqa:F403
 from kimm.models.ghostnet import *  # noqa:F403

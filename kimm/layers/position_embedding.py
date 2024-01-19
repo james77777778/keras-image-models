@@ -1,7 +1,9 @@
+import keras
 from keras import layers
 from keras import ops
 
 
+@keras.saving.register_keras_serializable(package="kimm")
 class PositionEmbedding(layers.Layer):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

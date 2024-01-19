@@ -4,7 +4,6 @@ import typing
 import keras
 from keras import layers
 from keras import ops
-from keras import utils
 
 from kimm.blocks import apply_conv2d_block
 from kimm.blocks import apply_inverted_residual_block
@@ -161,6 +160,7 @@ def apply_mobilevit_block(
     return x
 
 
+@keras.saving.register_keras_serializable(package="kimm")
 class MobileViT(BaseModel):
     def __init__(
         self,
@@ -183,17 +183,17 @@ class MobileViT(BaseModel):
                 f"Received: config={config}"
             )
 
-        parsed_kwargs = self.parse_kwargs(kwargs, 256)
-        img_input = self.determine_input_tensor(
-            parsed_kwargs["input_tensor"],
-            parsed_kwargs["input_shape"],
-            parsed_kwargs["default_size"],
+        input_tensor = kwargs.pop("input_tensor", None)
+        self.set_properties(kwargs, 256)
+        inputs = self.determine_input_tensor(
+            input_tensor,
+            self._input_shape,
+            self._default_size,
             static_shape=True,
         )
-        x = img_input
+        x = inputs
 
-        if parsed_kwargs["include_preprocessing"]:
-            x = self.build_preprocessing(x, "imagenet")
+        x = self.build_preprocessing(x, "0_1")
 
         # Prepare feature extraction
         features = {}
@@ -248,30 +248,11 @@ class MobileViT(BaseModel):
         )
 
         # Head
-        if parsed_kwargs["include_top"]:
-            x = self.build_top(
-                x,
-                parsed_kwargs["classes"],
-                parsed_kwargs["classifier_activation"],
-                parsed_kwargs["dropout_rate"],
-            )
-        else:
-            if parsed_kwargs["pooling"] == "avg":
-                x = layers.GlobalAveragePooling2D(name="avg_pool")(x)
-            elif parsed_kwargs["pooling"] == "max":
-                x = layers.GlobalMaxPooling2D(name="max_pool")(x)
-
-        # Ensure that the model takes into account
-        # any potential predecessors of `input_tensor`.
-        if parsed_kwargs["input_tensor"] is not None:
-            inputs = utils.get_source_inputs(parsed_kwargs["input_tensor"])
-        else:
-            inputs = img_input
+        x = self.build_head(x)
 
         super().__init__(inputs=inputs, outputs=x, features=features, **kwargs)
 
         # All references to `self` below this line
-        self.add_references(parsed_kwargs)
         self.stem_channels = stem_channels
         self.head_channels = head_channels
         self.activation = activation
@@ -392,12 +373,16 @@ class MobileViTXXS(MobileViT):
         dropout_rate: float = 0.1,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",  # TODO: imagenet
         config: str = "v1_xxs",
         name="MobileViTXXS",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            origin = "https://github.com/james77777778/keras-aug/releases/download/v0.5.0"
+            file_name = "mobilevitxxs_mobilevit_xxs.cvnets_in1k.keras"
+            kwargs["weights_url"] = f"{origin}/{file_name}"
         super().__init__(
             16,
             320,

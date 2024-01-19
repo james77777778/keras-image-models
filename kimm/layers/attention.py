@@ -1,7 +1,9 @@
+import keras
 from keras import layers
 from keras import ops
 
 
+@keras.saving.register_keras_serializable(package="kimm")
 class Attention(layers.Layer):
     def __init__(
         self,

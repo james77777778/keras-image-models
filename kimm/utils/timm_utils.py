@@ -64,9 +64,11 @@ def assign_weights(
             # conventional conv2d layer
             keras_weight.assign(np.transpose(torch_weight, [2, 3, 1, 0]))
         else:
-            print(keras_weight.shape)
-            print(torch_weight.shape)
-            raise ValueError(f"Failed to assign {keras_name}")
+            raise ValueError(
+                f"Failed to assign {keras_name}. "
+                f"keras weight shape={keras_weight.shape}, "
+                f"torch weight shape={torch_weight.shape}"
+            )
     elif len(keras_weight.shape) == 2:
         # dense layer
         keras_weight.assign(np.transpose(torch_weight))

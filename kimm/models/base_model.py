@@ -89,7 +89,6 @@ class BaseModel(models.Model):
         # feature extractor
         self._feature_extractor = kwargs.pop("feature_extractor", False)
         self._feature_keys = kwargs.pop("feature_keys", None)
-        print("self._feature_keys", self._feature_keys)
 
     def determine_input_tensor(
         self,

@@ -207,4 +207,4 @@ class BaseModel(models.Model):
 
     @property
     def default_origin(self):
-        return "https://github.com/james77777778/keras-aug/releases/download/v0.5.0"
+        return "https://github.com/james77777778/kimm/releases/download/0.1.0/"

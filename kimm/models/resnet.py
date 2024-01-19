@@ -207,11 +207,14 @@ class ResNet18(ResNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ResNet18",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "resnet18_resnet18.a1_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "basic",
             [2, 2, 2, 2],
@@ -240,11 +243,14 @@ class ResNet34(ResNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ResNet34",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "resnet34_resnet34.a1_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "basic",
             [3, 4, 6, 3],
@@ -273,11 +279,14 @@ class ResNet50(ResNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ResNet50",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "resnet50_resnet50.a1_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "bottleneck",
             [3, 4, 6, 3],
@@ -306,11 +315,14 @@ class ResNet101(ResNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ResNet101",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "resnet101_resnet101.a1_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "bottleneck",
             [3, 4, 23, 3],
@@ -339,11 +351,14 @@ class ResNet152(ResNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ResNet152",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "resnet152_resnet152.a1_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "bottleneck",
             [3, 8, 36, 3],

@@ -330,7 +330,7 @@ class EfficientNetB0(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB0",
         **kwargs,
@@ -377,12 +377,15 @@ class EfficientNetB1(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB1",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetb1_tf_efficientnet_b1.ns_jft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -421,12 +424,15 @@ class EfficientNetB2(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB2",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetb2_tf_efficientnet_b2.ns_jft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.1,
@@ -465,12 +471,15 @@ class EfficientNetB3(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB3",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetb3_tf_efficientnet_b3.ns_jft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.2,
@@ -509,12 +518,15 @@ class EfficientNetB4(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB4",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetb4_tf_efficientnet_b4.ns_jft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.4,
@@ -553,12 +565,15 @@ class EfficientNetB5(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB5",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetb5_tf_efficientnet_b5.ns_jft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.6,
@@ -597,12 +612,15 @@ class EfficientNetB6(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB6",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetb6_tf_efficientnet_b6.ns_jft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.8,
@@ -641,12 +659,15 @@ class EfficientNetB7(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "EfficientNetB7",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetb7_tf_efficientnet_b7.ns_jft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             2.0,
@@ -685,12 +706,15 @@ class EfficientNetLiteB0(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1_lite",
         name: str = "EfficientNetLiteB0",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetliteb0_tf_efficientnet_lite0.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -729,12 +753,15 @@ class EfficientNetLiteB1(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1_lite",
         name: str = "EfficientNetLiteB1",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetliteb1_tf_efficientnet_lite1.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -773,12 +800,15 @@ class EfficientNetLiteB2(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1_lite",
         name: str = "EfficientNetLiteB2",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetliteb2_tf_efficientnet_lite2.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.1,
@@ -817,12 +847,15 @@ class EfficientNetLiteB3(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1_lite",
         name: str = "EfficientNetLiteB3",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetliteb3_tf_efficientnet_lite3.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.2,
@@ -861,12 +894,15 @@ class EfficientNetLiteB4(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1_lite",
         name: str = "EfficientNetLiteB4",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetliteb4_tf_efficientnet_lite4.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.4,
@@ -905,12 +941,17 @@ class EfficientNetV2S(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v2_s",
         name: str = "EfficientNetV2S",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = (
+                "efficientnetv2s_tf_efficientnetv2_s.in21k_ft_in1k.keras"
+            )
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -957,12 +998,17 @@ class EfficientNetV2M(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v2_m",
         name: str = "EfficientNetV2M",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = (
+                "efficientnetv2m_tf_efficientnetv2_m.in21k_ft_in1k.keras"
+            )
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1001,12 +1047,17 @@ class EfficientNetV2L(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v2_l",
         name: str = "EfficientNetV2L",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = (
+                "efficientnetv2l_tf_efficientnetv2_l.in21k_ft_in1k.keras"
+            )
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1045,12 +1096,17 @@ class EfficientNetV2XL(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v2_xl",
         name: str = "EfficientNetV2XL",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = (
+                "efficientnetv2xl_tf_efficientnetv2_xl.in21k_ft_in1k.keras"
+            )
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1089,12 +1145,15 @@ class EfficientNetV2B0(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v2_base",
         name: str = "EfficientNetV2B0",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetv2b0_tf_efficientnetv2_b0.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1141,12 +1200,15 @@ class EfficientNetV2B1(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v2_base",
         name: str = "EfficientNetV2B1",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetv2b1_tf_efficientnetv2_b1.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1193,12 +1255,15 @@ class EfficientNetV2B2(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v2_base",
         name: str = "EfficientNetV2B2",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetv2b2_tf_efficientnetv2_b2.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.1,
@@ -1246,12 +1311,15 @@ class EfficientNetV2B3(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v2_base",
         name: str = "EfficientNetV2B3",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "efficientnetv2b3_tf_efficientnetv2_b3.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.2,
@@ -1299,12 +1367,15 @@ class TinyNetA(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "TinyNetA",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "tinyneta_tinynet_a.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.0,
             1.2,
@@ -1341,12 +1412,15 @@ class TinyNetB(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "TinyNetB",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "tinynetb_tinynet_b.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             0.75,
             1.1,
@@ -1383,12 +1457,15 @@ class TinyNetC(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "TinyNetC",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "tinynetc_tinynet_c.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             0.54,
             0.85,
@@ -1425,12 +1502,15 @@ class TinyNetD(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "TinyNetD",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "tinynetd_tinynet_d.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             0.54,
             0.695,
@@ -1467,12 +1547,15 @@ class TinyNetE(EfficientNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "v1",
         name: str = "TinyNetE",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "tinynete_tinynet_e.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             0.51,
             0.6,

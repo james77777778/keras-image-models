@@ -412,12 +412,15 @@ class GhostNet100(GhostNet):
         dropout_rate: float = 0.2,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
         name: str = "GhostNet100",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "ghostnet100_ghostnet_100.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.0,
             config,
@@ -482,12 +485,15 @@ class GhostNet100V2(GhostNet):
         dropout_rate: float = 0.2,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
         name: str = "GhostNet100V2",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "ghostnet100v2_ghostnetv2_100.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.0,
             config,
@@ -517,12 +523,15 @@ class GhostNet130V2(GhostNet):
         dropout_rate: float = 0.2,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
         name: str = "GhostNet130V2",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "ghostnet130v2_ghostnetv2_130.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.3,
             config,
@@ -552,12 +561,15 @@ class GhostNet160V2(GhostNet):
         dropout_rate: float = 0.2,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
         name: str = "GhostNet160V2",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "ghostnet160v2_ghostnetv2_160.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.6,
             config,
@@ -578,7 +590,7 @@ class GhostNet160V2(GhostNet):
 
 add_model_to_registry(GhostNet050)
 add_model_to_registry(GhostNet100, "imagenet")
-add_model_to_registry(GhostNet130, "imagenet")
+add_model_to_registry(GhostNet130)
 add_model_to_registry(GhostNet100V2, "imagenet")
 add_model_to_registry(GhostNet130V2, "imagenet")
 add_model_to_registry(GhostNet160V2, "imagenet")

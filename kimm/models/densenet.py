@@ -171,11 +171,14 @@ class DenseNet121(DenseNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         name: str = "DenseNet121",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "densenet121_densenet121.ra_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             32,
             [6, 12, 24, 16],
@@ -205,11 +208,14 @@ class DenseNet161(DenseNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         name: str = "DenseNet161",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "densenet161_densenet161.tv_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             48,
             [6, 12, 36, 24],
@@ -239,11 +245,14 @@ class DenseNet169(DenseNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         name: str = "DenseNet169",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "densenet169_densenet169.tv_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             32,
             [6, 12, 32, 32],
@@ -273,11 +282,14 @@ class DenseNet201(DenseNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         name: str = "DenseNet201",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "densenet201_densenet201.tv_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             32,
             [6, 12, 48, 32],

@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:  
+  pypi-publish:
+    strategy:
+      fail-fast: false
+    name: Build wheel file and upload release to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      - name: Get pip cache dir
+        id: pip-cache
+        run: |
+          python -m pip install --upgrade pip setuptools
+          echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
+      - name: Pip cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt --progress-bar off --upgrade
+          pip install -e ".[tests]" --progress-bar off --upgrade
+      - name: Build wheels
+        shell: bash
+        run: |
+          pip install --upgrade pip setuptools wheel twine build
+          python -m build
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true

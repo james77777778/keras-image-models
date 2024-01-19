@@ -4,16 +4,12 @@ on:
   release:
     types: [published]
 
-permissions:
-  contents: read
-
 jobs:  
   pypi-publish:
-    name: Build wheel file and upload
+    strategy:
+      fail-fast: false
+    name: Build wheel file and upload release to PyPI
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/kimm
     permissions:
       id-token: write
     steps:

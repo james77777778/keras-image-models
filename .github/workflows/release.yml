@@ -14,7 +14,7 @@ jobs:
       matrix:
         python-version: [3.9]
         backend: [tensorflow, jax, torch, numpy]
-  name: Run tests
+    name: Run tests
     runs-on: ubuntu-latest
     env:
       PYTHON: ${{ matrix.python-version }}

@@ -146,11 +146,14 @@ class ConvMixer736D32(ConvMixer):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ConvMixer736D32",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "convmixer736d32_convmixer_768_32.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             32,
             768,
@@ -188,11 +191,14 @@ class ConvMixer1024D20(ConvMixer):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ConvMixer1024D20",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "convmixer1024d20_convmixer_1024_20_ks9_p14.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             20,
             1024,
@@ -230,11 +236,14 @@ class ConvMixer1536D20(ConvMixer):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ConvMixer1536D20",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "convmixer1536d20_convmixer_1536_20.in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             20,
             1536,

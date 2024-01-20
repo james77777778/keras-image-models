@@ -156,11 +156,14 @@ class VisionTransformerTiny16(VisionTransformer):
         dropout_rate: float = 0.1,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         name: str = "VisionTransformerTiny16",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "visiontransformertiny16_vit_tiny_patch16_384.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             16,
             192,
@@ -205,7 +208,7 @@ class VisionTransformerTiny32(VisionTransformer):
         dropout_rate: float = 0.1,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = None,
         name: str = "VisionTransformerTiny32",
         **kwargs,
     ):
@@ -254,11 +257,14 @@ class VisionTransformerSmall16(VisionTransformer):
         dropout_rate: float = 0.1,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         name: str = "VisionTransformerSmall16",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "visiontransformersmall16_vit_small_patch16_384.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             16,
             384,
@@ -303,11 +309,14 @@ class VisionTransformerSmall32(VisionTransformer):
         dropout_rate: float = 0.1,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         name: str = "VisionTransformerSmall32",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "visiontransformersmall32_vit_small_patch32_384.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             32,
             384,
@@ -352,11 +361,14 @@ class VisionTransformerBase16(VisionTransformer):
         dropout_rate: float = 0.1,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         name: str = "VisionTransformerBase16",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "visiontransformerbase16_vit_base_patch16_384.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             16,
             768,
@@ -401,11 +413,14 @@ class VisionTransformerBase32(VisionTransformer):
         dropout_rate: float = 0.1,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         name: str = "VisionTransformerBase32",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "visiontransformerbase32_vit_base_patch32_384.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             32,
             768,
@@ -450,7 +465,7 @@ class VisionTransformerLarge16(VisionTransformer):
         dropout_rate: float = 0.1,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = None,
         name: str = "VisionTransformerLarge16",
         **kwargs,
     ):
@@ -499,7 +514,7 @@ class VisionTransformerLarge32(VisionTransformer):
         dropout_rate: float = 0.1,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = None,
         name: str = "VisionTransformerLarge32",
         **kwargs,
     ):
@@ -534,10 +549,10 @@ class VisionTransformerLarge32(VisionTransformer):
 
 
 add_model_to_registry(VisionTransformerTiny16, "imagenet")
-add_model_to_registry(VisionTransformerTiny32, "imagenet")
+add_model_to_registry(VisionTransformerTiny32)
 add_model_to_registry(VisionTransformerSmall16, "imagenet")
 add_model_to_registry(VisionTransformerSmall32, "imagenet")
 add_model_to_registry(VisionTransformerBase16, "imagenet")
 add_model_to_registry(VisionTransformerBase32, "imagenet")
-add_model_to_registry(VisionTransformerLarge16, "imagenet")
-add_model_to_registry(VisionTransformerLarge32, "imagenet")
+add_model_to_registry(VisionTransformerLarge16)
+add_model_to_registry(VisionTransformerLarge32)

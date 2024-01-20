@@ -1,13 +1,18 @@
+import cv2
+import keras
 import pytest
 from absl.testing import parameterized
 from keras import models
+from keras import ops
 from keras import random
+from keras.applications.imagenet_utils import decode_predictions
 from keras.src import testing
 
 from kimm import models as kimm_models
 from kimm.utils import make_divisible
 
-# name, class, default_size, features (name, shape)
+# name, class, default_size, features (name, shape),
+# weights (defaults to imagenet)
 MODEL_CONFIGS = [
     # convmixer
     (
@@ -306,6 +311,7 @@ MODEL_CONFIGS = [
             ("BLOCK4_S16", [1, 14, 14, 512]),
             ("BLOCK5_S32", [1, 7, 7, 512]),
         ],
+        None,  # skip weights to save time
     ),
     # vision_transformer
     (
@@ -319,6 +325,7 @@ MODEL_CONFIGS = [
         kimm_models.VisionTransformerTiny32,
         384,
         [*((f"BLOCK{i}", [1, 145, 192]) for i in range(5))],
+        None,  # no weights
     ),
     # xception
     (
@@ -338,19 +345,35 @@ MODEL_CONFIGS = [
 
 class ModelTest(testing.TestCase, parameterized.TestCase):
     @parameterized.named_parameters(MODEL_CONFIGS)
-    def test_model_base(self, model_class, image_size, features):
+    def test_model_base(
+        self, model_class, image_size, features, weights="imagenet"
+    ):
         # TODO: test the correctness of the real image
-        x = random.uniform([1, image_size, image_size, 3]) * 255.0
-        model = model_class()
+        model = model_class(weights=weights)
+        image_path = keras.utils.get_file(
+            "african_elephant.jpg", "https://i.imgur.com/Bvro0YD.png"
+        )
+        # preprocessing
+        image = cv2.imread(image_path)
+        image = cv2.resize(image, (image_size, image_size))
+        x = ops.convert_to_tensor(image)
+        x = ops.expand_dims(x, axis=0)
 
         y = model(x, training=False)
 
-        self.assertEqual(y.shape, (1, 1000))
+        if weights == "imagenet":
+            names = [p[1] for p in decode_predictions(y)[0]]
+            # Test correct label is in top 3 (weak correctness test).
+            self.assertIn("African_elephant", names[:3])
+        elif weights is None:
+            self.assertEqual(list(y.shape), [1, 1000])
 
     @parameterized.named_parameters(MODEL_CONFIGS)
-    def test_model_feature_extractor(self, model_class, image_size, features):
+    def test_model_feature_extractor(
+        self, model_class, image_size, features, weights="imagenet"
+    ):
         x = random.uniform([1, image_size, image_size, 3]) * 255.0
-        model = model_class(feature_extractor=True)
+        model = model_class(weights=None, feature_extractor=True)
 
         y = model(x, training=False)
 
@@ -364,10 +387,12 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
 
     @pytest.mark.serialization
     @parameterized.named_parameters(MODEL_CONFIGS)
-    def test_model_serialization(self, model_class, image_size, features):
+    def test_model_serialization(
+        self, model_class, image_size, features, weights="imagenet"
+    ):
         x = random.uniform([1, image_size, image_size, 3]) * 255.0
         temp_dir = self.get_temp_dir()
-        model1 = model_class()
+        model1 = model_class(weights=None)
 
         y1 = model1(x, training=False)
         model1.save(temp_dir + "/model.keras")

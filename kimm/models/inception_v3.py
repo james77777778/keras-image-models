@@ -293,11 +293,15 @@ class InceptionV3(InceptionV3Base):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         name: str = "InceptionV3",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            has_aux_logits = False
+            file_name = "inceptionv3_inception_v3.gluon_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             has_aux_logits,
             input_tensor=input_tensor,

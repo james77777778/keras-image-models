@@ -162,12 +162,15 @@ class MobileNet050V2(MobileNetV2):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
         name: str = "MobileNet050V2",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "mobilenet050v2_mobilenetv2_050.lamb_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             0.5,
             1.0,
@@ -198,12 +201,15 @@ class MobileNet100V2(MobileNetV2):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
         name: str = "MobileNet100V2",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "mobilenet100v2_mobilenetv2_100.ra_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.0,
             1.0,
@@ -234,12 +240,15 @@ class MobileNet110V2(MobileNetV2):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
         name: str = "MobileNet110V2",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "mobilenet110v2_mobilenetv2_110d.ra_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.1,
             1.2,
@@ -270,12 +279,15 @@ class MobileNet120V2(MobileNetV2):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
         name: str = "MobileNet120V2",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "mobilenet120v2_mobilenetv2_120d.ra_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.2,
             1.4,
@@ -306,12 +318,15 @@ class MobileNet140V2(MobileNetV2):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
         name: str = "MobileNet140V2",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "mobilenet140v2_mobilenetv2_140.ra_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.4,
             1.0,

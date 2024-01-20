@@ -27,6 +27,7 @@ dependencies = ["keras"]
 
 [project.optional-dependencies]
 tests = [
+    "opencv-python",
     "isort",
     "ruff",
     "black",

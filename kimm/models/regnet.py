@@ -247,11 +247,14 @@ class RegNetX002(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetX002",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnetx002_regnetx_002.pycls_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             24,
             36.44,
@@ -283,11 +286,14 @@ class RegNetY002(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetY002",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnety002_regnety_002.pycls_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             24,
             36.44,
@@ -320,11 +326,14 @@ class RegNetX004(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetX004",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnetx004_regnetx_004.pycls_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             24,
             24.48,
@@ -356,11 +365,14 @@ class RegNetY004(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetY004",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnety004_regnety_004.tv2_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             48,
             27.89,
@@ -393,11 +405,14 @@ class RegNetX006(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetX006",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnetx006_regnetx_006.pycls_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             48,
             36.97,
@@ -429,11 +444,14 @@ class RegNetY006(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetY006",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnety006_regnety_006.pycls_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             48,
             32.54,
@@ -466,11 +484,14 @@ class RegNetX008(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetX008",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnetx008_regnetx_008.tv2_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             56,
             35.73,
@@ -502,11 +523,14 @@ class RegNetY008(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetY008",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnety008_regnety_008.pycls_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             56,
             38.84,
@@ -539,11 +563,14 @@ class RegNetX016(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetX016",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnetx016_regnetx_016.tv2_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             80,
             34.01,
@@ -575,11 +602,14 @@ class RegNetY016(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetY016",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnety016_regnety_016.tv2_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             48,
             20.71,
@@ -612,11 +642,14 @@ class RegNetX032(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetX032",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnetx032_regnetx_032.tv2_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             88,
             26.31,
@@ -648,11 +681,14 @@ class RegNetY032(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetY032",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnety032_regnety_032.ra_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             80,
             42.63,
@@ -685,11 +721,14 @@ class RegNetX040(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetX040",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnetx040_regnetx_040.pycls_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             96,
             38.65,
@@ -721,11 +760,14 @@ class RegNetY040(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetY040",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnety040_regnety_040.ra3_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             96,
             31.41,
@@ -758,11 +800,14 @@ class RegNetX064(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetX064",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnetx064_regnetx_064.pycls_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             184,
             60.83,
@@ -794,11 +839,14 @@ class RegNetY064(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetY064",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnety064_regnety_064.ra3_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             112,
             33.22,
@@ -831,11 +879,14 @@ class RegNetX080(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetX080",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnetx080_regnetx_080.tv2_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             80,
             49.56,
@@ -867,11 +918,14 @@ class RegNetY080(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetY080",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnety080_regnety_080.ra3_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             192,
             76.82,
@@ -904,11 +958,14 @@ class RegNetX120(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetX120",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnetx120_regnetx_120.pycls_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             168,
             73.36,
@@ -940,11 +997,14 @@ class RegNetY120(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetY120",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnety120_regnety_120.sw_in12k_ft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             168,
             73.36,
@@ -977,11 +1037,14 @@ class RegNetX160(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetX160",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnetx160_regnetx_160.tv2_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             216,
             55.59,
@@ -1013,11 +1076,14 @@ class RegNetY160(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetY160",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnety160_regnety_160.swag_ft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             200,
             106.23,
@@ -1050,11 +1116,14 @@ class RegNetX320(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetX320",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnetx320_regnetx_320.tv2_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             320,
             69.86,
@@ -1086,11 +1155,14 @@ class RegNetY320(RegNet):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "RegNetY320",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "regnety320_regnety_320.swag_ft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             232,
             115.89,

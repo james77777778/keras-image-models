@@ -247,11 +247,14 @@ class ConvNeXtAtto(ConvNeXt):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ConvNeXtAtto",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "convnextatto_convnext_atto.d2_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (2, 2, 6, 2),
             (40, 80, 160, 320),
@@ -284,11 +287,14 @@ class ConvNeXtFemto(ConvNeXt):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ConvNeXtFemto",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "convnextfemto_convnext_femto.d1_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (2, 2, 6, 2),
             (48, 96, 192, 384),
@@ -321,11 +327,14 @@ class ConvNeXtPico(ConvNeXt):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ConvNeXtPico",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "convnextpico_convnext_pico.d1_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (2, 2, 6, 2),
             (64, 128, 256, 512),
@@ -358,11 +367,14 @@ class ConvNeXtNano(ConvNeXt):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ConvNeXtNano",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "convnextnano_convnext_nano.in12k_ft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (2, 2, 8, 2),
             (80, 160, 320, 640),
@@ -395,11 +407,14 @@ class ConvNeXtTiny(ConvNeXt):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ConvNeXtTiny",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "convnexttiny_convnext_tiny.in12k_ft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (3, 3, 9, 3),
             (96, 192, 384, 768),
@@ -432,11 +447,14 @@ class ConvNeXtSmall(ConvNeXt):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ConvNeXtSmall",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "convnextsmall_convnext_small.in12k_ft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (3, 3, 27, 3),
             (96, 192, 384, 768),
@@ -469,11 +487,14 @@ class ConvNeXtBase(ConvNeXt):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ConvNeXtBase",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "convnextbase_convnext_base.fb_in22k_ft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (3, 3, 27, 3),
             (128, 256, 512, 1024),
@@ -506,11 +527,14 @@ class ConvNeXtLarge(ConvNeXt):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: str = "ConvNeXtLarge",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "convnextlarge_convnext_large.fb_in22k_ft_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (3, 3, 27, 3),
             (192, 384, 768, 1536),
@@ -577,4 +601,4 @@ add_model_to_registry(ConvNeXtTiny, "imagenet")
 add_model_to_registry(ConvNeXtSmall, "imagenet")
 add_model_to_registry(ConvNeXtBase, "imagenet")
 add_model_to_registry(ConvNeXtLarge, "imagenet")
-add_model_to_registry(ConvNeXtXLarge, "imagenet")
+add_model_to_registry(ConvNeXtXLarge)

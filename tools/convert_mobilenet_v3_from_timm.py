@@ -26,7 +26,6 @@ timm_model_names = [
     "lcnet_075.ra2_in1k",
     "lcnet_100.ra2_in1k",
 ]
-timm_model_names = timm_model_names[-3:]
 keras_model_classes = [
     mobilenet_v3.MobileNet050V3Small,
     mobilenet_v3.MobileNet075V3Small,
@@ -38,7 +37,6 @@ keras_model_classes = [
     mobilenet_v3.LCNet075,
     mobilenet_v3.LCNet100,
 ]
-keras_model_classes = keras_model_classes[-3:]
 
 for timm_model_name, keras_model_class in zip(
     timm_model_names, keras_model_classes

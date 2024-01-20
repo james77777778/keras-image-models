@@ -301,12 +301,15 @@ class MobileViTS(MobileViT):
         dropout_rate: float = 0.1,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: str = "v1_s",
         name="MobileViTS",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "mobilevits_mobilevit_s.cvnets_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             16,
             640,
@@ -337,12 +340,15 @@ class MobileViTXS(MobileViT):
         dropout_rate: float = 0.1,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: str = "v1_xs",
         name="MobileViTXS",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
+        if weights == "imagenet":
+            file_name = "mobilevitxs_mobilevit_xs.cvnets_in1k.keras"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             16,
             384,
@@ -373,16 +379,15 @@ class MobileViTXXS(MobileViT):
         dropout_rate: float = 0.1,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",  # TODO: imagenet
+        weights: typing.Optional[str] = "imagenet",
         config: str = "v1_xxs",
         name="MobileViTXXS",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
         if weights == "imagenet":
-            origin = "https://github.com/james77777778/keras-aug/releases/download/v0.5.0"
             file_name = "mobilevitxxs_mobilevit_xxs.cvnets_in1k.keras"
-            kwargs["weights_url"] = f"{origin}/{file_name}"
+            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             16,
             320,

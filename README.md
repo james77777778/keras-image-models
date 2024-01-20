@@ -8,6 +8,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/kimm)](https://pypi.org/project/kimm/)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/james77777778/kimm/issues)
+[![codecov](https://codecov.io/gh/james77777778/kimm/graph/badge.svg?token=eEha1SR80D)](https://codecov.io/gh/james77777778/kimm)
 </div>
 
 ## Description

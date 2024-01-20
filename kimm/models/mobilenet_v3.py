@@ -547,6 +547,16 @@ class MobileNet100V3Large(MobileNetV3):
             **kwargs,
         )
 
+    def build_preprocessing(self, inputs, mode="imagenet"):
+        if (
+            self._weights_url is not None
+            and "miil_in21k_ft_in1k" in self._weights_url
+        ):
+            """`miil_in21k_ft_in1k` needs `0_1`"""
+            return super().build_preprocessing(inputs, "0_1")
+        else:
+            return super().build_preprocessing(inputs, mode)
+
     @staticmethod
     def available_feature_keys():
         feature_keys = ["STEM_S2"]

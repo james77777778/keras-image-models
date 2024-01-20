@@ -71,6 +71,8 @@ Predicted: [('n02504458', 'African_elephant', 0.90578836), ('n01871265', 'tusker
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IbqfqG2NKEOKvBOznIPT1kjOdVPfThmd?usp=sharing)
 
+Using `kimm.models.EfficientNetLiteB0`:
+
 <div align="center">
 <img width="75%" src="https://github.com/james77777778/kimm/assets/20734616/cbfc0773-a3fa-407d-be9a-fba4f19da6d3" alt="kimm_prediction_0">
 
@@ -78,6 +80,17 @@ Predicted: [('n02504458', 'African_elephant', 0.90578836), ('n01871265', 'tusker
 </div>
 
 Reference: [Transfer learning & fine-tuning (keras.io)](https://keras.io/guides/transfer_learning/#an-endtoend-example-finetuning-an-image-classification-model-on-a-cats-vs-dogs-dataset)
+
+### Grad-CAM
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1h25VmsYDOLL6BNbRPEVOh1arIgcEoHu6?usp=sharing)
+
+Using `kimm.models.MobileViTS`:
+
+<img width="75%" src="https://github.com/james77777778/kimm/assets/20734616/2e61ae06-32e2-4495-ac3d-04e908dea378" alt="grad_cam">
+</div>
+
+Reference: [Grad-CAM class activation visualization (keras.io)](https://keras.io/examples/vision/grad_cam/)
 
 ## Model Zoo
 

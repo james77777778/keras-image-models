@@ -45,6 +45,13 @@ jobs:
       - name: Test with pytest
         run: |
           pytest
+          coverage xml -o coverage.xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          flags: kimm,kimm-${{ matrix.backend }}
 
   format:
     name: Check the code format

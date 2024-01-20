@@ -17,30 +17,36 @@ from kimm.utils.timm_utils import separate_torch_state_dict
 
 timm_model_names = [
     "inception_v3.gluon_in1k",
+    "inception_v3.gluon_in1k",
 ]
 keras_model_classes = [
     inception_v3.InceptionV3,
+    inception_v3.InceptionV3,
 ]
+has_aux_logits_list = [True, False]
 
-for timm_model_name, keras_model_class in zip(
-    timm_model_names, keras_model_classes
+for timm_model_name, keras_model_class, has_aux_logits in zip(
+    timm_model_names,
+    keras_model_classes,
+    has_aux_logits_list,
 ):
     """
     Prepare timm model and keras model
     """
     input_shape = [299, 299, 3]
     torch_model = timm.create_model(
-        timm_model_name, pretrained=True, aux_logits=False
+        timm_model_name, pretrained=True, aux_logits=has_aux_logits
     )
     torch_model = torch_model.eval()
     trainable_state_dict, non_trainable_state_dict = separate_torch_state_dict(
         torch_model.state_dict()
     )
     keras_model = keras_model_class(
-        has_aux_logits=False,
+        has_aux_logits=has_aux_logits,
         input_shape=input_shape,
         include_preprocessing=False,
         classifier_activation="linear",
+        weights=None,
     )
     trainable_weights, non_trainable_weights = separate_keras_weights(
         keras_model
@@ -129,17 +135,33 @@ for timm_model_name, keras_model_class in zip(
     np.random.seed(2023)
     keras_data = np.random.uniform(size=[1] + input_shape).astype("float32")
     torch_data = torch.from_numpy(np.transpose(keras_data, [0, 3, 1, 2]))
-    torch_y = torch_model(torch_data)
-    keras_y = keras_model(keras_data, training=False)
-    torch_y = torch_y.detach().cpu().numpy()
-    keras_y = keras.ops.convert_to_numpy(keras_y)
-    np.testing.assert_allclose(torch_y, keras_y, atol=1e-5)
+    if has_aux_logits:
+        torch_y = torch_model(torch_data)[0]
+        keras_y = keras_model(keras_data, training=False)[0]
+        torch_y = torch_y.detach().cpu().numpy()
+        keras_y = keras.ops.convert_to_numpy(keras_y)
+        np.testing.assert_allclose(torch_y, keras_y, atol=1e-5)
+    else:
+        torch_y = torch_model(torch_data)
+        keras_y = keras_model(keras_data, training=False)
+        torch_y = torch_y.detach().cpu().numpy()
+        keras_y = keras.ops.convert_to_numpy(keras_y)
+        np.testing.assert_allclose(torch_y, keras_y, atol=1e-5)
     print(f"{keras_model_class.__name__}: output matched!")
 
     """
     Save converted model
     """
     os.makedirs("exported", exist_ok=True)
-    export_path = f"exported/{keras_model.name.lower()}_{timm_model_name}.keras"
+    if has_aux_logits:
+        export_path = (
+            f"exported/{keras_model.name.lower()}_{timm_model_name}_"
+            "aux_logits.keras"
+        )
+    else:
+        export_path = (
+            f"exported/{keras_model.name.lower()}_{timm_model_name}_"
+            "no_aux_logits.keras"
+        )
     keras_model.save(export_path)
     print(f"Export to {export_path}")

@@ -24,7 +24,7 @@ pip install keras kimm
 
 ## Quickstart
 
-### Use Pretrained Model
+### Image Classification Using the Model Pretrained on ImageNet
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/14WxYgVjlwCIO9MwqPYW-dskbTL2UHsVN?usp=sharing)
 

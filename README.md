@@ -67,54 +67,43 @@ print("Predicted:", decode_predictions(preds, top=3)[0])
 Predicted: [('n02504458', 'African_elephant', 0.90578836), ('n01871265', 'tusker', 0.024864597), ('n02504013', 'Indian_elephant', 0.01161992)]
 ```
 
-### Transfer Learning
-
-```python
-from keras import layers
-from keras import models
-from keras import random
-
-import kimm
-
-# Initialize the model as a backbone with pretrained weights
-backbone = kimm.models.EfficientNetV2B0(
-    input_shape=[224, 224, 3],
-    include_top=False,
-    pooling="avg",
-    weights="imagenet",
-)
-
-# Freeze the backbone for transfer learning
-backbone.trainable = False
-
-# Construct the model with new head
-inputs = layers.Input([224, 224, 3])
-x = backbone(inputs, training=False)
-x = layers.Dropout(0.2)(x)
-outputs = layers.Dense(2)(x)
-model = models.Model(inputs, outputs)
-
-# Train the new model (put your own logic here)
-
-# Predict
-x = random.uniform([1, 224, 224, 3]) * 255.0
-y = model.predict(x)
-print(y.shape)
-```
-
-#### An end-to-end example: fine-tuning an image classification model on a cats vs. dogs dataset
+### An end-to-end example: fine-tuning an image classification model on a cats vs. dogs dataset
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IbqfqG2NKEOKvBOznIPT1kjOdVPfThmd?usp=sharing)
 
 <div align="center">
 <img width="75%" src="https://github.com/james77777778/kimm/assets/20734616/cbfc0773-a3fa-407d-be9a-fba4f19da6d3" alt="kimm_prediction_0">
 
-<img width="75%" src="https://github.com/james77777778/kimm/assets/20734616/2eac0831-75bb-4790-a3af-412c3e09cf8f" alt="kimm_prediction_0">
+<img width="75%" src="https://github.com/james77777778/kimm/assets/20734616/2eac0831-75bb-4790-a3af-412c3e09cf8f" alt="kimm_prediction_1">
 </div>
 
-Reference:
+Reference: [Transfer learning & fine-tuning (keras.io)](https://keras.io/guides/transfer_learning/#an-endtoend-example-finetuning-an-image-classification-model-on-a-cats-vs-dogs-dataset)
 
-[https://keras.io/guides/transfer_learning/#an-endtoend-example-finetuning-an-image-classification-model-on-a-cats-vs-dogs-dataset](https://keras.io/guides/transfer_learning/#an-endtoend-example-finetuning-an-image-classification-model-on-a-cats-vs-dogs-dataset)
+## Model Zoo
+
+|Model|Paper|Weights are ported from|
+|-|-|-|
+|ConvMixer|[ICLR 2022 Submission](https://arxiv.org/abs/2201.09792)|`timm`|
+|ConvNeXt|[CVPR 2022](https://arxiv.org/abs/2201.03545)|`timm`|
+|DenseNet|[CVPR 2017](https://arxiv.org/abs/1608.06993)|`timm`|
+|EfficientNet|[ICML 2019](https://arxiv.org/abs/1905.11946)|`timm`|
+|EfficientNetLite|[ICML 2019](https://arxiv.org/abs/1905.11946)|`timm`|
+|EfficientNetV2|[ICML 2021](https://arxiv.org/abs/2104.00298)|`timm`|
+|GhostNet|[CVPR 2020](https://arxiv.org/abs/1911.11907)|`timm`|
+|GhostNetV2|[NeurIPS 2022](https://arxiv.org/abs/2211.12905)|`timm`|
+|InceptionV3|[CVPR 2016](https://arxiv.org/abs/1512.00567)|`timm`|
+|LCNet|[arXiv 2021](https://arxiv.org/abs/2109.15099)|`timm`|
+|MobileNetV2|[CVPR 2018](https://arxiv.org/abs/1801.04381)|`timm`|
+|MobileNetV3|[ICCV 2019](https://arxiv.org/abs/1905.02244)|`timm`|
+|MobileViT|[ICLR 2022](https://arxiv.org/abs/2110.02178)|`timm`|
+|RegNet|[CVPR 2020](https://arxiv.org/abs/2003.13678)|`timm`|
+|ResNet|[CVPR 2015](https://arxiv.org/abs/1512.03385)|`timm`|
+|TinyNet|[NeurIPS 2020](https://arxiv.org/abs/2010.14819)|`timm`|
+|VGG|[ICLR 2015](https://arxiv.org/abs/1409.1556)|`timm`|
+|ViT|[ICLR 2021](https://arxiv.org/abs/2010.11929)|`timm`|
+|Xception|[CVPR 2017](https://arxiv.org/abs/1610.02357)|`keras`|
+
+The export scripts can be found in `tools/convert_*.py`.
 
 ## License
 

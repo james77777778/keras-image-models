@@ -26,8 +26,13 @@ pip install keras kimm
 
 ### Use Pretrained Model
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/14WxYgVjlwCIO9MwqPYW-dskbTL2UHsVN?usp=sharing)
+
 ```python
-from keras import random
+import cv2
+import keras
+from keras import ops
+from keras.applications.imagenet_utils import decode_predictions
 
 import kimm
 
@@ -40,20 +45,21 @@ print(kimm.list_models("efficientnet", weights="imagenet"))  # fuzzy search
 # Initialize the model with pretrained weights
 model = kimm.models.EfficientNetV2B0(weights="imagenet")
 
-# Predict
-x = random.uniform([1, 192, 192, 3]) * 255.0
-y = model.predict(x)
-print(y.shape)
-
-# Initialize the model as a feature extractor with pretrained weights
-model = kimm.models.EfficientNetV2B0(
-    feature_extractor=True, weights="imagenet"
+# Load an image as the model input
+image_path = keras.utils.get_file(
+    "african_elephant.jpg", "https://i.imgur.com/Bvro0YD.png"
 )
+image = cv2.imread(image_path)
+image = cv2.resize(image, (image_size, image_size))
+x = ops.convert_to_tensor(image)
+x = ops.expand_dims(x, axis=0)
 
-# Extract features for downstream tasks
-y = model.predict(x)
-print(y.keys())
-print(y["BLOCK5_S32"].shape)
+# Initialize the model with pretrained weights
+model = kimm.models.EfficientNetV2B0()
+
+# Predict
+preds = model.predict(inputs)
+print("Predicted:", decode_predictions(preds, top=3)[0])
 ```
 
 ### Transfer Learning
@@ -90,6 +96,14 @@ x = random.uniform([1, 224, 224, 3]) * 255.0
 y = model.predict(x)
 print(y.shape)
 ```
+
+#### An end-to-end example: fine-tuning an image classification model on a cats vs. dogs dataset
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IbqfqG2NKEOKvBOznIPT1kjOdVPfThmd?usp=sharing)
+
+Reference:
+
+[https://keras.io/guides/transfer_learning/#an-endtoend-example-finetuning-an-image-classification-model-on-a-cats-vs-dogs-dataset](https://keras.io/guides/transfer_learning/#an-endtoend-example-finetuning-an-image-classification-model-on-a-cats-vs-dogs-dataset)
 
 ## License
 

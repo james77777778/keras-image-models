@@ -29,7 +29,7 @@ class MobileNetV2(BaseModel):
         width: float = 1.0,
         depth: float = 1.0,
         fix_stem_and_head_channels: bool = False,
-        config: typing.Union[str, typing.List] = "default",
+        config: typing.Literal["default"] = "default",
         **kwargs,
     ):
         _available_configs = ["default"]

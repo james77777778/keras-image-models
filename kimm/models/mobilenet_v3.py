@@ -86,7 +86,7 @@ class MobileNetV3(BaseModel):
         width: float = 1.0,
         depth: float = 1.0,
         fix_stem_and_head_channels: bool = False,
-        config: typing.Union[str, typing.List] = "large",
+        config: typing.Literal["small", "large", "lcnet"] = "large",
         minimal: bool = False,
         **kwargs,
     ):

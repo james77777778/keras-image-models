@@ -2,15 +2,16 @@ import keras
 from keras import initializers
 from keras import layers
 from keras import ops
+from keras.initializers import Initializer
 
 
 @keras.saving.register_keras_serializable(package="kimm")
 class LayerScale(layers.Layer):
     def __init__(
         self,
-        hidden_size,
-        initializer=initializers.Constant(1e-5),
-        name="layer_scale",
+        hidden_size: int,
+        initializer: Initializer = initializers.Constant(1e-5),
+        name: str = "layer_scale",
         **kwargs,
     ):
         super().__init__(**kwargs)

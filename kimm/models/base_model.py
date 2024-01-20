@@ -92,12 +92,12 @@ class BaseModel(models.Model):
 
     def determine_input_tensor(
         self,
-        input_tensor=None,
-        input_shape=None,
-        default_size=224,
-        min_size=32,
-        require_flatten=False,
-        static_shape=False,
+        input_tensor: typing.Optional[KerasTensor] = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        default_size: int = 224,
+        min_size: int = 32,
+        require_flatten: bool = False,
+        static_shape: bool = False,
     ):
         """Determine the input tensor by the arguments."""
         input_shape = imagenet_utils.obtain_input_shape(
@@ -118,7 +118,11 @@ class BaseModel(models.Model):
                 x = utils.get_source_inputs(input_tensor)
         return x
 
-    def build_preprocessing(self, inputs, mode="imagenet"):
+    def build_preprocessing(
+        self,
+        inputs,
+        mode: typing.Literal["imagenet", "0_1", "-1_1"] = "imagenet",
+    ):
         if self._include_preprocessing is False:
             return inputs
         if mode == "imagenet":
@@ -140,7 +144,13 @@ class BaseModel(models.Model):
             )
         return x
 
-    def build_top(self, inputs, classes, classifier_activation, dropout_rate):
+    def build_top(
+        self,
+        inputs,
+        classes: int,
+        classifier_activation: str,
+        dropout_rate: float,
+    ):
         x = layers.GlobalAveragePooling2D(name="avg_pool")(inputs)
         x = layers.Dropout(rate=dropout_rate, name="head_dropout")(x)
         x = layers.Dense(

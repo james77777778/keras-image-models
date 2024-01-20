@@ -1,9 +1,14 @@
+import typing
+
 from keras import layers
 
 from kimm.utils import make_divisible
 
 
-def apply_activation(x, activation=None, name="activation"):
+def apply_activation(
+    inputs, activation: typing.Optional[str] = None, name: str = "activation"
+):
+    x = inputs
     if activation is not None:
         if isinstance(activation, str):
             x = layers.Activation(activation, name=name)(x)
@@ -18,16 +23,18 @@ def apply_activation(x, activation=None, name="activation"):
 
 def apply_conv2d_block(
     inputs,
-    filters=None,
-    kernel_size=None,
-    strides=1,
-    groups=1,
-    activation=None,
-    use_depthwise=False,
-    add_skip=False,
-    bn_momentum=0.9,
-    bn_epsilon=1e-5,
-    padding=None,
+    filters: typing.Optional[int] = None,
+    kernel_size: typing.Optional[
+        typing.Union[int, typing.Sequence[int]]
+    ] = None,
+    strides: int = 1,
+    groups: int = 1,
+    activation: typing.Optional[str] = None,
+    use_depthwise: bool = False,
+    add_skip: bool = False,
+    bn_momentum: float = 0.9,
+    bn_epsilon: float = 1e-5,
+    padding: typing.Optional[typing.Literal["same", "valid"]] = None,
     name="conv2d_block",
 ):
     if kernel_size is None:
@@ -77,12 +84,12 @@ def apply_conv2d_block(
 
 def apply_se_block(
     inputs,
-    se_ratio=0.25,
-    activation="relu",
-    gate_activation="sigmoid",
-    make_divisible_number=None,
-    se_input_channels=None,
-    name="se_block",
+    se_ratio: float = 0.25,
+    activation: typing.Optional[str] = "relu",
+    gate_activation: typing.Optional[str] = "sigmoid",
+    make_divisible_number: typing.Optional[int] = None,
+    se_input_channels: typing.Optional[int] = None,
+    name: str = "se_block",
 ):
     input_channels = inputs.shape[-1]
     if se_input_channels is None:
@@ -94,7 +101,6 @@ def apply_se_block(
             se_input_channels * se_ratio, make_divisible_number
         )
 
-    ori_x = inputs
     x = inputs
     x = layers.GlobalAveragePooling2D(keepdims=True, name=f"{name}_mean")(x)
     x = layers.Conv2D(
@@ -105,5 +111,5 @@ def apply_se_block(
         input_channels, 1, use_bias=True, name=f"{name}_conv_expand"
     )(x)
     x = apply_activation(x, gate_activation, name=f"{name}_gate")
-    out = layers.Multiply(name=name)([ori_x, x])
-    return out
+    x = layers.Multiply(name=name)([inputs, x])
+    return x

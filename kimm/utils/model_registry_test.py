@@ -62,14 +62,20 @@ class ModelRegistryTest(testing.TestCase):
         self.assertTrue(DummyModel.__name__ in result)
         self.assertTrue(DummyFeatureExtractor.__name__ not in result)
 
-        # filter support_feature
+        # filter feature_extractor
         result = list_models(feature_extractor=True)
         self.assertEqual(len(result), 1)
         self.assertTrue(DummyModel.__name__ not in result)
         self.assertTrue(DummyFeatureExtractor.__name__ in result)
 
-        # filter pretrained
+        # filter weights="imagenet"
         result = list_models(weights="imagenet")
+        self.assertEqual(len(result), 1)
+        self.assertTrue(DummyModel.__name__ not in result)
+        self.assertTrue(DummyFeatureExtractor.__name__ in result)
+
+        # filter weights=True
+        result = list_models(weights=True)
         self.assertEqual(len(result), 1)
         self.assertTrue(DummyModel.__name__ not in result)
         self.assertTrue(DummyFeatureExtractor.__name__ in result)

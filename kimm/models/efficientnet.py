@@ -134,7 +134,7 @@ class EfficientNet(BaseModel):
         fix_stem_and_head_channels: bool = False,
         fix_first_and_last_blocks: bool = False,
         activation="swish",
-        config: typing.Union[str, typing.List] = "v1",
+        config: str = "v1",
         **kwargs,
     ):
         _available_configs = [

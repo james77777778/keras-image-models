@@ -106,7 +106,10 @@ def apply_bottleneck_block(
 @keras.saving.register_keras_serializable(package="kimm")
 class ResNet(BaseModel):
     def __init__(
-        self, block_fn: str, num_blocks: typing.Sequence[int], **kwargs
+        self,
+        block_fn: typing.Literal["basic", "bottleneck"],
+        num_blocks: typing.Sequence[int],
+        **kwargs,
     ):
         if block_fn not in ("basic", "bottleneck"):
             raise ValueError(

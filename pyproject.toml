@@ -33,6 +33,7 @@ tests = [
     "black",
     "pytest",
     "pytest-cov",
+    "coverage",
 ]
 examples = ["opencv-python", "matplotlib"]
 

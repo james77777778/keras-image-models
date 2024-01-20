@@ -87,7 +87,7 @@ Reference: [Transfer learning & fine-tuning (keras.io)](https://keras.io/guides/
 
 Using `kimm.models.MobileViTS`:
 
-<img width="75%" src="https://github.com/james77777778/kimm/assets/20734616/2e61ae06-32e2-4495-ac3d-04e908dea378" alt="grad_cam">
+<img width="75%" src="https://github.com/james77777778/kimm/assets/20734616/cb5022a3-aaea-4324-a9cd-3d2e63a0a6b2" alt="grad_cam">
 </div>
 
 Reference: [Grad-CAM class activation visualization (keras.io)](https://keras.io/examples/vision/grad_cam/)

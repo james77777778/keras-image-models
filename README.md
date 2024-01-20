@@ -1,4 +1,14 @@
+<!-- markdownlint-disable MD033 -->
+<!-- markdownlint-disable MD041 -->
+
 # Keras Image Models
+
+<div align="center">
+<img width="50%" src="docs/banner/kimm.png" alt="KIMM">
+
+[![PyPI](https://img.shields.io/pypi/v/kimm)](https://pypi.org/project/kimm/)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/james77777778/kimm/issues)
+</div>
 
 ## Description
 

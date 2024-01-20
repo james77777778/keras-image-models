@@ -4,7 +4,7 @@
 # Keras Image Models
 
 <div align="center">
-<img width="50%" src="docs/banner/kimm.png" alt="KIMM">
+<img width="50%" src="https://github.com/james77777778/kimm/assets/20734616/b21db8f2-307b-4791-b93d-e913e45fb238" alt="KIMM">
 
 [![PyPI](https://img.shields.io/pypi/v/kimm)](https://pypi.org/project/kimm/)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/james77777778/kimm/issues)
@@ -43,7 +43,8 @@ print(kimm.list_models())
 print(kimm.list_models("efficientnet", weights="imagenet"))  # fuzzy search
 
 # Initialize the model with pretrained weights
-model = kimm.models.EfficientNetV2B0(weights="imagenet")
+model = kimm.models.EfficientNetV2B0()
+image_size = model._default_size
 
 # Load an image as the model input
 image_path = keras.utils.get_file(
@@ -54,12 +55,16 @@ image = cv2.resize(image, (image_size, image_size))
 x = ops.convert_to_tensor(image)
 x = ops.expand_dims(x, axis=0)
 
-# Initialize the model with pretrained weights
-model = kimm.models.EfficientNetV2B0()
-
 # Predict
-preds = model.predict(inputs)
+preds = model.predict(x)
 print("Predicted:", decode_predictions(preds, top=3)[0])
+```
+
+```bash
+['ConvMixer1024D20', 'ConvMixer1536D20', 'ConvMixer736D32', 'ConvNeXtAtto', ...]
+['EfficientNetB0', 'EfficientNetB1', 'EfficientNetB2', 'EfficientNetB3', ...]
+1/1 ━━━━━━━━━━━━━━━━━━━━ 11s 11s/step
+Predicted: [('n02504458', 'African_elephant', 0.90578836), ('n01871265', 'tusker', 0.024864597), ('n02504013', 'Indian_elephant', 0.01161992)]
 ```
 
 ### Transfer Learning
@@ -100,6 +105,12 @@ print(y.shape)
 #### An end-to-end example: fine-tuning an image classification model on a cats vs. dogs dataset
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IbqfqG2NKEOKvBOznIPT1kjOdVPfThmd?usp=sharing)
+
+<div align="center">
+<img width="75%" src="https://github.com/james77777778/kimm/assets/20734616/cbfc0773-a3fa-407d-be9a-fba4f19da6d3" alt="kimm_prediction_0">
+
+<img width="75%" src="https://github.com/james77777778/kimm/assets/20734616/2eac0831-75bb-4790-a3af-412c3e09cf8f" alt="kimm_prediction_0">
+</div>
 
 Reference:
 

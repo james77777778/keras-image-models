@@ -81,27 +81,27 @@ Reference: [Transfer learning & fine-tuning (keras.io)](https://keras.io/guides/
 
 ## Model Zoo
 
-|Model|Paper|Weights are ported from|
-|-|-|-|
-|ConvMixer|[ICLR 2022 Submission](https://arxiv.org/abs/2201.09792)|`timm`|
-|ConvNeXt|[CVPR 2022](https://arxiv.org/abs/2201.03545)|`timm`|
-|DenseNet|[CVPR 2017](https://arxiv.org/abs/1608.06993)|`timm`|
-|EfficientNet|[ICML 2019](https://arxiv.org/abs/1905.11946)|`timm`|
-|EfficientNetLite|[ICML 2019](https://arxiv.org/abs/1905.11946)|`timm`|
-|EfficientNetV2|[ICML 2021](https://arxiv.org/abs/2104.00298)|`timm`|
-|GhostNet|[CVPR 2020](https://arxiv.org/abs/1911.11907)|`timm`|
-|GhostNetV2|[NeurIPS 2022](https://arxiv.org/abs/2211.12905)|`timm`|
-|InceptionV3|[CVPR 2016](https://arxiv.org/abs/1512.00567)|`timm`|
-|LCNet|[arXiv 2021](https://arxiv.org/abs/2109.15099)|`timm`|
-|MobileNetV2|[CVPR 2018](https://arxiv.org/abs/1801.04381)|`timm`|
-|MobileNetV3|[ICCV 2019](https://arxiv.org/abs/1905.02244)|`timm`|
-|MobileViT|[ICLR 2022](https://arxiv.org/abs/2110.02178)|`timm`|
-|RegNet|[CVPR 2020](https://arxiv.org/abs/2003.13678)|`timm`|
-|ResNet|[CVPR 2015](https://arxiv.org/abs/1512.03385)|`timm`|
-|TinyNet|[NeurIPS 2020](https://arxiv.org/abs/2010.14819)|`timm`|
-|VGG|[ICLR 2015](https://arxiv.org/abs/1409.1556)|`timm`|
-|ViT|[ICLR 2021](https://arxiv.org/abs/2010.11929)|`timm`|
-|Xception|[CVPR 2017](https://arxiv.org/abs/1610.02357)|`keras`|
+|Model|Paper|Weights are ported from|API|
+|-|-|-|-|
+|ConvMixer|[ICLR 2022 Submission](https://arxiv.org/abs/2201.09792)|`timm`|`kimm.models.ConvMixer*`|
+|ConvNeXt|[CVPR 2022](https://arxiv.org/abs/2201.03545)|`timm`|`kimm.models.ConvNeXt*`|
+|DenseNet|[CVPR 2017](https://arxiv.org/abs/1608.06993)|`timm`|`kimm.models.DenseNet*`|
+|EfficientNet|[ICML 2019](https://arxiv.org/abs/1905.11946)|`timm`|`kimm.models.EfficientNet*`|
+|EfficientNetLite|[ICML 2019](https://arxiv.org/abs/1905.11946)|`timm`|`kimm.models.EfficientNetLite*`|
+|EfficientNetV2|[ICML 2021](https://arxiv.org/abs/2104.00298)|`timm`|`kimm.models.EfficientNetV2*`|
+|GhostNet|[CVPR 2020](https://arxiv.org/abs/1911.11907)|`timm`|`kimm.models.GhostNet*`|
+|GhostNetV2|[NeurIPS 2022](https://arxiv.org/abs/2211.12905)|`timm`|`kimm.models.GhostNetV2*`|
+|InceptionV3|[CVPR 2016](https://arxiv.org/abs/1512.00567)|`timm`|`kimm.models.InceptionV3`|
+|LCNet|[arXiv 2021](https://arxiv.org/abs/2109.15099)|`timm`|`kimm.models.LCNet*`|
+|MobileNetV2|[CVPR 2018](https://arxiv.org/abs/1801.04381)|`timm`|`kimm.models.MobileNetV2*`|
+|MobileNetV3|[ICCV 2019](https://arxiv.org/abs/1905.02244)|`timm`|`kimm.models.MobileNetV3*`|
+|MobileViT|[ICLR 2022](https://arxiv.org/abs/2110.02178)|`timm`|`kimm.models.MobileViT*`|
+|RegNet|[CVPR 2020](https://arxiv.org/abs/2003.13678)|`timm`|`kimm.models.RegNet*`|
+|ResNet|[CVPR 2015](https://arxiv.org/abs/1512.03385)|`timm`|`kimm.models.ResNet*`|
+|TinyNet|[NeurIPS 2020](https://arxiv.org/abs/2010.14819)|`timm`|`kimm.models.TinyNet*`|
+|VGG|[ICLR 2015](https://arxiv.org/abs/1409.1556)|`timm`|`kimm.models.VGG*`|
+|ViT|[ICLR 2021](https://arxiv.org/abs/2010.11929)|`timm`|`kimm.models.VisionTransformer*`|
+|Xception|[CVPR 2017](https://arxiv.org/abs/1610.02357)|`keras`|`kimm.models.Xception`|
 
 The export scripts can be found in `tools/convert_*.py`.
 

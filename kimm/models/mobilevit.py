@@ -166,7 +166,7 @@ class MobileViT(BaseModel):
         self,
         stem_channels: int = 16,
         head_channels: int = 640,
-        activation="swish",
+        activation: str = "swish",
         config: str = "v1_s",
         **kwargs,
     ):

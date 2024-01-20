@@ -7,13 +7,13 @@ from keras import ops
 class Attention(layers.Layer):
     def __init__(
         self,
-        hidden_dim,
-        num_heads=8,
-        use_qkv_bias=False,
-        use_qk_norm=False,
-        attention_dropout_rate=0.0,
-        projection_dropout_rate=0.0,
-        name="attention",
+        hidden_dim: int,
+        num_heads: int = 8,
+        use_qkv_bias: bool = False,
+        use_qk_norm: bool = False,
+        attention_dropout_rate: float = 0.0,
+        projection_dropout_rate: float = 0.0,
+        name: str = "attention",
         **kwargs,
     ):
         super().__init__(**kwargs)

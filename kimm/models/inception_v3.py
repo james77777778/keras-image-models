@@ -203,7 +203,7 @@ def apply_inception_aux_block(inputs, classes, name="inception_aux_block"):
 
 @keras.saving.register_keras_serializable(package="kimm")
 class InceptionV3Base(BaseModel):
-    def __init__(self, has_aux_logits=False, **kwargs):
+    def __init__(self, has_aux_logits: bool = False, **kwargs):
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs, 299)
         inputs = self.determine_input_tensor(

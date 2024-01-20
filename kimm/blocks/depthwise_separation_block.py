@@ -1,3 +1,5 @@
+import typing
+
 from keras import layers
 
 from kimm.blocks.base_block import apply_conv2d_block
@@ -6,20 +8,20 @@ from kimm.blocks.base_block import apply_se_block
 
 def apply_depthwise_separation_block(
     inputs,
-    output_channels,
-    depthwise_kernel_size=3,
-    pointwise_kernel_size=1,
-    strides=1,
-    se_ratio=0.0,
-    activation="swish",
-    se_activation="relu",
-    se_gate_activation="sigmoid",
-    se_make_divisible_number=None,
-    pw_activation=None,
-    skip=True,
-    bn_epsilon=1e-5,
-    padding=None,
-    name="depthwise_separation_block",
+    output_channels: int,
+    depthwise_kernel_size: int = 3,
+    pointwise_kernel_size: int = 1,
+    strides: int = 1,
+    se_ratio: float = 0.0,
+    activation: typing.Optional[str] = "swish",
+    se_activation: typing.Optional[str] = "relu",
+    se_gate_activation: typing.Optional[str] = "sigmoid",
+    se_make_divisible_number: typing.Optional[int] = None,
+    pw_activation: typing.Optional[str] = None,
+    skip: bool = True,
+    bn_epsilon: float = 1e-5,
+    padding: typing.Optional[typing.Literal["same", "valid"]] = None,
+    name: str = "depthwise_separation_block",
 ):
     input_channels = inputs.shape[-1]
     has_skip = skip and (strides == 1 and input_channels == output_channels)

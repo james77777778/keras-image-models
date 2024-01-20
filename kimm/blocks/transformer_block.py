@@ -1,3 +1,5 @@
+import typing
+
 from keras import layers
 
 from kimm import layers as kimm_layers
@@ -5,14 +7,13 @@ from kimm import layers as kimm_layers
 
 def apply_mlp_block(
     inputs,
-    hidden_dim,
-    output_dim=None,
-    activation="gelu",
-    normalization=None,
-    use_bias=True,
-    dropout_rate=0.0,
-    use_conv_mlp=False,
-    name="mlp_block",
+    hidden_dim: int,
+    output_dim: typing.Optional[int] = None,
+    activation: str = "gelu",
+    use_bias: bool = True,
+    dropout_rate: float = 0.0,
+    use_conv_mlp: bool = False,
+    name: str = "mlp_block",
 ):
     input_dim = inputs.shape[-1]
     output_dim = output_dim or input_dim
@@ -26,8 +27,6 @@ def apply_mlp_block(
         x = layers.Dense(hidden_dim, use_bias=use_bias, name=f"{name}_fc1")(x)
     x = layers.Activation(activation, name=f"{name}_act")(x)
     x = layers.Dropout(dropout_rate, name=f"{name}_drop1")(x)
-    if normalization is not None:
-        x = normalization(name=f"{name}_norm")(x)
     if use_conv_mlp:
         x = layers.Conv2D(
             output_dim, 1, use_bias=use_bias, name=f"{name}_fc2_conv2d"
@@ -40,15 +39,15 @@ def apply_mlp_block(
 
 def apply_transformer_block(
     inputs,
-    dim,
-    num_heads,
-    mlp_ratio=4.0,
-    use_qkv_bias=False,
-    use_qk_norm=False,
-    projection_dropout_rate=0.0,
-    attention_dropout_rate=0.0,
-    activation="gelu",
-    name="transformer_block",
+    dim: int,
+    num_heads: int,
+    mlp_ratio: float = 4.0,
+    use_qkv_bias: bool = False,
+    use_qk_norm: bool = False,
+    projection_dropout_rate: float = 0.0,
+    attention_dropout_rate: float = 0.0,
+    activation: str = "gelu",
+    name: str = "transformer_block",
 ):
     x = inputs
     residual_1 = x

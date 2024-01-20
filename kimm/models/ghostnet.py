@@ -234,7 +234,7 @@ class GhostNet(BaseModel):
         self,
         width: float = 1.0,
         config: typing.Union[str, typing.List] = "default",
-        version: str = "v1",
+        version: typing.Literal["v1", "v2"] = "v1",
         **kwargs,
     ):
         _available_configs = ["default"]

@@ -40,7 +40,7 @@ import kimm
 print(kimm.list_models())
 
 # Specify the name and other arguments to filter the result
-print(kimm.list_models("efficientnet", weights="imagenet"))  # fuzzy search
+print(kimm.list_models("vision_transformer", weights="imagenet"))  # fuzzy search
 
 # Initialize the model with pretrained weights
 model = kimm.models.VisionTransformerTiny16()

@@ -29,9 +29,9 @@ pip install keras kimm
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/14WxYgVjlwCIO9MwqPYW-dskbTL2UHsVN?usp=sharing)
 
 ```python
-import cv2
 import keras
 from keras import ops
+from keras import utils
 from keras.applications.imagenet_utils import decode_predictions
 
 import kimm
@@ -43,15 +43,15 @@ print(kimm.list_models())
 print(kimm.list_models("efficientnet", weights="imagenet"))  # fuzzy search
 
 # Initialize the model with pretrained weights
-model = kimm.models.EfficientNetV2B0()
-image_size = model._default_size
+model = kimm.models.VisionTransformerTiny16()
+image_size = (model._default_size, model._default_size)
 
 # Load an image as the model input
 image_path = keras.utils.get_file(
     "african_elephant.jpg", "https://i.imgur.com/Bvro0YD.png"
 )
-image = cv2.imread(image_path)
-image = cv2.resize(image, (image_size, image_size))
+image = utils.load_img(image_path, target_size=image_size)
+image = utils.img_to_array(image)
 x = ops.convert_to_tensor(image)
 x = ops.expand_dims(x, axis=0)
 
@@ -62,9 +62,9 @@ print("Predicted:", decode_predictions(preds, top=3)[0])
 
 ```bash
 ['ConvMixer1024D20', 'ConvMixer1536D20', 'ConvMixer736D32', 'ConvNeXtAtto', ...]
-['EfficientNetB0', 'EfficientNetB1', 'EfficientNetB2', 'EfficientNetB3', ...]
-1/1 ━━━━━━━━━━━━━━━━━━━━ 11s 11s/step
-Predicted: [('n02504458', 'African_elephant', 0.90578836), ('n01871265', 'tusker', 0.024864597), ('n02504013', 'Indian_elephant', 0.01161992)]
+['VisionTransformerBase16', 'VisionTransformerBase32', 'VisionTransformerSmall16', ...]
+1/1 ━━━━━━━━━━━━━━━━━━━━ 1s 1s/step
+Predicted: [('n02504458', 'African_elephant', 0.6895825), ('n01871265', 'tusker', 0.17934209), ('n02504013', 'Indian_elephant', 0.12927249)]
 ```
 
 ### An end-to-end example: fine-tuning an image classification model on a cats vs. dogs dataset

@@ -162,6 +162,11 @@ def apply_mobilevit_block(
 
 @keras.saving.register_keras_serializable(package="kimm")
 class MobileViT(BaseModel):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(5), [2, 4, 8, 16, 32])],
+    ]
+
     def __init__(
         self,
         stem_channels: int = 16,
@@ -170,6 +175,8 @@ class MobileViT(BaseModel):
         config: str = "v1_s",
         **kwargs,
     ):
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         _available_configs = ["v1_s", "v1_xs", "v1_xss"]
         if config == "v1_s":
             _config = DEFAULT_V1_S_CONFIG
@@ -258,14 +265,6 @@ class MobileViT(BaseModel):
         self.activation = activation
         self.config = config
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(5), [2, 4, 8, 16, 32])]
-        )
-        return feature_keys
-
     def get_config(self):
         config = super().get_config()
         config.update(
@@ -291,6 +290,14 @@ class MobileViT(BaseModel):
 
 
 class MobileViTS(MobileViT):
+    available_weights = [
+        (
+            "imagenet",
+            MobileViT.default_origin,
+            "mobilevits_mobilevit_s.cvnets_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -307,9 +314,6 @@ class MobileViTS(MobileViT):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "mobilevits_mobilevit_s.cvnets_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             16,
             640,
@@ -330,6 +334,14 @@ class MobileViTS(MobileViT):
 
 
 class MobileViTXS(MobileViT):
+    available_weights = [
+        (
+            "imagenet",
+            MobileViT.default_origin,
+            "mobilevitxs_mobilevit_xs.cvnets_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -346,9 +358,6 @@ class MobileViTXS(MobileViT):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "mobilevitxs_mobilevit_xs.cvnets_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             16,
             384,
@@ -369,6 +378,14 @@ class MobileViTXS(MobileViT):
 
 
 class MobileViTXXS(MobileViT):
+    available_weights = [
+        (
+            "imagenet",
+            MobileViT.default_origin,
+            "mobilevitxxs_mobilevit_xxs.cvnets_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -385,9 +402,6 @@ class MobileViTXXS(MobileViT):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "mobilevitxxs_mobilevit_xxs.cvnets_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             16,
             320,

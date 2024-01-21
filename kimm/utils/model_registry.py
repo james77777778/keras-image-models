@@ -48,7 +48,7 @@ def add_model_to_registry(model_cls, weights: typing.Optional[str] = None):
     feature_keys = []
     if issubclass(model_cls, BaseModel):
         feature_extractor = True
-        feature_keys = model_cls.available_feature_keys()
+        feature_keys = model_cls.available_feature_keys
     for info in MODEL_REGISTRY:
         if info["name"] == model_cls.__name__:
             warnings.warn(

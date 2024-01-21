@@ -143,6 +143,11 @@ def apply_bottleneck_block(
 
 @keras.saving.register_keras_serializable(package="kimm")
 class RegNet(BaseModel):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(4), [4, 8, 16, 32])],
+    ]
+
     def __init__(
         self,
         w0: int = 80,
@@ -153,6 +158,8 @@ class RegNet(BaseModel):
         se_ratio: float = 0.0,
         **kwargs,
     ):
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         per_stage_config = _generate_regnet(w0, wa, wm, group_size, depth)
 
         input_tensor = kwargs.pop("input_tensor", None)
@@ -202,14 +209,6 @@ class RegNet(BaseModel):
         self.depth = depth
         self.se_ratio = se_ratio
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(4), [4, 8, 16, 32])]
-        )
-        return feature_keys
-
     def get_config(self):
         config = super().get_config()
         config.update(
@@ -237,6 +236,14 @@ Model Definition
 
 
 class RegNetX002(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnetx002_regnetx_002.pycls_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -252,9 +259,6 @@ class RegNetX002(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnetx002_regnetx_002.pycls_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             24,
             36.44,
@@ -276,6 +280,14 @@ class RegNetX002(RegNet):
 
 
 class RegNetY002(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnety002_regnety_002.pycls_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -291,9 +303,6 @@ class RegNetY002(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnety002_regnety_002.pycls_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             24,
             36.44,
@@ -316,6 +325,14 @@ class RegNetY002(RegNet):
 
 
 class RegNetX004(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnetx004_regnetx_004.pycls_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -331,9 +348,6 @@ class RegNetX004(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnetx004_regnetx_004.pycls_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             24,
             24.48,
@@ -355,6 +369,14 @@ class RegNetX004(RegNet):
 
 
 class RegNetY004(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnety004_regnety_004.tv2_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -370,9 +392,6 @@ class RegNetY004(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnety004_regnety_004.tv2_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             48,
             27.89,
@@ -395,6 +414,14 @@ class RegNetY004(RegNet):
 
 
 class RegNetX006(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnetx006_regnetx_006.pycls_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -410,9 +437,6 @@ class RegNetX006(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnetx006_regnetx_006.pycls_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             48,
             36.97,
@@ -434,6 +458,14 @@ class RegNetX006(RegNet):
 
 
 class RegNetY006(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnety006_regnety_006.pycls_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -449,9 +481,6 @@ class RegNetY006(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnety006_regnety_006.pycls_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             48,
             32.54,
@@ -474,6 +503,14 @@ class RegNetY006(RegNet):
 
 
 class RegNetX008(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnetx008_regnetx_008.tv2_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -489,9 +526,6 @@ class RegNetX008(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnetx008_regnetx_008.tv2_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             56,
             35.73,
@@ -513,6 +547,14 @@ class RegNetX008(RegNet):
 
 
 class RegNetY008(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnety008_regnety_008.pycls_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -528,9 +570,6 @@ class RegNetY008(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnety008_regnety_008.pycls_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             56,
             38.84,
@@ -553,6 +592,14 @@ class RegNetY008(RegNet):
 
 
 class RegNetX016(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnetx016_regnetx_016.tv2_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -568,9 +615,6 @@ class RegNetX016(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnetx016_regnetx_016.tv2_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             80,
             34.01,
@@ -592,6 +636,14 @@ class RegNetX016(RegNet):
 
 
 class RegNetY016(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnety016_regnety_016.tv2_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -607,9 +659,6 @@ class RegNetY016(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnety016_regnety_016.tv2_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             48,
             20.71,
@@ -632,6 +681,14 @@ class RegNetY016(RegNet):
 
 
 class RegNetX032(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnetx032_regnetx_032.tv2_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -647,9 +704,6 @@ class RegNetX032(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnetx032_regnetx_032.tv2_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             88,
             26.31,
@@ -671,6 +725,14 @@ class RegNetX032(RegNet):
 
 
 class RegNetY032(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnety032_regnety_032.ra_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -686,9 +748,6 @@ class RegNetY032(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnety032_regnety_032.ra_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             80,
             42.63,
@@ -711,6 +770,14 @@ class RegNetY032(RegNet):
 
 
 class RegNetX040(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnetx040_regnetx_040.pycls_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -726,9 +793,6 @@ class RegNetX040(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnetx040_regnetx_040.pycls_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             96,
             38.65,
@@ -750,6 +814,14 @@ class RegNetX040(RegNet):
 
 
 class RegNetY040(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnety040_regnety_040.ra3_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -765,9 +837,6 @@ class RegNetY040(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnety040_regnety_040.ra3_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             96,
             31.41,
@@ -790,6 +859,14 @@ class RegNetY040(RegNet):
 
 
 class RegNetX064(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnetx064_regnetx_064.pycls_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -805,9 +882,6 @@ class RegNetX064(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnetx064_regnetx_064.pycls_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             184,
             60.83,
@@ -829,6 +903,14 @@ class RegNetX064(RegNet):
 
 
 class RegNetY064(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnety064_regnety_064.ra3_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -844,9 +926,6 @@ class RegNetY064(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnety064_regnety_064.ra3_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             112,
             33.22,
@@ -869,6 +948,14 @@ class RegNetY064(RegNet):
 
 
 class RegNetX080(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnetx080_regnetx_080.tv2_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -884,9 +971,6 @@ class RegNetX080(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnetx080_regnetx_080.tv2_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             80,
             49.56,
@@ -908,6 +992,14 @@ class RegNetX080(RegNet):
 
 
 class RegNetY080(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnety080_regnety_080.ra3_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -923,9 +1015,6 @@ class RegNetY080(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnety080_regnety_080.ra3_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             192,
             76.82,
@@ -948,6 +1037,14 @@ class RegNetY080(RegNet):
 
 
 class RegNetX120(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnetx120_regnetx_120.pycls_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -963,9 +1060,6 @@ class RegNetX120(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnetx120_regnetx_120.pycls_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             168,
             73.36,
@@ -987,6 +1081,14 @@ class RegNetX120(RegNet):
 
 
 class RegNetY120(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnety120_regnety_120.sw_in12k_ft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1002,9 +1104,6 @@ class RegNetY120(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnety120_regnety_120.sw_in12k_ft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             168,
             73.36,
@@ -1027,6 +1126,14 @@ class RegNetY120(RegNet):
 
 
 class RegNetX160(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnetx160_regnetx_160.tv2_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1042,9 +1149,6 @@ class RegNetX160(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnetx160_regnetx_160.tv2_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             216,
             55.59,
@@ -1066,6 +1170,14 @@ class RegNetX160(RegNet):
 
 
 class RegNetY160(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnety160_regnety_160.swag_ft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1081,9 +1193,6 @@ class RegNetY160(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnety160_regnety_160.swag_ft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             200,
             106.23,
@@ -1106,6 +1215,14 @@ class RegNetY160(RegNet):
 
 
 class RegNetX320(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnetx320_regnetx_320.tv2_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1121,9 +1238,6 @@ class RegNetX320(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnetx320_regnetx_320.tv2_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             320,
             69.86,
@@ -1145,6 +1259,14 @@ class RegNetX320(RegNet):
 
 
 class RegNetY320(RegNet):
+    available_weights = [
+        (
+            "imagenet",
+            RegNet.default_origin,
+            "regnety320_regnety_320.swag_ft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1160,9 +1282,6 @@ class RegNetY320(RegNet):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "regnety320_regnety_320.swag_ft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             232,
             115.89,

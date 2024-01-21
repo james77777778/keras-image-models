@@ -379,7 +379,7 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
 
         self.assertIsInstance(y, dict)
         self.assertContainsSubset(
-            model_class.available_feature_keys(), list(y.keys())
+            model_class.available_feature_keys, list(y.keys())
         )
         for feature_info in features:
             name, shape = feature_info

@@ -90,6 +90,8 @@ class MobileNetV3(BaseModel):
         minimal: bool = False,
         **kwargs,
     ):
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         _available_configs = ["small", "large", "lcnet"]
         if config == "small":
             _config = DEFAULT_SMALL_CONFIG
@@ -270,10 +272,6 @@ class MobileNetV3(BaseModel):
         )(x)
         return x
 
-    @staticmethod
-    def available_feature_keys():
-        raise NotImplementedError()
-
     def get_config(self):
         config = super().get_config()
         config.update(
@@ -306,6 +304,18 @@ Model Definition
 
 
 class MobileNet050V3Small(MobileNetV3):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV3.default_origin,
+            "mobilenet050v3small_mobilenetv3_small_050.lamb_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -322,11 +332,6 @@ class MobileNet050V3Small(MobileNetV3):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = (
-                "mobilenet050v3small_mobilenetv3_small_050.lamb_in1k.keras"
-            )
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             0.5,
             1.0,
@@ -345,16 +350,20 @@ class MobileNet050V3Small(MobileNetV3):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])]
-        )
-        return feature_keys
-
 
 class MobileNet075V3Small(MobileNetV3):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV3.default_origin,
+            "mobilenet075v3small_mobilenetv3_small_075.lamb_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -371,11 +380,6 @@ class MobileNet075V3Small(MobileNetV3):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = (
-                "mobilenet075v3small_mobilenetv3_small_075.lamb_in1k.keras"
-            )
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             0.75,
             1.0,
@@ -394,16 +398,20 @@ class MobileNet075V3Small(MobileNetV3):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])]
-        )
-        return feature_keys
-
 
 class MobileNet100V3Small(MobileNetV3):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV3.default_origin,
+            "mobilenet100v3small_mobilenetv3_small_100.lamb_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -420,11 +428,6 @@ class MobileNet100V3Small(MobileNetV3):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = (
-                "mobilenet100v3small_mobilenetv3_small_100.lamb_in1k.keras"
-            )
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.0,
             1.0,
@@ -443,16 +446,23 @@ class MobileNet100V3Small(MobileNetV3):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])]
-        )
-        return feature_keys
-
 
 class MobileNet100V3SmallMinimal(MobileNetV3):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV3.default_origin,
+            (
+                "mobilenet100v3smallminimal_"
+                "tf_mobilenetv3_small_minimal_100.in1k.keras"
+            ),
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -469,12 +479,6 @@ class MobileNet100V3SmallMinimal(MobileNetV3):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = (
-                "mobilenet100v3smallminimal_"
-                "tf_mobilenetv3_small_minimal_100.in1k.keras"
-            )
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -497,16 +501,26 @@ class MobileNet100V3SmallMinimal(MobileNetV3):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])]
-        )
-        return feature_keys
-
 
 class MobileNet100V3Large(MobileNetV3):
+    available_feature_keys = [
+        "STEM_S2",
+        *[
+            f"BLOCK{i}_S{j}"
+            for i, j in zip(range(7), [2, 4, 8, 16, 16, 32, 32])
+        ],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV3.default_origin,
+            (
+                "mobilenet100v3large_"
+                "mobilenetv3_large_100.miil_in21k_ft_in1k.keras"
+            ),
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -523,12 +537,6 @@ class MobileNet100V3Large(MobileNetV3):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = (
-                "mobilenet100v3large_"
-                "mobilenetv3_large_100.miil_in21k_ft_in1k.keras"
-            )
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.0,
             1.0,
@@ -557,19 +565,26 @@ class MobileNet100V3Large(MobileNetV3):
         else:
             return super().build_preprocessing(inputs, mode)
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [
-                f"BLOCK{i}_S{j}"
-                for i, j in zip(range(7), [2, 4, 8, 16, 16, 32, 32])
-            ]
-        )
-        return feature_keys
-
 
 class MobileNet100V3LargeMinimal(MobileNetV3):
+    available_feature_keys = [
+        "STEM_S2",
+        *[
+            f"BLOCK{i}_S{j}"
+            for i, j in zip(range(7), [2, 4, 8, 16, 16, 32, 32])
+        ],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV3.default_origin,
+            (
+                "mobilenet100v3largeminimal_"
+                "tf_mobilenetv3_large_minimal_100.in1k.keras"
+            ),
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -586,12 +601,6 @@ class MobileNet100V3LargeMinimal(MobileNetV3):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = (
-                "mobilenet100v3largeminimal_"
-                "tf_mobilenetv3_large_minimal_100.in1k.keras"
-            )
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -614,19 +623,14 @@ class MobileNet100V3LargeMinimal(MobileNetV3):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [
-                f"BLOCK{i}_S{j}"
-                for i, j in zip(range(7), [2, 4, 8, 16, 16, 32, 32])
-            ]
-        )
-        return feature_keys
-
 
 class LCNet035(MobileNetV3):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
+    ]
+    available_weights = []
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -662,16 +666,20 @@ class LCNet035(MobileNetV3):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
-        )
-        return feature_keys
-
 
 class LCNet050(MobileNetV3):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV3.default_origin,
+            "lcnet050_lcnet_050.ra2_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -688,9 +696,6 @@ class LCNet050(MobileNetV3):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "lcnet050_lcnet_050.ra2_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             0.5,
@@ -710,16 +715,20 @@ class LCNet050(MobileNetV3):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
-        )
-        return feature_keys
-
 
 class LCNet075(MobileNetV3):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV3.default_origin,
+            "lcnet075_lcnet_075.ra2_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -736,9 +745,6 @@ class LCNet075(MobileNetV3):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "lcnet075_lcnet_075.ra2_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             0.75,
@@ -758,16 +764,20 @@ class LCNet075(MobileNetV3):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
-        )
-        return feature_keys
-
 
 class LCNet100(MobileNetV3):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV3.default_origin,
+            "lcnet100_lcnet_100.ra2_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -784,9 +794,6 @@ class LCNet100(MobileNetV3):
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "lcnet100_lcnet_100.ra2_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -806,16 +813,17 @@ class LCNet100(MobileNetV3):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
-        )
-        return feature_keys
-
 
 class LCNet150(MobileNetV3):
+    available_feature_keys = [
+        "STEM_S2",
+        *[
+            f"BLOCK{i}_S{j}"
+            for i, j in zip(range(7), [2, 4, 8, 16, 16, 32, 32])
+        ],
+    ]
+    available_weights = []
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -850,17 +858,6 @@ class LCNet150(MobileNetV3):
             name=name,
             **kwargs,
         )
-
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [
-                f"BLOCK{i}_S{j}"
-                for i, j in zip(range(7), [2, 4, 8, 16, 16, 32, 32])
-            ]
-        )
-        return feature_keys
 
 
 add_model_to_registry(MobileNet050V3Small, "imagenet")

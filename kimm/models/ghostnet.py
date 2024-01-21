@@ -245,7 +245,6 @@ class GhostNet(BaseModel):
         version: typing.Literal["v1", "v2"] = "v1",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         _available_configs = ["default"]
@@ -384,6 +383,7 @@ class GhostNet050(GhostNet):
         name: str = "GhostNet050",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.5,
             config,
@@ -426,6 +426,7 @@ class GhostNet100(GhostNet):
         name: str = "GhostNet100",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.0,
             config,
@@ -462,6 +463,7 @@ class GhostNet130(GhostNet):
         name: str = "GhostNet130",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.3,
             config,
@@ -504,6 +506,7 @@ class GhostNet100V2(GhostNet):
         name: str = "GhostNet100V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.0,
             config,
@@ -546,6 +549,7 @@ class GhostNet130V2(GhostNet):
         name: str = "GhostNet130V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.3,
             config,
@@ -588,6 +592,7 @@ class GhostNet160V2(GhostNet):
         name: str = "GhostNet160V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.6,
             config,

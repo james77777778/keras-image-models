@@ -77,7 +77,6 @@ class DenseNet(BaseModel):
         num_blocks: typing.Sequence[int] = [6, 12, 24, 16],
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         input_tensor = kwargs.pop("input_tensor", None)
@@ -183,6 +182,7 @@ class DenseNet121(DenseNet):
         name: str = "DenseNet121",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             32,
             [6, 12, 24, 16],
@@ -224,6 +224,7 @@ class DenseNet161(DenseNet):
         name: str = "DenseNet161",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             48,
             [6, 12, 36, 24],
@@ -265,6 +266,7 @@ class DenseNet169(DenseNet):
         name: str = "DenseNet169",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             32,
             [6, 12, 32, 32],
@@ -306,6 +308,7 @@ class DenseNet201(DenseNet):
         name: str = "DenseNet201",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             32,
             [6, 12, 48, 32],

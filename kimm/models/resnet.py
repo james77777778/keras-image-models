@@ -116,7 +116,6 @@ class ResNet(BaseModel):
         num_blocks: typing.Sequence[int],
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         if block_fn not in ("basic", "bottleneck"):
@@ -222,6 +221,7 @@ class ResNet18(ResNet):
         name: str = "ResNet18",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "basic",
             [2, 2, 2, 2],
@@ -262,6 +262,7 @@ class ResNet34(ResNet):
         name: str = "ResNet34",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "basic",
             [3, 4, 6, 3],
@@ -302,6 +303,7 @@ class ResNet50(ResNet):
         name: str = "ResNet50",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "bottleneck",
             [3, 4, 6, 3],
@@ -342,6 +344,7 @@ class ResNet101(ResNet):
         name: str = "ResNet101",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "bottleneck",
             [3, 4, 23, 3],
@@ -382,6 +385,7 @@ class ResNet152(ResNet):
         name: str = "ResNet152",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "bottleneck",
             [3, 8, 36, 3],

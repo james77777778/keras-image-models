@@ -209,7 +209,6 @@ class InceptionV3Base(BaseModel):
     ]
 
     def __init__(self, has_aux_logits: bool = False, **kwargs):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         input_tensor = kwargs.pop("input_tensor", None)
@@ -310,6 +309,7 @@ class InceptionV3(InceptionV3Base):
         name: str = "InceptionV3",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         if weights == "imagenet":
             if has_aux_logits:
                 weights = f"{weights}_aux_logits"

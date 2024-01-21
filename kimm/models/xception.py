@@ -72,7 +72,6 @@ class XceptionBase(BaseModel):
     ]
 
     def __init__(self, **kwargs):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         input_tensor = kwargs.pop("input_tensor", None)
@@ -176,6 +175,7 @@ class Xception(XceptionBase):
         name: str = "Xception",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             input_tensor=input_tensor,
             input_shape=input_shape,

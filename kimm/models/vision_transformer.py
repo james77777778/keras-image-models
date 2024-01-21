@@ -23,7 +23,6 @@ class VisionTransformer(BaseModel):
         pos_dropout_rate: float = 0.0,
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         input_tensor = kwargs.pop("input_tensor", None)
@@ -171,6 +170,7 @@ class VisionTransformerTiny16(VisionTransformer):
         name: str = "VisionTransformerTiny16",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             192,
@@ -274,6 +274,7 @@ class VisionTransformerSmall16(VisionTransformer):
         name: str = "VisionTransformerSmall16",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             384,
@@ -328,6 +329,7 @@ class VisionTransformerSmall32(VisionTransformer):
         name: str = "VisionTransformerSmall32",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             32,
             384,
@@ -382,6 +384,7 @@ class VisionTransformerBase16(VisionTransformer):
         name: str = "VisionTransformerBase16",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             768,
@@ -436,6 +439,7 @@ class VisionTransformerBase32(VisionTransformer):
         name: str = "VisionTransformerBase32",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             32,
             768,
@@ -484,6 +488,7 @@ class VisionTransformerLarge16(VisionTransformer):
         name: str = "VisionTransformerLarge16",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             1024,
@@ -532,6 +537,7 @@ class VisionTransformerLarge32(VisionTransformer):
         name: str = "VisionTransformerLarge32",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             32,
             1024,

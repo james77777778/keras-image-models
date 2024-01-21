@@ -113,7 +113,6 @@ class VGG(BaseModel):
     ]
 
     def __init__(self, config: typing.Union[str, typing.List], **kwargs):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         _available_configs = ["vgg11", "vgg13", "vgg16", "vgg19"]
@@ -225,6 +224,7 @@ class VGG11(VGG):
         name: str = "VGG11",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "vgg11",
             input_tensor=input_tensor,
@@ -264,6 +264,7 @@ class VGG13(VGG):
         name: str = "VGG13",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "vgg13",
             input_tensor=input_tensor,
@@ -303,6 +304,7 @@ class VGG16(VGG):
         name: str = "VGG16",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "vgg16",
             input_tensor=input_tensor,
@@ -342,6 +344,7 @@ class VGG19(VGG):
         name: str = "VGG19",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             "vgg19",
             input_tensor=input_tensor,

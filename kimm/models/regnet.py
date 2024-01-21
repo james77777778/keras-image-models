@@ -158,7 +158,6 @@ class RegNet(BaseModel):
         se_ratio: float = 0.0,
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         per_stage_config = _generate_regnet(w0, wa, wm, group_size, depth)
@@ -259,6 +258,7 @@ class RegNetX002(RegNet):
         name: str = "RegNetX002",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             24,
             36.44,
@@ -302,6 +302,7 @@ class RegNetY002(RegNet):
         name: str = "RegNetY002",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             24,
             36.44,
@@ -346,6 +347,7 @@ class RegNetX004(RegNet):
         name: str = "RegNetX004",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             24,
             24.48,
@@ -389,6 +391,7 @@ class RegNetY004(RegNet):
         name: str = "RegNetY004",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             48,
             27.89,
@@ -433,6 +436,7 @@ class RegNetX006(RegNet):
         name: str = "RegNetX006",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             48,
             36.97,
@@ -476,6 +480,7 @@ class RegNetY006(RegNet):
         name: str = "RegNetY006",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             48,
             32.54,
@@ -520,6 +525,7 @@ class RegNetX008(RegNet):
         name: str = "RegNetX008",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             56,
             35.73,
@@ -563,6 +569,7 @@ class RegNetY008(RegNet):
         name: str = "RegNetY008",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             56,
             38.84,
@@ -607,6 +614,7 @@ class RegNetX016(RegNet):
         name: str = "RegNetX016",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             80,
             34.01,
@@ -650,6 +658,7 @@ class RegNetY016(RegNet):
         name: str = "RegNetY016",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             48,
             20.71,
@@ -694,6 +703,7 @@ class RegNetX032(RegNet):
         name: str = "RegNetX032",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             88,
             26.31,
@@ -737,6 +747,7 @@ class RegNetY032(RegNet):
         name: str = "RegNetY032",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             80,
             42.63,
@@ -781,6 +792,7 @@ class RegNetX040(RegNet):
         name: str = "RegNetX040",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             96,
             38.65,
@@ -824,6 +836,7 @@ class RegNetY040(RegNet):
         name: str = "RegNetY040",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             96,
             31.41,
@@ -868,6 +881,7 @@ class RegNetX064(RegNet):
         name: str = "RegNetX064",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             184,
             60.83,
@@ -911,6 +925,7 @@ class RegNetY064(RegNet):
         name: str = "RegNetY064",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             112,
             33.22,
@@ -955,6 +970,7 @@ class RegNetX080(RegNet):
         name: str = "RegNetX080",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             80,
             49.56,
@@ -998,6 +1014,7 @@ class RegNetY080(RegNet):
         name: str = "RegNetY080",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             192,
             76.82,
@@ -1042,6 +1059,7 @@ class RegNetX120(RegNet):
         name: str = "RegNetX120",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             168,
             73.36,
@@ -1085,6 +1103,7 @@ class RegNetY120(RegNet):
         name: str = "RegNetY120",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             168,
             73.36,
@@ -1129,6 +1148,7 @@ class RegNetX160(RegNet):
         name: str = "RegNetX160",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             216,
             55.59,
@@ -1172,6 +1192,7 @@ class RegNetY160(RegNet):
         name: str = "RegNetY160",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             200,
             106.23,
@@ -1216,6 +1237,7 @@ class RegNetX320(RegNet):
         name: str = "RegNetX320",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             320,
             69.86,
@@ -1259,6 +1281,7 @@ class RegNetY320(RegNet):
         name: str = "RegNetY320",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             232,
             115.89,

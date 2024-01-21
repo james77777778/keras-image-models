@@ -52,7 +52,6 @@ class ConvMixer(BaseModel):
         activation: str = "relu",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         input_tensor = kwargs.pop("input_tensor", None)
@@ -158,6 +157,7 @@ class ConvMixer736D32(ConvMixer):
         name: str = "ConvMixer736D32",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             32,
             768,
@@ -202,6 +202,7 @@ class ConvMixer1024D20(ConvMixer):
         name: str = "ConvMixer1024D20",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             20,
             1024,
@@ -246,6 +247,7 @@ class ConvMixer1536D20(ConvMixer):
         name: str = "ConvMixer1536D20",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             20,
             1536,

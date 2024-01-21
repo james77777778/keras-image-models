@@ -40,7 +40,6 @@ class MobileNetV2(BaseModel):
         config: typing.Literal["default"] = "default",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         _available_configs = ["default"]
@@ -175,6 +174,7 @@ class MobileNet050V2(MobileNetV2):
         name: str = "MobileNet050V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.5,
             1.0,
@@ -218,6 +218,7 @@ class MobileNet100V2(MobileNetV2):
         name: str = "MobileNet100V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.0,
             1.0,
@@ -261,6 +262,7 @@ class MobileNet110V2(MobileNetV2):
         name: str = "MobileNet110V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.1,
             1.2,
@@ -304,6 +306,7 @@ class MobileNet120V2(MobileNetV2):
         name: str = "MobileNet120V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.2,
             1.4,
@@ -347,6 +350,7 @@ class MobileNet140V2(MobileNetV2):
         name: str = "MobileNet140V2",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.4,
             1.0,

@@ -135,7 +135,6 @@ class ConvNeXt(BaseModel):
         use_conv_mlp: bool = False,
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         input_tensor = kwargs.pop("input_tensor", None)
@@ -261,6 +260,7 @@ class ConvNeXtAtto(ConvNeXt):
         name: str = "ConvNeXtAtto",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             (2, 2, 6, 2),
             (40, 80, 160, 320),
@@ -305,6 +305,7 @@ class ConvNeXtFemto(ConvNeXt):
         name: str = "ConvNeXtFemto",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             (2, 2, 6, 2),
             (48, 96, 192, 384),
@@ -349,6 +350,7 @@ class ConvNeXtPico(ConvNeXt):
         name: str = "ConvNeXtPico",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             (2, 2, 6, 2),
             (64, 128, 256, 512),
@@ -393,6 +395,7 @@ class ConvNeXtNano(ConvNeXt):
         name: str = "ConvNeXtNano",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             (2, 2, 8, 2),
             (80, 160, 320, 640),
@@ -437,6 +440,7 @@ class ConvNeXtTiny(ConvNeXt):
         name: str = "ConvNeXtTiny",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             (3, 3, 9, 3),
             (96, 192, 384, 768),
@@ -481,6 +485,7 @@ class ConvNeXtSmall(ConvNeXt):
         name: str = "ConvNeXtSmall",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             (3, 3, 27, 3),
             (96, 192, 384, 768),
@@ -525,6 +530,7 @@ class ConvNeXtBase(ConvNeXt):
         name: str = "ConvNeXtBase",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             (3, 3, 27, 3),
             (128, 256, 512, 1024),
@@ -569,6 +575,7 @@ class ConvNeXtLarge(ConvNeXt):
         name: str = "ConvNeXtLarge",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             (3, 3, 27, 3),
             (192, 384, 768, 1536),
@@ -607,6 +614,7 @@ class ConvNeXtXLarge(ConvNeXt):
         name: str = "ConvNeXtXLarge",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             (3, 3, 27, 3),
             (256, 512, 1024, 2048),

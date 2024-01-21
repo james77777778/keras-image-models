@@ -175,7 +175,6 @@ class MobileViT(BaseModel):
         config: str = "v1_s",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         _available_configs = ["v1_s", "v1_xs", "v1_xss"]
@@ -314,6 +313,7 @@ class MobileViTS(MobileViT):
         name="MobileViTS",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             640,
@@ -357,6 +357,7 @@ class MobileViTXS(MobileViT):
         name="MobileViTXS",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             384,
@@ -400,6 +401,7 @@ class MobileViTXXS(MobileViT):
         name="MobileViTXXS",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             320,

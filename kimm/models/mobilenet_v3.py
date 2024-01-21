@@ -90,7 +90,6 @@ class MobileNetV3(BaseModel):
         minimal: bool = False,
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
 
         _available_configs = ["small", "large", "lcnet"]
@@ -332,6 +331,7 @@ class MobileNet050V3Small(MobileNetV3):
         name: str = "MobileNet050V3Small",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.5,
             1.0,
@@ -379,6 +379,7 @@ class MobileNet075V3Small(MobileNetV3):
         name: str = "MobileNet075V3Small",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.75,
             1.0,
@@ -426,6 +427,7 @@ class MobileNet100V3Small(MobileNetV3):
         name: str = "MobileNet100V3Small",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.0,
             1.0,
@@ -476,6 +478,7 @@ class MobileNet100V3SmallMinimal(MobileNetV3):
         name: str = "MobileNet100V3SmallMinimal",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -533,6 +536,7 @@ class MobileNet100V3Large(MobileNetV3):
         name: str = "MobileNet100V3Large",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.0,
             1.0,
@@ -691,6 +695,7 @@ class LCNet050(MobileNetV3):
         name: str = "LCNet050",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             0.5,
@@ -739,6 +744,7 @@ class LCNet075(MobileNetV3):
         name: str = "LCNet075",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             0.75,
@@ -787,6 +793,7 @@ class LCNet100(MobileNetV3):
         name: str = "LCNet100",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,

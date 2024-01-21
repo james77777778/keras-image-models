@@ -11,14 +11,51 @@
 
 # Keras Image Models
 
-## Description
+## Introduction
 
 **K**eras **Im**age **M**odels (`kimm`) is a collection of image models, blocks and layers written in Keras 3. The goal is to offer SOTA models with pretrained weights in a user-friendly manner.
+
+## Features
+
+- 🚀 Almost all models have pre-trained weights on ImageNet
+
+  > **Note:**
+  > The accuracy of the exported models can be found at [results-imagenet.csv (timm)](https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv)
+
+- 🧰 All models have a common API identical to `keras.applications.*`
+  
+  ```python
+  model = kimm.models.RegNetY002(
+      input_tensor: keras.KerasTensor = None,
+      input_shape: typing.Optional[typing.Sequence[int]] = None,
+      include_preprocessing: bool = True,
+      include_top: bool = True,
+      pooling: typing.Optional[str] = None,
+      dropout_rate: float = 0.0,
+      classes: int = 1000,
+      classifier_activation: str = "softmax",
+      weights: typing.Optional[str] = "imagenet",
+      name: str = "RegNetY002",
+  )
+  ```
+
+- 🔥 All models support feature extraction (`feature_extractor=True`)
+
+  ```python
+  from keras import random
+  import kimm
+
+  model = kimm.models.ConvNeXtAtto(feature_extractor=True)
+  x = random.uniform([1, 224, 224, 3])
+  y = model(x, training=False)
+  # y becomes a dict
+  for k, v in y.items():
+      print(k, v.shape)
+  ```
 
 ## Installation
 
 ```bash
-# In a working [jax/tensorflow/torch/numpy] backend environment
 pip install keras kimm
 ```
 

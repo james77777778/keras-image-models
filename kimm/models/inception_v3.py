@@ -203,7 +203,15 @@ def apply_inception_aux_block(inputs, classes, name="inception_aux_block"):
 
 @keras.saving.register_keras_serializable(package="kimm")
 class InceptionV3Base(BaseModel):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(4), [4, 8, 16, 32])],
+    ]
+
     def __init__(self, has_aux_logits: bool = False, **kwargs):
+        kwargs = self.fix_config(kwargs)
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs, 299)
         inputs = self.determine_input_tensor(
@@ -264,14 +272,6 @@ class InceptionV3Base(BaseModel):
         # All references to `self` below this line
         self.has_aux_logits = has_aux_logits
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(4), [4, 8, 16, 32])]
-        )
-        return feature_keys
-
     def get_config(self):
         config = super().get_config()
         config.update({"has_aux_logits": self.has_aux_logits})
@@ -282,6 +282,19 @@ class InceptionV3Base(BaseModel):
 
 
 class InceptionV3(InceptionV3Base):
+    available_weights = [
+        (
+            "imagenet_aux_logits",
+            InceptionV3Base.default_origin,
+            "inceptionv3_inception_v3.gluon_in1k_aux_logits.keras",
+        ),
+        (
+            "imagenet_no_aux_logits",
+            InceptionV3Base.default_origin,
+            "inceptionv3_inception_v3.gluon_in1k_no_aux_logits.keras",
+        ),
+    ]
+
     def __init__(
         self,
         has_aux_logits: bool = False,
@@ -297,17 +310,11 @@ class InceptionV3(InceptionV3Base):
         name: str = "InceptionV3",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         if weights == "imagenet":
             if has_aux_logits:
-                file_name = (
-                    "inceptionv3_inception_v3.gluon_in1k_aux_logits.keras"
-                )
+                weights = f"{weights}_aux_logits"
             else:
-                file_name = (
-                    "inceptionv3_inception_v3.gluon_in1k_no_aux_logits.keras"
-                )
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
+                weights = f"{weights}_no_aux_logits"
         super().__init__(
             has_aux_logits,
             input_tensor=input_tensor,

@@ -52,6 +52,9 @@ class ConvMixer(BaseModel):
         activation: str = "relu",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         inputs = self.determine_input_tensor(
@@ -100,10 +103,6 @@ class ConvMixer(BaseModel):
         self.kernel_size = kernel_size
         self.activation = activation
 
-    @staticmethod
-    def available_feature_keys():
-        raise NotImplementedError
-
     def get_config(self):
         config = super().get_config()
         config.update(
@@ -136,6 +135,15 @@ Model Definition
 
 
 class ConvMixer736D32(ConvMixer):
+    available_feature_keys = ["STEM", *[f"BLOCK{i}" for i in range(32)]]
+    available_weights = [
+        (
+            "imagenet",
+            ConvMixer.default_origin,
+            "convmixer736d32_convmixer_768_32.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -150,10 +158,6 @@ class ConvMixer736D32(ConvMixer):
         name: str = "ConvMixer736D32",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "convmixer736d32_convmixer_768_32.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             32,
             768,
@@ -173,14 +177,17 @@ class ConvMixer736D32(ConvMixer):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM"]
-        feature_keys.extend([f"BLOCK{i}" for i in range(32)])
-        return feature_keys
-
 
 class ConvMixer1024D20(ConvMixer):
+    available_feature_keys = ["STEM", *[f"BLOCK{i}" for i in range(20)]]
+    available_weights = [
+        (
+            "imagenet",
+            ConvMixer.default_origin,
+            "convmixer1024d20_convmixer_1024_20_ks9_p14.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -195,10 +202,6 @@ class ConvMixer1024D20(ConvMixer):
         name: str = "ConvMixer1024D20",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "convmixer1024d20_convmixer_1024_20_ks9_p14.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             20,
             1024,
@@ -218,14 +221,17 @@ class ConvMixer1024D20(ConvMixer):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM"]
-        feature_keys.extend([f"BLOCK{i}" for i in range(20)])
-        return feature_keys
-
 
 class ConvMixer1536D20(ConvMixer):
+    available_feature_keys = ["STEM", *[f"BLOCK{i}" for i in range(20)]]
+    available_weights = [
+        (
+            "imagenet",
+            ConvMixer.default_origin,
+            "convmixer1536d20_convmixer_1536_20.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -240,10 +246,6 @@ class ConvMixer1536D20(ConvMixer):
         name: str = "ConvMixer1536D20",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "convmixer1536d20_convmixer_1536_20.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             20,
             1536,
@@ -262,12 +264,6 @@ class ConvMixer1536D20(ConvMixer):
             name=name,
             **kwargs,
         )
-
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM"]
-        feature_keys.extend([f"BLOCK{i}" for i in range(20)])
-        return feature_keys
 
 
 add_model_to_registry(ConvMixer736D32, "imagenet")

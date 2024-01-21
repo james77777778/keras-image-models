@@ -24,6 +24,14 @@ DEFAULT_CONFIG = [
 
 @keras.saving.register_keras_serializable(package="kimm")
 class MobileNetV2(BaseModel):
+    available_feature_keys = [
+        "STEM_S2",
+        *[
+            f"BLOCK{i}_S{j}"
+            for i, j in zip(range(7), [2, 4, 8, 16, 16, 32, 32])
+        ],
+    ]
+
     def __init__(
         self,
         width: float = 1.0,
@@ -32,6 +40,9 @@ class MobileNetV2(BaseModel):
         config: typing.Literal["default"] = "default",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         _available_configs = ["default"]
         if config == "default":
             _config = DEFAULT_CONFIG
@@ -111,17 +122,6 @@ class MobileNetV2(BaseModel):
         self.fix_stem_and_head_channels = fix_stem_and_head_channels
         self.config = config
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [
-                f"BLOCK{i}_S{j}"
-                for i, j in zip(range(7), [2, 4, 8, 16, 16, 32, 32])
-            ]
-        )
-        return feature_keys
-
     def get_config(self):
         config = super().get_config()
         config.update(
@@ -152,6 +152,14 @@ Model Definition
 
 
 class MobileNet050V2(MobileNetV2):
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV2.default_origin,
+            "mobilenet050v2_mobilenetv2_050.lamb_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -167,10 +175,6 @@ class MobileNet050V2(MobileNetV2):
         name: str = "MobileNet050V2",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "mobilenet050v2_mobilenetv2_050.lamb_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             0.5,
             1.0,
@@ -191,6 +195,14 @@ class MobileNet050V2(MobileNetV2):
 
 
 class MobileNet100V2(MobileNetV2):
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV2.default_origin,
+            "mobilenet100v2_mobilenetv2_100.ra_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -206,10 +218,6 @@ class MobileNet100V2(MobileNetV2):
         name: str = "MobileNet100V2",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "mobilenet100v2_mobilenetv2_100.ra_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.0,
             1.0,
@@ -230,6 +238,14 @@ class MobileNet100V2(MobileNetV2):
 
 
 class MobileNet110V2(MobileNetV2):
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV2.default_origin,
+            "mobilenet110v2_mobilenetv2_110d.ra_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -245,10 +261,6 @@ class MobileNet110V2(MobileNetV2):
         name: str = "MobileNet110V2",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "mobilenet110v2_mobilenetv2_110d.ra_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.1,
             1.2,
@@ -269,6 +281,14 @@ class MobileNet110V2(MobileNetV2):
 
 
 class MobileNet120V2(MobileNetV2):
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV2.default_origin,
+            "mobilenet120v2_mobilenetv2_120d.ra_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -284,10 +304,6 @@ class MobileNet120V2(MobileNetV2):
         name: str = "MobileNet120V2",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "mobilenet120v2_mobilenetv2_120d.ra_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.2,
             1.4,
@@ -308,6 +324,14 @@ class MobileNet120V2(MobileNetV2):
 
 
 class MobileNet140V2(MobileNetV2):
+    available_weights = [
+        (
+            "imagenet",
+            MobileNetV2.default_origin,
+            "mobilenet140v2_mobilenetv2_140.ra_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -323,10 +347,6 @@ class MobileNet140V2(MobileNetV2):
         name: str = "MobileNet140V2",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "mobilenet140v2_mobilenetv2_140.ra_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.4,
             1.0,

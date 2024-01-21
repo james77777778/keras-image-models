@@ -125,6 +125,16 @@ def apply_edge_residual_block(
 
 @keras.saving.register_keras_serializable(package="kimm")
 class EfficientNet(BaseModel):
+    # for: v1, v1_lite, v2_m, v2_l, v2_xl, tinynet
+    # not for: v2_s, v2_base
+    available_feature_keys = [
+        "STEM_S2",
+        *[
+            f"BLOCK{i}_S{j}"
+            for i, j in zip(range(7), [2, 4, 8, 16, 16, 32, 32])
+        ],
+    ]
+
     def __init__(
         self,
         width: float = 1.0,
@@ -137,6 +147,9 @@ class EfficientNet(BaseModel):
         config: str = "v1",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         _available_configs = [
             "v1",
             "v1_lite",
@@ -270,19 +283,6 @@ class EfficientNet(BaseModel):
         self.activation = activation
         self.config = config
 
-    @staticmethod
-    def available_feature_keys():
-        # for: v1, v1_lite, v2_m, v2_l, v2_xl, tinynet
-        # not for: v2_s, v2_base
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [
-                f"BLOCK{i}_S{j}"
-                for i, j in zip(range(7), [2, 4, 8, 16, 16, 32, 32])
-            ]
-        )
-        return feature_keys
-
     def get_config(self):
         config = super().get_config()
         config.update(
@@ -320,6 +320,14 @@ Model Definition
 
 
 class EfficientNetB0(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetb0_tf_efficientnet_b0.ns_jft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -335,10 +343,6 @@ class EfficientNetB0(EfficientNet):
         name: str = "EfficientNetB0",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetb0_tf_efficientnet_b0.ns_jft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -367,6 +371,14 @@ class EfficientNetB0(EfficientNet):
 
 
 class EfficientNetB1(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetb1_tf_efficientnet_b1.ns_jft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -382,10 +394,6 @@ class EfficientNetB1(EfficientNet):
         name: str = "EfficientNetB1",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetb1_tf_efficientnet_b1.ns_jft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -414,6 +422,14 @@ class EfficientNetB1(EfficientNet):
 
 
 class EfficientNetB2(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetb2_tf_efficientnet_b2.ns_jft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -429,10 +445,6 @@ class EfficientNetB2(EfficientNet):
         name: str = "EfficientNetB2",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetb2_tf_efficientnet_b2.ns_jft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.1,
@@ -461,6 +473,14 @@ class EfficientNetB2(EfficientNet):
 
 
 class EfficientNetB3(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetb3_tf_efficientnet_b3.ns_jft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -476,10 +496,6 @@ class EfficientNetB3(EfficientNet):
         name: str = "EfficientNetB3",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetb3_tf_efficientnet_b3.ns_jft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.2,
@@ -508,6 +524,14 @@ class EfficientNetB3(EfficientNet):
 
 
 class EfficientNetB4(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetb4_tf_efficientnet_b4.ns_jft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -523,10 +547,6 @@ class EfficientNetB4(EfficientNet):
         name: str = "EfficientNetB4",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetb4_tf_efficientnet_b4.ns_jft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.4,
@@ -555,6 +575,14 @@ class EfficientNetB4(EfficientNet):
 
 
 class EfficientNetB5(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetb5_tf_efficientnet_b5.ns_jft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -570,10 +598,6 @@ class EfficientNetB5(EfficientNet):
         name: str = "EfficientNetB5",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetb5_tf_efficientnet_b5.ns_jft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.6,
@@ -602,6 +626,14 @@ class EfficientNetB5(EfficientNet):
 
 
 class EfficientNetB6(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetb6_tf_efficientnet_b6.ns_jft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -617,10 +649,6 @@ class EfficientNetB6(EfficientNet):
         name: str = "EfficientNetB6",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetb6_tf_efficientnet_b6.ns_jft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.8,
@@ -649,6 +677,14 @@ class EfficientNetB6(EfficientNet):
 
 
 class EfficientNetB7(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetb7_tf_efficientnet_b7.ns_jft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -664,10 +700,6 @@ class EfficientNetB7(EfficientNet):
         name: str = "EfficientNetB7",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetb7_tf_efficientnet_b7.ns_jft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             2.0,
@@ -696,6 +728,14 @@ class EfficientNetB7(EfficientNet):
 
 
 class EfficientNetLiteB0(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetliteb0_tf_efficientnet_lite0.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -711,10 +751,6 @@ class EfficientNetLiteB0(EfficientNet):
         name: str = "EfficientNetLiteB0",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetliteb0_tf_efficientnet_lite0.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -743,6 +779,14 @@ class EfficientNetLiteB0(EfficientNet):
 
 
 class EfficientNetLiteB1(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetliteb1_tf_efficientnet_lite1.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -758,10 +802,6 @@ class EfficientNetLiteB1(EfficientNet):
         name: str = "EfficientNetLiteB1",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetliteb1_tf_efficientnet_lite1.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -790,6 +830,14 @@ class EfficientNetLiteB1(EfficientNet):
 
 
 class EfficientNetLiteB2(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetliteb2_tf_efficientnet_lite2.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -805,10 +853,6 @@ class EfficientNetLiteB2(EfficientNet):
         name: str = "EfficientNetLiteB2",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetliteb2_tf_efficientnet_lite2.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.1,
@@ -837,6 +881,14 @@ class EfficientNetLiteB2(EfficientNet):
 
 
 class EfficientNetLiteB3(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetliteb3_tf_efficientnet_lite3.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -852,10 +904,6 @@ class EfficientNetLiteB3(EfficientNet):
         name: str = "EfficientNetLiteB3",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetliteb3_tf_efficientnet_lite3.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.2,
@@ -884,6 +932,14 @@ class EfficientNetLiteB3(EfficientNet):
 
 
 class EfficientNetLiteB4(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetliteb4_tf_efficientnet_lite4.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -899,10 +955,6 @@ class EfficientNetLiteB4(EfficientNet):
         name: str = "EfficientNetLiteB4",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetliteb4_tf_efficientnet_lite4.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.4,
@@ -931,6 +983,18 @@ class EfficientNetLiteB4(EfficientNet):
 
 
 class EfficientNetV2S(EfficientNet):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetv2s_tf_efficientnetv2_s.in21k_ft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -946,12 +1010,6 @@ class EfficientNetV2S(EfficientNet):
         name: str = "EfficientNetV2S",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = (
-                "efficientnetv2s_tf_efficientnetv2_s.in21k_ft_in1k.keras"
-            )
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -978,16 +1036,16 @@ class EfficientNetV2S(EfficientNet):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
-        )
-        return feature_keys
-
 
 class EfficientNetV2M(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetv2m_tf_efficientnetv2_m.in21k_ft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1003,12 +1061,6 @@ class EfficientNetV2M(EfficientNet):
         name: str = "EfficientNetV2M",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = (
-                "efficientnetv2m_tf_efficientnetv2_m.in21k_ft_in1k.keras"
-            )
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1037,6 +1089,14 @@ class EfficientNetV2M(EfficientNet):
 
 
 class EfficientNetV2L(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetv2l_tf_efficientnetv2_l.in21k_ft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1052,12 +1112,6 @@ class EfficientNetV2L(EfficientNet):
         name: str = "EfficientNetV2L",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = (
-                "efficientnetv2l_tf_efficientnetv2_l.in21k_ft_in1k.keras"
-            )
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1086,6 +1140,14 @@ class EfficientNetV2L(EfficientNet):
 
 
 class EfficientNetV2XL(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetv2xl_tf_efficientnetv2_xl.in21k_ft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1101,12 +1163,6 @@ class EfficientNetV2XL(EfficientNet):
         name: str = "EfficientNetV2XL",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = (
-                "efficientnetv2xl_tf_efficientnetv2_xl.in21k_ft_in1k.keras"
-            )
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1135,6 +1191,18 @@ class EfficientNetV2XL(EfficientNet):
 
 
 class EfficientNetV2B0(EfficientNet):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetv2b0_tf_efficientnetv2_b0.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1150,10 +1218,6 @@ class EfficientNetV2B0(EfficientNet):
         name: str = "EfficientNetV2B0",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetv2b0_tf_efficientnetv2_b0.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1180,16 +1244,20 @@ class EfficientNetV2B0(EfficientNet):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
-        )
-        return feature_keys
-
 
 class EfficientNetV2B1(EfficientNet):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetv2b1_tf_efficientnetv2_b1.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1205,10 +1273,6 @@ class EfficientNetV2B1(EfficientNet):
         name: str = "EfficientNetV2B1",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetv2b1_tf_efficientnetv2_b1.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.0,
@@ -1235,16 +1299,20 @@ class EfficientNetV2B1(EfficientNet):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
-        )
-        return feature_keys
-
 
 class EfficientNetV2B2(EfficientNet):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetv2b2_tf_efficientnetv2_b2.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1260,10 +1328,6 @@ class EfficientNetV2B2(EfficientNet):
         name: str = "EfficientNetV2B2",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetv2b2_tf_efficientnetv2_b2.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.1,
@@ -1291,16 +1355,20 @@ class EfficientNetV2B2(EfficientNet):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
-        )
-        return feature_keys
-
 
 class EfficientNetV2B3(EfficientNet):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "efficientnetv2b3_tf_efficientnetv2_b3.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1316,10 +1384,6 @@ class EfficientNetV2B3(EfficientNet):
         name: str = "EfficientNetV2B3",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "efficientnetv2b3_tf_efficientnetv2_b3.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         # default to TF configuration (bn_epsilon=1e-3 and padding="same")
         super().__init__(
             1.2,
@@ -1347,16 +1411,16 @@ class EfficientNetV2B3(EfficientNet):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])]
-        )
-        return feature_keys
-
 
 class TinyNetA(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "tinyneta_tinynet_a.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1372,10 +1436,6 @@ class TinyNetA(EfficientNet):
         name: str = "TinyNetA",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "tinyneta_tinynet_a.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.0,
             1.2,
@@ -1402,6 +1462,14 @@ class TinyNetA(EfficientNet):
 
 
 class TinyNetB(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "tinynetb_tinynet_b.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1417,10 +1485,6 @@ class TinyNetB(EfficientNet):
         name: str = "TinyNetB",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "tinynetb_tinynet_b.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             0.75,
             1.1,
@@ -1447,6 +1511,14 @@ class TinyNetB(EfficientNet):
 
 
 class TinyNetC(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "tinynetc_tinynet_c.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1462,10 +1534,6 @@ class TinyNetC(EfficientNet):
         name: str = "TinyNetC",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "tinynetc_tinynet_c.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             0.54,
             0.85,
@@ -1492,6 +1560,14 @@ class TinyNetC(EfficientNet):
 
 
 class TinyNetD(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "tinynetd_tinynet_d.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1507,10 +1583,6 @@ class TinyNetD(EfficientNet):
         name: str = "TinyNetD",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "tinynetd_tinynet_d.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             0.54,
             0.695,
@@ -1537,6 +1609,14 @@ class TinyNetD(EfficientNet):
 
 
 class TinyNetE(EfficientNet):
+    available_weights = [
+        (
+            "imagenet",
+            EfficientNet.default_origin,
+            "tinynete_tinynet_e.in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -1552,10 +1632,6 @@ class TinyNetE(EfficientNet):
         name: str = "TinyNetE",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "tinynete_tinynet_e.in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             0.51,
             0.6,

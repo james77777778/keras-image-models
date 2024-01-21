@@ -120,6 +120,11 @@ def apply_convnext_stage(
 
 @keras.saving.register_keras_serializable(package="kimm")
 class ConvNeXt(BaseModel):
+    available_feature_keys = [
+        "STEM_S4",
+        *[f"BLOCK{i}_S{2**(i+2)}" for i in range(4)],
+    ]
+
     def __init__(
         self,
         depths: typing.Sequence[int] = [3, 3, 9, 3],
@@ -130,6 +135,9 @@ class ConvNeXt(BaseModel):
         use_conv_mlp: bool = False,
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         inputs = self.determine_input_tensor(
@@ -197,12 +205,6 @@ class ConvNeXt(BaseModel):
         )(x)
         return x
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S4"]
-        feature_keys.extend([f"BLOCK{i}_S{2**(i+2)}" for i in range(4)])
-        return feature_keys
-
     def get_config(self):
         config = super().get_config()
         config.update(
@@ -237,6 +239,14 @@ Model Definition
 
 
 class ConvNeXtAtto(ConvNeXt):
+    available_weights = [
+        (
+            "imagenet",
+            ConvNeXt.default_origin,
+            "convnextatto_convnext_atto.d2_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -251,10 +261,6 @@ class ConvNeXtAtto(ConvNeXt):
         name: str = "ConvNeXtAtto",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "convnextatto_convnext_atto.d2_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (2, 2, 6, 2),
             (40, 80, 160, 320),
@@ -277,6 +283,14 @@ class ConvNeXtAtto(ConvNeXt):
 
 
 class ConvNeXtFemto(ConvNeXt):
+    available_weights = [
+        (
+            "imagenet",
+            ConvNeXt.default_origin,
+            "convnextfemto_convnext_femto.d1_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -291,10 +305,6 @@ class ConvNeXtFemto(ConvNeXt):
         name: str = "ConvNeXtFemto",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "convnextfemto_convnext_femto.d1_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (2, 2, 6, 2),
             (48, 96, 192, 384),
@@ -317,6 +327,14 @@ class ConvNeXtFemto(ConvNeXt):
 
 
 class ConvNeXtPico(ConvNeXt):
+    available_weights = [
+        (
+            "imagenet",
+            ConvNeXt.default_origin,
+            "convnextpico_convnext_pico.d1_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -331,10 +349,6 @@ class ConvNeXtPico(ConvNeXt):
         name: str = "ConvNeXtPico",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "convnextpico_convnext_pico.d1_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (2, 2, 6, 2),
             (64, 128, 256, 512),
@@ -357,6 +371,14 @@ class ConvNeXtPico(ConvNeXt):
 
 
 class ConvNeXtNano(ConvNeXt):
+    available_weights = [
+        (
+            "imagenet",
+            ConvNeXt.default_origin,
+            "convnextnano_convnext_nano.in12k_ft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -371,10 +393,6 @@ class ConvNeXtNano(ConvNeXt):
         name: str = "ConvNeXtNano",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "convnextnano_convnext_nano.in12k_ft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (2, 2, 8, 2),
             (80, 160, 320, 640),
@@ -397,6 +415,14 @@ class ConvNeXtNano(ConvNeXt):
 
 
 class ConvNeXtTiny(ConvNeXt):
+    available_weights = [
+        (
+            "imagenet",
+            ConvNeXt.default_origin,
+            "convnexttiny_convnext_tiny.in12k_ft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -411,10 +437,6 @@ class ConvNeXtTiny(ConvNeXt):
         name: str = "ConvNeXtTiny",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "convnexttiny_convnext_tiny.in12k_ft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (3, 3, 9, 3),
             (96, 192, 384, 768),
@@ -437,6 +459,14 @@ class ConvNeXtTiny(ConvNeXt):
 
 
 class ConvNeXtSmall(ConvNeXt):
+    available_weights = [
+        (
+            "imagenet",
+            ConvNeXt.default_origin,
+            "convnextsmall_convnext_small.in12k_ft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -451,10 +481,6 @@ class ConvNeXtSmall(ConvNeXt):
         name: str = "ConvNeXtSmall",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "convnextsmall_convnext_small.in12k_ft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (3, 3, 27, 3),
             (96, 192, 384, 768),
@@ -477,6 +503,14 @@ class ConvNeXtSmall(ConvNeXt):
 
 
 class ConvNeXtBase(ConvNeXt):
+    available_weights = [
+        (
+            "imagenet",
+            ConvNeXt.default_origin,
+            "convnextbase_convnext_base.fb_in22k_ft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -491,10 +525,6 @@ class ConvNeXtBase(ConvNeXt):
         name: str = "ConvNeXtBase",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "convnextbase_convnext_base.fb_in22k_ft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (3, 3, 27, 3),
             (128, 256, 512, 1024),
@@ -517,6 +547,14 @@ class ConvNeXtBase(ConvNeXt):
 
 
 class ConvNeXtLarge(ConvNeXt):
+    available_weights = [
+        (
+            "imagenet",
+            ConvNeXt.default_origin,
+            "convnextlarge_convnext_large.fb_in22k_ft_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -531,10 +569,6 @@ class ConvNeXtLarge(ConvNeXt):
         name: str = "ConvNeXtLarge",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "convnextlarge_convnext_large.fb_in22k_ft_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             (3, 3, 27, 3),
             (192, 384, 768, 1536),
@@ -557,6 +591,8 @@ class ConvNeXtLarge(ConvNeXt):
 
 
 class ConvNeXtXLarge(ConvNeXt):
+    available_weights = []
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -571,7 +607,6 @@ class ConvNeXtXLarge(ConvNeXt):
         name: str = "ConvNeXtXLarge",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         super().__init__(
             (3, 3, 27, 3),
             (256, 512, 1024, 2048),

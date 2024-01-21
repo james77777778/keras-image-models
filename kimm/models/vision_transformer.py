@@ -23,6 +23,9 @@ class VisionTransformer(BaseModel):
         pos_dropout_rate: float = 0.0,
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs, 384)
         if self._pooling is not None:
@@ -100,10 +103,6 @@ class VisionTransformer(BaseModel):
         )(x)
         return x
 
-    @staticmethod
-    def available_feature_keys():
-        raise NotImplementedError()
-
     def get_config(self):
         config = super().get_config()
         config.update(
@@ -142,6 +141,18 @@ Model Definition
 
 
 class VisionTransformerTiny16(VisionTransformer):
+    available_feature_keys = [
+        "EMBEDDING",
+        *[f"BLOCK{i}" for i in range(12)],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            VisionTransformer.default_origin,
+            "visiontransformertiny16_vit_tiny_patch16_384.keras",
+        )
+    ]
+
     def __init__(
         self,
         mlp_ratio: float = 4.0,
@@ -160,10 +171,6 @@ class VisionTransformerTiny16(VisionTransformer):
         name: str = "VisionTransformerTiny16",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "visiontransformertiny16_vit_tiny_patch16_384.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             16,
             192,
@@ -186,14 +193,14 @@ class VisionTransformerTiny16(VisionTransformer):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["EMBEDDING"]
-        feature_keys.extend([f"BLOCK{i}" for i in range(12)])
-        return feature_keys
-
 
 class VisionTransformerTiny32(VisionTransformer):
+    available_feature_keys = [
+        "EMBEDDING",
+        *[f"BLOCK{i}" for i in range(12)],
+    ]
+    available_weights = []
+
     def __init__(
         self,
         mlp_ratio: float = 4.0,
@@ -235,14 +242,20 @@ class VisionTransformerTiny32(VisionTransformer):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["EMBEDDING"]
-        feature_keys.extend([f"BLOCK{i}" for i in range(12)])
-        return feature_keys
-
 
 class VisionTransformerSmall16(VisionTransformer):
+    available_feature_keys = [
+        "EMBEDDING",
+        *[f"BLOCK{i}" for i in range(12)],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            VisionTransformer.default_origin,
+            "visiontransformersmall16_vit_small_patch16_384.keras",
+        )
+    ]
+
     def __init__(
         self,
         mlp_ratio: float = 4.0,
@@ -261,10 +274,6 @@ class VisionTransformerSmall16(VisionTransformer):
         name: str = "VisionTransformerSmall16",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "visiontransformersmall16_vit_small_patch16_384.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             16,
             384,
@@ -287,14 +296,20 @@ class VisionTransformerSmall16(VisionTransformer):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["EMBEDDING"]
-        feature_keys.extend([f"BLOCK{i}" for i in range(12)])
-        return feature_keys
-
 
 class VisionTransformerSmall32(VisionTransformer):
+    available_feature_keys = [
+        "EMBEDDING",
+        *[f"BLOCK{i}" for i in range(12)],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            VisionTransformer.default_origin,
+            "visiontransformersmall32_vit_small_patch32_384.keras",
+        )
+    ]
+
     def __init__(
         self,
         mlp_ratio: float = 4.0,
@@ -313,10 +328,6 @@ class VisionTransformerSmall32(VisionTransformer):
         name: str = "VisionTransformerSmall32",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "visiontransformersmall32_vit_small_patch32_384.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             32,
             384,
@@ -339,14 +350,20 @@ class VisionTransformerSmall32(VisionTransformer):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["EMBEDDING"]
-        feature_keys.extend([f"BLOCK{i}" for i in range(12)])
-        return feature_keys
-
 
 class VisionTransformerBase16(VisionTransformer):
+    available_feature_keys = [
+        "EMBEDDING",
+        *[f"BLOCK{i}" for i in range(12)],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            VisionTransformer.default_origin,
+            "visiontransformerbase16_vit_base_patch16_384.keras",
+        )
+    ]
+
     def __init__(
         self,
         mlp_ratio: float = 4.0,
@@ -365,10 +382,6 @@ class VisionTransformerBase16(VisionTransformer):
         name: str = "VisionTransformerBase16",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "visiontransformerbase16_vit_base_patch16_384.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             16,
             768,
@@ -391,14 +404,20 @@ class VisionTransformerBase16(VisionTransformer):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["EMBEDDING"]
-        feature_keys.extend([f"BLOCK{i}" for i in range(12)])
-        return feature_keys
-
 
 class VisionTransformerBase32(VisionTransformer):
+    available_feature_keys = [
+        "EMBEDDING",
+        *[f"BLOCK{i}" for i in range(12)],
+    ]
+    available_weights = [
+        (
+            "imagenet",
+            VisionTransformer.default_origin,
+            "visiontransformerbase32_vit_base_patch32_384.keras",
+        )
+    ]
+
     def __init__(
         self,
         mlp_ratio: float = 4.0,
@@ -417,10 +436,6 @@ class VisionTransformerBase32(VisionTransformer):
         name: str = "VisionTransformerBase32",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "visiontransformerbase32_vit_base_patch32_384.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             32,
             768,
@@ -443,14 +458,14 @@ class VisionTransformerBase32(VisionTransformer):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["EMBEDDING"]
-        feature_keys.extend([f"BLOCK{i}" for i in range(12)])
-        return feature_keys
-
 
 class VisionTransformerLarge16(VisionTransformer):
+    available_feature_keys = [
+        "EMBEDDING",
+        *[f"BLOCK{i}" for i in range(24)],
+    ]
+    available_weights = []
+
     def __init__(
         self,
         mlp_ratio: float = 4.0,
@@ -469,7 +484,6 @@ class VisionTransformerLarge16(VisionTransformer):
         name: str = "VisionTransformerLarge16",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         super().__init__(
             16,
             1024,
@@ -492,14 +506,14 @@ class VisionTransformerLarge16(VisionTransformer):
             **kwargs,
         )
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["EMBEDDING"]
-        feature_keys.extend([f"BLOCK{i}" for i in range(24)])
-        return feature_keys
-
 
 class VisionTransformerLarge32(VisionTransformer):
+    available_feature_keys = [
+        "EMBEDDING",
+        *[f"BLOCK{i}" for i in range(24)],
+    ]
+    available_weights = []
+
     def __init__(
         self,
         mlp_ratio: float = 4.0,
@@ -518,7 +532,6 @@ class VisionTransformerLarge32(VisionTransformer):
         name: str = "VisionTransformerLarge32",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         super().__init__(
             32,
             1024,
@@ -540,12 +553,6 @@ class VisionTransformerLarge32(VisionTransformer):
             name=name,
             **kwargs,
         )
-
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["EMBEDDING"]
-        feature_keys.extend([f"BLOCK{i}" for i in range(24)])
-        return feature_keys
 
 
 add_model_to_registry(VisionTransformerTiny16, "imagenet")

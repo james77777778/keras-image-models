@@ -66,12 +66,20 @@ def apply_dense_transition_block(
 
 @keras.saving.register_keras_serializable(package="kimm")
 class DenseNet(BaseModel):
+    available_feature_keys = [
+        "STEM_S4",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(4), [8, 16, 32, 32])],
+    ]
+
     def __init__(
         self,
         growth_rate: float = 32,
         num_blocks: typing.Sequence[int] = [6, 12, 24, 16],
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         inputs = self.determine_input_tensor(
@@ -133,14 +141,6 @@ class DenseNet(BaseModel):
         self.growth_rate = growth_rate
         self.num_blocks = num_blocks
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S4"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(4), [8, 16, 32, 32])]
-        )
-        return feature_keys
-
     def get_config(self):
         config = super().get_config()
         config.update(
@@ -161,6 +161,14 @@ Model Definition
 
 
 class DenseNet121(DenseNet):
+    available_weights = [
+        (
+            "imagenet",
+            DenseNet.default_origin,
+            "densenet121_densenet121.ra_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -175,10 +183,6 @@ class DenseNet121(DenseNet):
         name: str = "DenseNet121",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "densenet121_densenet121.ra_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             32,
             [6, 12, 24, 16],
@@ -198,6 +202,14 @@ class DenseNet121(DenseNet):
 
 
 class DenseNet161(DenseNet):
+    available_weights = [
+        (
+            "imagenet",
+            DenseNet.default_origin,
+            "densenet161_densenet161.tv_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -212,10 +224,6 @@ class DenseNet161(DenseNet):
         name: str = "DenseNet161",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "densenet161_densenet161.tv_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             48,
             [6, 12, 36, 24],
@@ -235,6 +243,14 @@ class DenseNet161(DenseNet):
 
 
 class DenseNet169(DenseNet):
+    available_weights = [
+        (
+            "imagenet",
+            DenseNet.default_origin,
+            "densenet169_densenet169.tv_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -249,10 +265,6 @@ class DenseNet169(DenseNet):
         name: str = "DenseNet169",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "densenet169_densenet169.tv_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             32,
             [6, 12, 32, 32],
@@ -272,6 +284,14 @@ class DenseNet169(DenseNet):
 
 
 class DenseNet201(DenseNet):
+    available_weights = [
+        (
+            "imagenet",
+            DenseNet.default_origin,
+            "densenet201_densenet201.tv_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -286,10 +306,6 @@ class DenseNet201(DenseNet):
         name: str = "DenseNet201",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "densenet201_densenet201.tv_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             32,
             [6, 12, 48, 32],

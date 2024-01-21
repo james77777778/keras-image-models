@@ -105,12 +105,20 @@ def apply_bottleneck_block(
 
 @keras.saving.register_keras_serializable(package="kimm")
 class ResNet(BaseModel):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(4), [4, 8, 16, 32])],
+    ]
+
     def __init__(
         self,
         block_fn: typing.Literal["basic", "bottleneck"],
         num_blocks: typing.Sequence[int],
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         if block_fn not in ("basic", "bottleneck"):
             raise ValueError(
                 "`block_fn` must be one of ('basic', 'bottelneck'). "
@@ -172,14 +180,6 @@ class ResNet(BaseModel):
         self.block_fn = block_fn
         self.num_blocks = num_blocks
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(4), [4, 8, 16, 32])]
-        )
-        return feature_keys
-
     def get_config(self):
         config = super().get_config()
         config.update(
@@ -200,6 +200,14 @@ Model Definition
 
 
 class ResNet18(ResNet):
+    available_weights = [
+        (
+            "imagenet",
+            ResNet.default_origin,
+            "resnet18_resnet18.a1_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -214,10 +222,6 @@ class ResNet18(ResNet):
         name: str = "ResNet18",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "resnet18_resnet18.a1_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "basic",
             [2, 2, 2, 2],
@@ -236,6 +240,14 @@ class ResNet18(ResNet):
 
 
 class ResNet34(ResNet):
+    available_weights = [
+        (
+            "imagenet",
+            ResNet.default_origin,
+            "resnet34_resnet34.a1_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -250,10 +262,6 @@ class ResNet34(ResNet):
         name: str = "ResNet34",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "resnet34_resnet34.a1_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "basic",
             [3, 4, 6, 3],
@@ -272,6 +280,14 @@ class ResNet34(ResNet):
 
 
 class ResNet50(ResNet):
+    available_weights = [
+        (
+            "imagenet",
+            ResNet.default_origin,
+            "resnet50_resnet50.a1_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -286,10 +302,6 @@ class ResNet50(ResNet):
         name: str = "ResNet50",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "resnet50_resnet50.a1_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "bottleneck",
             [3, 4, 6, 3],
@@ -308,6 +320,14 @@ class ResNet50(ResNet):
 
 
 class ResNet101(ResNet):
+    available_weights = [
+        (
+            "imagenet",
+            ResNet.default_origin,
+            "resnet101_resnet101.a1_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -322,10 +342,6 @@ class ResNet101(ResNet):
         name: str = "ResNet101",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "resnet101_resnet101.a1_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "bottleneck",
             [3, 4, 23, 3],
@@ -344,6 +360,14 @@ class ResNet101(ResNet):
 
 
 class ResNet152(ResNet):
+    available_weights = [
+        (
+            "imagenet",
+            ResNet.default_origin,
+            "resnet152_resnet152.a1_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -358,10 +382,6 @@ class ResNet152(ResNet):
         name: str = "ResNet152",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "resnet152_resnet152.a1_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "bottleneck",
             [3, 8, 36, 3],

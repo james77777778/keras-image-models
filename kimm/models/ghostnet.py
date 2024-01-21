@@ -230,6 +230,14 @@ def apply_ghost_bottleneck(
 
 @keras.saving.register_keras_serializable(package="kimm")
 class GhostNet(BaseModel):
+    available_feature_keys = [
+        "STEM_S2",
+        *[
+            f"BLOCK{i}_S{j}"
+            for i, j in zip(range(9), [2, 4, 4, 8, 8, 16, 16, 32, 32])
+        ],
+    ]
+
     def __init__(
         self,
         width: float = 1.0,
@@ -237,6 +245,9 @@ class GhostNet(BaseModel):
         version: typing.Literal["v1", "v2"] = "v1",
         **kwargs,
     ):
+        kwargs = self.fix_config(kwargs)
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         _available_configs = ["default"]
         if config == "default":
             _config = DEFAULT_CONFIG
@@ -332,17 +343,6 @@ class GhostNet(BaseModel):
         )(x)
         return x
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [
-                f"BLOCK{i}_S{j}"
-                for i, j in zip(range(9), [2, 4, 4, 8, 8, 16, 16, 32, 32])
-            ]
-        )
-        return feature_keys
-
     def get_config(self):
         config = super().get_config()
         config.update(
@@ -367,6 +367,8 @@ Model Definition
 
 
 class GhostNet050(GhostNet):
+    available_weights = []
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -382,7 +384,6 @@ class GhostNet050(GhostNet):
         name: str = "GhostNet050",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         super().__init__(
             0.5,
             config,
@@ -402,6 +403,14 @@ class GhostNet050(GhostNet):
 
 
 class GhostNet100(GhostNet):
+    available_weights = [
+        (
+            "imagenet",
+            GhostNet.default_origin,
+            "ghostnet100_ghostnet_100.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -417,10 +426,6 @@ class GhostNet100(GhostNet):
         name: str = "GhostNet100",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "ghostnet100_ghostnet_100.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.0,
             config,
@@ -440,6 +445,8 @@ class GhostNet100(GhostNet):
 
 
 class GhostNet130(GhostNet):
+    available_weights = []
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -455,7 +462,6 @@ class GhostNet130(GhostNet):
         name: str = "GhostNet130",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
         super().__init__(
             1.3,
             config,
@@ -475,6 +481,14 @@ class GhostNet130(GhostNet):
 
 
 class GhostNet100V2(GhostNet):
+    available_weights = [
+        (
+            "imagenet",
+            GhostNet.default_origin,
+            "ghostnet100v2_ghostnetv2_100.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -490,10 +504,6 @@ class GhostNet100V2(GhostNet):
         name: str = "GhostNet100V2",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "ghostnet100v2_ghostnetv2_100.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.0,
             config,
@@ -513,6 +523,14 @@ class GhostNet100V2(GhostNet):
 
 
 class GhostNet130V2(GhostNet):
+    available_weights = [
+        (
+            "imagenet",
+            GhostNet.default_origin,
+            "ghostnet130v2_ghostnetv2_130.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -528,10 +546,6 @@ class GhostNet130V2(GhostNet):
         name: str = "GhostNet130V2",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "ghostnet130v2_ghostnetv2_130.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.3,
             config,
@@ -551,6 +565,14 @@ class GhostNet130V2(GhostNet):
 
 
 class GhostNet160V2(GhostNet):
+    available_weights = [
+        (
+            "imagenet",
+            GhostNet.default_origin,
+            "ghostnet160v2_ghostnetv2_160.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -566,10 +588,6 @@ class GhostNet160V2(GhostNet):
         name: str = "GhostNet160V2",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "ghostnet160v2_ghostnetv2_160.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             1.6,
             config,

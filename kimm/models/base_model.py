@@ -1,4 +1,3 @@
-import abc
 import pathlib
 import typing
 import urllib.parse
@@ -12,6 +11,12 @@ from keras.src.applications import imagenet_utils
 
 
 class BaseModel(models.Model):
+    default_origin = (
+        "https://github.com/james77777778/kimm/releases/download/0.1.0/"
+    )
+    available_feature_keys = []
+    available_weights = []
+
     def __init__(
         self,
         inputs,
@@ -183,12 +188,6 @@ class BaseModel(models.Model):
             )
             self.load_weights(weights_path)
 
-    @staticmethod
-    @abc.abstractmethod
-    def available_feature_keys():
-        # TODO: add docstring
-        raise NotImplementedError
-
     def get_config(self):
         # Don't chain to super here. The default `get_config()` for functional
         # models is nested and cannot be passed to BaseModel.
@@ -215,6 +214,19 @@ class BaseModel(models.Model):
     def fix_config(self, config: typing.Dict):
         return config
 
-    @property
-    def default_origin(self):
-        return "https://github.com/james77777778/kimm/releases/download/0.1.0/"
+    def get_weights_url(self, weights):
+        if weights is None:
+            return None
+
+        for _weights, _origin, _file_name in self.available_weights:
+            if weights == _weights:
+                return f"{_origin}/{_file_name}"
+
+        # Failed to find the weights
+        _available_weights_name = [
+            _weights for _weights, _ in self.available_weights
+        ]
+        raise ValueError(
+            f"Available weights are {_available_weights_name}. "
+            f"Received weights={weights}"
+        )

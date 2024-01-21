@@ -66,7 +66,15 @@ def apply_xception_block(
 
 @keras.saving.register_keras_serializable(package="kimm")
 class XceptionBase(BaseModel):
+    available_feature_keys = [
+        "STEM_S2",
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(4), [4, 8, 16, 32])],
+    ]
+
     def __init__(self, **kwargs):
+        kwargs = self.fix_config(kwargs)
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         inputs = self.determine_input_tensor(
@@ -133,14 +141,6 @@ class XceptionBase(BaseModel):
 
         # All references to `self` below this line
 
-    @staticmethod
-    def available_feature_keys():
-        feature_keys = ["STEM_S2"]
-        feature_keys.extend(
-            [f"BLOCK{i}_S{j}" for i, j in zip(range(4), [4, 8, 16, 32])]
-        )
-        return feature_keys
-
     def get_config(self):
         return super().get_config()
 
@@ -154,6 +154,14 @@ Model Definition
 
 
 class Xception(XceptionBase):
+    available_weights = [
+        (
+            "imagenet",
+            XceptionBase.default_origin,
+            "xception.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -168,10 +176,6 @@ class Xception(XceptionBase):
         name: str = "Xception",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "xception.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             input_tensor=input_tensor,
             input_shape=input_shape,

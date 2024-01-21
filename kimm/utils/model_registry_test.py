@@ -13,9 +13,7 @@ class DummyModel(models.Model):
 
 
 class DummyFeatureExtractor(BaseModel):
-    @staticmethod
-    def available_feature_keys():
-        return ["A", "B", "C"]
+    available_feature_keys = ["A", "B", "C"]
 
 
 class ModelRegistryTest(testing.TestCase):

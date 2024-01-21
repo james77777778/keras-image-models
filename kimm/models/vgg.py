@@ -108,7 +108,14 @@ def apply_conv_mlp_layer(
 
 @keras.saving.register_keras_serializable(package="kimm")
 class VGG(BaseModel):
+    available_feature_keys = [
+        *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [1, 2, 4, 8, 16, 32])],
+    ]
+
     def __init__(self, config: typing.Union[str, typing.List], **kwargs):
+        kwargs = self.fix_config(kwargs)
+        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
+
         _available_configs = ["vgg11", "vgg13", "vgg16", "vgg19"]
         if config == "vgg11":
             _config = DEFAULT_VGG11_CONFIG
@@ -178,12 +185,6 @@ class VGG(BaseModel):
         # All references to `self` below this line
         self.config = config
 
-    @staticmethod
-    def available_feature_keys():
-        return [
-            f"BLOCK{i}_S{j}" for i, j in zip(range(6), [1, 2, 4, 8, 16, 32])
-        ]
-
     def get_config(self):
         config = super().get_config()
         config.update({"config": self.config})
@@ -202,6 +203,14 @@ Model Definition
 
 
 class VGG11(VGG):
+    available_weights = [
+        (
+            "imagenet",
+            VGG.default_origin,
+            "vgg11_vgg11_bn.tv_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -216,10 +225,6 @@ class VGG11(VGG):
         name: str = "VGG11",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "vgg11_vgg11_bn.tv_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "vgg11",
             input_tensor=input_tensor,
@@ -237,6 +242,14 @@ class VGG11(VGG):
 
 
 class VGG13(VGG):
+    available_weights = [
+        (
+            "imagenet",
+            VGG.default_origin,
+            "vgg13_vgg13_bn.tv_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -251,10 +264,6 @@ class VGG13(VGG):
         name: str = "VGG13",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "vgg13_vgg13_bn.tv_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "vgg13",
             input_tensor=input_tensor,
@@ -272,6 +281,14 @@ class VGG13(VGG):
 
 
 class VGG16(VGG):
+    available_weights = [
+        (
+            "imagenet",
+            VGG.default_origin,
+            "vgg16_vgg16_bn.tv_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -286,10 +303,6 @@ class VGG16(VGG):
         name: str = "VGG16",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "vgg16_vgg16_bn.tv_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "vgg16",
             input_tensor=input_tensor,
@@ -307,6 +320,14 @@ class VGG16(VGG):
 
 
 class VGG19(VGG):
+    available_weights = [
+        (
+            "imagenet",
+            VGG.default_origin,
+            "vgg19_vgg19_bn.tv_in1k.keras",
+        )
+    ]
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -321,10 +342,6 @@ class VGG19(VGG):
         name: str = "VGG19",
         **kwargs,
     ):
-        kwargs = self.fix_config(kwargs)
-        if weights == "imagenet":
-            file_name = "vgg19_vgg19_bn.tv_in1k.keras"
-            kwargs["weights_url"] = f"{self.default_origin}/{file_name}"
         super().__init__(
             "vgg19",
             input_tensor=input_tensor,

@@ -20,7 +20,8 @@
 - 🚀 Almost all models have pre-trained weights on ImageNet
 
   > **Note:**
-  > The accuracy of the exported models can be found at [results-imagenet.csv (timm)](https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv)
+  > The accuracy of the exported models can be found at [results-imagenet.csv (timm)](https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv) and [https://keras.io/api/applications/ (keras)](https://keras.io/api/applications/),
+  > and the numerical differences of the exported models can be verified in `tools/convert_*.py`
 
 - 🧰 All models have a common API identical to `keras.applications.*`
   

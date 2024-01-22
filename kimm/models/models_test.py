@@ -1,5 +1,6 @@
 import keras
 import pytest
+import tensorflow as tf
 from absl.testing import parameterized
 from keras import backend
 from keras import models
@@ -354,31 +355,61 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
         backend.set_image_data_format(cls.original_image_data_format)
 
     @parameterized.named_parameters(MODEL_CONFIGS)
-    def test_model_base(
+    def test_model_base_channels_last(
         self, model_class, image_size, features, weights="imagenet"
     ):
-        for data_format in ("channels_last", "channels_first"):
-            backend.set_image_data_format(data_format)
-            model = model_class(weights=weights)
-            image_path = keras.utils.get_file(
-                "african_elephant.jpg", "https://i.imgur.com/Bvro0YD.png"
-            )
-            # preprocessing
-            image = utils.load_img(
-                image_path, target_size=(image_size, image_size)
-            )
-            image = utils.img_to_array(image, data_format=data_format)
-            x = ops.convert_to_tensor(image)
-            x = ops.expand_dims(x, axis=0)
+        backend.set_image_data_format("channels_last")
+        model = model_class(weights=weights)
+        image_path = keras.utils.get_file(
+            "african_elephant.jpg", "https://i.imgur.com/Bvro0YD.png"
+        )
+        # preprocessing
+        image = utils.load_img(image_path, target_size=(image_size, image_size))
+        image = utils.img_to_array(image, data_format="channels_last")
+        x = ops.convert_to_tensor(image)
+        x = ops.expand_dims(x, axis=0)
 
-            y = model(x, training=False)
+        y = model(x, training=False)
 
-            if weights == "imagenet":
-                names = [p[1] for p in decode_predictions(y)[0]]
-                # Test correct label is in top 3 (weak correctness test).
-                self.assertIn("African_elephant", names[:3])
-            elif weights is None:
-                self.assertEqual(list(y.shape), [1, 1000])
+        if weights == "imagenet":
+            names = [p[1] for p in decode_predictions(y)[0]]
+            # Test correct label is in top 3 (weak correctness test).
+            self.assertIn("African_elephant", names[:3])
+        elif weights is None:
+            self.assertEqual(list(y.shape), [1, 1000])
+
+    @parameterized.named_parameters(MODEL_CONFIGS)
+    def test_model_base_channels_first(
+        self, model_class, image_size, features, weights="imagenet"
+    ):
+        if (
+            len(tf.config.list_physical_devices("GPU")) == 0
+            and backend.backend() == "tensorflow"
+        ):
+            self.skipTest(
+                "Conv2D doesn't support channels_first using CPU with "
+                "tensorflow backend"
+            )
+
+        backend.set_image_data_format("channels_first")
+        model = model_class(weights=weights)
+        image_path = keras.utils.get_file(
+            "african_elephant.jpg", "https://i.imgur.com/Bvro0YD.png"
+        )
+        # preprocessing
+        image = utils.load_img(image_path, target_size=(image_size, image_size))
+        image = utils.img_to_array(image, data_format="channels_first")
+        x = ops.convert_to_tensor(image)
+        x = ops.expand_dims(x, axis=0)
+
+        y = model(x, training=False)
+
+        if weights == "imagenet":
+            names = [p[1] for p in decode_predictions(y)[0]]
+            # Test correct label is in top 3 (weak correctness test).
+            self.assertIn("African_elephant", names[:3])
+        elif weights is None:
+            self.assertEqual(list(y.shape), [1, 1000])
 
     @parameterized.named_parameters(MODEL_CONFIGS)
     def test_model_feature_extractor(
@@ -403,6 +434,7 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
     def test_model_serialization(
         self, model_class, image_size, features, weights="imagenet"
     ):
+        backend.set_image_data_format("channels_last")
         x = random.uniform([1, image_size, image_size, 3]) * 255.0
         temp_dir = self.get_temp_dir()
         model1 = model_class(weights=None)

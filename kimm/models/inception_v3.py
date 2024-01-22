@@ -2,6 +2,7 @@ import functools
 import typing
 
 import keras
+from keras import backend
 from keras import layers
 
 from kimm.blocks import apply_conv2d_block
@@ -14,6 +15,8 @@ _apply_conv2d_block = functools.partial(
 
 
 def apply_inception_a_block(inputs, pool_channels, name="inception_a_block"):
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+
     x = inputs
 
     branch1x1 = _apply_conv2d_block(x, 64, 1, 1, name=f"{name}_branch1x1")
@@ -34,7 +37,9 @@ def apply_inception_a_block(inputs, pool_channels, name="inception_a_block"):
     )
 
     branch_pool = layers.ZeroPadding2D(1)(x)
-    branch_pool = layers.AveragePooling2D(3, 1)(branch_pool)
+    branch_pool = layers.AveragePooling2D(
+        3, 1, data_format=backend.image_data_format()
+    )(branch_pool)
     branch_pool = _apply_conv2d_block(
         branch_pool,
         pool_channels,
@@ -43,11 +48,15 @@ def apply_inception_a_block(inputs, pool_channels, name="inception_a_block"):
         activation="relu",
         name=f"{name}_branch_pool",
     )
-    x = layers.Concatenate()([branch1x1, branch5x5, branch3x3dbl, branch_pool])
+    x = layers.Concatenate(axis=channels_axis)(
+        [branch1x1, branch5x5, branch3x3dbl, branch_pool]
+    )
     return x
 
 
 def apply_inception_b_block(inputs, name="incpetion_b_block"):
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+
     x = inputs
 
     branch3x3 = _apply_conv2d_block(x, 384, 3, 2, name=f"{name}_branch3x3")
@@ -63,14 +72,18 @@ def apply_inception_b_block(inputs, name="incpetion_b_block"):
     )
 
     branch_pool = layers.MaxPooling2D(3, 2, name=f"{name}_branch_pool")(x)
-    x = layers.Concatenate()([branch3x3, branch3x3dbl, branch_pool])
+    x = layers.Concatenate(axis=channels_axis)(
+        [branch3x3, branch3x3dbl, branch_pool]
+    )
     return x
 
 
 def apply_inception_c_block(
     inputs, branch7x7_channels, name="inception_c_block"
 ):
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
     c7 = branch7x7_channels
+
     x = inputs
 
     branch1x1 = _apply_conv2d_block(x, 192, 1, 1, name=f"{name}_branch1x1")
@@ -105,15 +118,21 @@ def apply_inception_c_block(
     )
 
     branch_pool = layers.ZeroPadding2D(1)(x)
-    branch_pool = layers.AveragePooling2D(3, 1)(branch_pool)
+    branch_pool = layers.AveragePooling2D(
+        3, 1, data_format=backend.image_data_format()
+    )(branch_pool)
     branch_pool = _apply_conv2d_block(
         branch_pool, 192, 1, 1, name=f"{name}_branch_pool"
     )
-    x = layers.Concatenate()([branch1x1, branch7x7, branch7x7dbl, branch_pool])
+    x = layers.Concatenate(axis=channels_axis)(
+        [branch1x1, branch7x7, branch7x7dbl, branch_pool]
+    )
     return x
 
 
 def apply_inception_d_block(inputs, name="inception_d_block"):
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+
     x = inputs
 
     branch3x3 = _apply_conv2d_block(x, 192, 1, 1, name=f"{name}_branch3x3_1")
@@ -135,11 +154,15 @@ def apply_inception_d_block(inputs, name="inception_d_block"):
     )
 
     branch_pool = layers.MaxPooling2D(3, 2)(x)
-    x = layers.Concatenate()([branch3x3, branch7x7x3, branch_pool])
+    x = layers.Concatenate(axis=channels_axis)(
+        [branch3x3, branch7x7x3, branch_pool]
+    )
     return x
 
 
 def apply_inception_e_block(inputs, name="inception_e_block"):
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+
     x = inputs
 
     branch1x1 = _apply_conv2d_block(x, 320, 1, 1, name=f"{name}_branch1x1")
@@ -153,7 +176,7 @@ def apply_inception_e_block(inputs, name="inception_e_block"):
             branch3x3, 384, (3, 1), 1, padding=None, name=f"{name}_branch3x3_2b"
         ),
     ]
-    branch3x3 = layers.Concatenate()(branch3x3)
+    branch3x3 = layers.Concatenate(axis=channels_axis)(branch3x3)
 
     branch3x3dbl = _apply_conv2d_block(
         x, 448, 1, 1, name=f"{name}_branch3x3dbl_1"
@@ -179,21 +202,27 @@ def apply_inception_e_block(inputs, name="inception_e_block"):
             name=f"{name}_branch3x3dbl_3b",
         ),
     ]
-    branch3x3dbl = layers.Concatenate()(branch3x3dbl)
+    branch3x3dbl = layers.Concatenate(axis=channels_axis)(branch3x3dbl)
 
     branch_pool = layers.ZeroPadding2D(1)(x)
-    branch_pool = layers.AveragePooling2D(3, 1)(branch_pool)
+    branch_pool = layers.AveragePooling2D(
+        3, 1, data_format=backend.image_data_format()
+    )(branch_pool)
     branch_pool = _apply_conv2d_block(
         branch_pool, 192, 1, 1, name=f"{name}_branch_pool"
     )
-    x = layers.Concatenate()([branch1x1, branch3x3, branch3x3dbl, branch_pool])
+    x = layers.Concatenate(axis=channels_axis)(
+        [branch1x1, branch3x3, branch3x3dbl, branch_pool]
+    )
     return x
 
 
 def apply_inception_aux_block(inputs, classes, name="inception_aux_block"):
     x = inputs
 
-    x = layers.AveragePooling2D(5, 3)(x)
+    x = layers.AveragePooling2D(5, 3, data_format=backend.image_data_format())(
+        x
+    )
     x = _apply_conv2d_block(x, 128, 1, 1, name=f"{name}_conv0")
     x = _apply_conv2d_block(x, 768, 5, 1, name=f"{name}_conv1")
     x = layers.GlobalAveragePooling2D()(x)

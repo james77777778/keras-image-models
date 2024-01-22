@@ -2,6 +2,7 @@ import math
 import typing
 
 import keras
+from keras import backend
 from keras import layers
 from keras import ops
 
@@ -95,7 +96,8 @@ def apply_mobilevit_block(
     fusion: bool = True,
     name="mobilevit_block",
 ):
-    input_channels = inputs.shape[-1]
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    input_channels = inputs.shape[channels_axis]
     transformer_dim = transformer_dim or make_divisible(
         input_channels * expansion_ratio
     )
@@ -115,7 +117,11 @@ def apply_mobilevit_block(
         transformer_dim, 1, use_bias=False, name=f"{name}_conv_1x1"
     )(x)
 
+    # TODO: natively support channels_first
     # Unfold (feature map -> patches)
+    if backend.image_data_format() == "channels_first":
+        x = ops.transpose(x, [0, 2, 3, 1])
+
     h, w, c = x.shape[-3], x.shape[-2], x.shape[-1]
     x = unfold(x, patch_size)
 
@@ -133,10 +139,14 @@ def apply_mobilevit_block(
             activation=transformer_activation,
             name=f"{name}_transformer_{i}",
         )
-    x = layers.LayerNormalization(epsilon=1e-6, name=f"{name}_norm")(x)
+    x = layers.LayerNormalization(axis=-1, epsilon=1e-6, name=f"{name}_norm")(x)
 
     # Fold (patch -> feature map)
     x = fold(x, h, w, c, patch_size)
+
+    # TODO: natively support channels_first
+    if backend.image_data_format() == "channels_first":
+        x = ops.transpose(x, [0, 3, 1, 2])
 
     x = apply_conv2d_block(
         x,
@@ -147,7 +157,7 @@ def apply_mobilevit_block(
         name=f"{name}_conv_proj",
     )
     if fusion:
-        x = layers.Concatenate()([inputs, x])
+        x = layers.Concatenate(axis=channels_axis)([inputs, x])
 
     x = apply_conv2d_block(
         x,
@@ -192,6 +202,7 @@ class MobileViT(BaseModel):
 
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs, 256)
+
         inputs = self.determine_input_tensor(
             input_tensor,
             self._input_shape,

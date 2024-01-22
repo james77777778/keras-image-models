@@ -1,7 +1,9 @@
 import typing
 
 import keras
+from keras import backend
 from keras import layers
+from keras import ops
 
 from kimm import layers as kimm_layers
 from kimm.blocks import apply_transformer_block
@@ -45,7 +47,7 @@ class VisionTransformer(BaseModel):
         # Prepare feature extraction
         features = {}
 
-        # patch embedding
+        # Patch embedding
         x = layers.Conv2D(
             embed_dim,
             kernel_size=patch_size,
@@ -54,6 +56,11 @@ class VisionTransformer(BaseModel):
             use_bias=True,
             name="patch_embed_conv",
         )(x)
+
+        # TODO: natively support channels_first
+        if backend.image_data_format() == "channels_first":
+            x = ops.transpose(x, [0, 2, 3, 1])
+
         x = layers.Reshape((-1, embed_dim))(x)
         x = kimm_layers.PositionEmbedding(name="postition_embedding")(x)
         features["EMBEDDING"] = x

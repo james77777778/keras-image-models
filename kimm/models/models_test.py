@@ -1,10 +1,11 @@
-import cv2
 import keras
 import pytest
 from absl.testing import parameterized
+from keras import backend
 from keras import models
 from keras import ops
 from keras import random
+from keras import utils
 from keras.applications.imagenet_utils import decode_predictions
 from keras.src import testing
 
@@ -344,34 +345,46 @@ MODEL_CONFIGS = [
 
 
 class ModelTest(testing.TestCase, parameterized.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.original_image_data_format = backend.image_data_format()
+
+    @classmethod
+    def tearDownClass(cls):
+        backend.set_image_data_format(cls.original_image_data_format)
+
     @parameterized.named_parameters(MODEL_CONFIGS)
     def test_model_base(
         self, model_class, image_size, features, weights="imagenet"
     ):
-        # TODO: test the correctness of the real image
-        model = model_class(weights=weights)
-        image_path = keras.utils.get_file(
-            "african_elephant.jpg", "https://i.imgur.com/Bvro0YD.png"
-        )
-        # preprocessing
-        image = cv2.imread(image_path)
-        image = cv2.resize(image, (image_size, image_size))
-        x = ops.convert_to_tensor(image)
-        x = ops.expand_dims(x, axis=0)
+        for data_format in ("channels_last", "channels_first"):
+            backend.set_image_data_format(data_format)
+            model = model_class(weights=weights)
+            image_path = keras.utils.get_file(
+                "african_elephant.jpg", "https://i.imgur.com/Bvro0YD.png"
+            )
+            # preprocessing
+            image = utils.load_img(
+                image_path, target_size=(image_size, image_size)
+            )
+            image = utils.img_to_array(image, data_format=data_format)
+            x = ops.convert_to_tensor(image)
+            x = ops.expand_dims(x, axis=0)
 
-        y = model(x, training=False)
+            y = model(x, training=False)
 
-        if weights == "imagenet":
-            names = [p[1] for p in decode_predictions(y)[0]]
-            # Test correct label is in top 3 (weak correctness test).
-            self.assertIn("African_elephant", names[:3])
-        elif weights is None:
-            self.assertEqual(list(y.shape), [1, 1000])
+            if weights == "imagenet":
+                names = [p[1] for p in decode_predictions(y)[0]]
+                # Test correct label is in top 3 (weak correctness test).
+                self.assertIn("African_elephant", names[:3])
+            elif weights is None:
+                self.assertEqual(list(y.shape), [1, 1000])
 
     @parameterized.named_parameters(MODEL_CONFIGS)
     def test_model_feature_extractor(
         self, model_class, image_size, features, weights="imagenet"
     ):
+        backend.set_image_data_format("channels_last")
         x = random.uniform([1, image_size, image_size, 3]) * 255.0
         model = model_class(weights=None, feature_extractor=True)
 

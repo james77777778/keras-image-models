@@ -1,6 +1,7 @@
 import typing
 
 import keras
+from keras import backend
 from keras import layers
 
 from kimm.models import BaseModel
@@ -132,6 +133,10 @@ class VGG(BaseModel):
 
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
+        channels_axis = (
+            -1 if backend.image_data_format() == "channels_last" else -3
+        )
+
         inputs = self.determine_input_tensor(
             input_tensor,
             self._input_shape,
@@ -166,6 +171,7 @@ class VGG(BaseModel):
                     name=f"features_{current_block_idx}conv2d",
                 )(x)
                 x = layers.BatchNormalization(
+                    axis=channels_axis,
                     momentum=0.9,
                     epsilon=1e-5,
                     name=f"features_{current_block_idx + 1}",

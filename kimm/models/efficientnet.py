@@ -2,6 +2,7 @@ import math
 import typing
 
 import keras
+from keras import backend
 from keras import layers
 
 from kimm.blocks import apply_conv2d_block
@@ -91,7 +92,8 @@ def apply_edge_residual_block(
     padding=None,
     name="edge_residual_block",
 ):
-    input_channels = inputs.shape[-1]
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    input_channels = inputs.shape[channels_axis]
     hidden_channels = make_divisible(input_channels * expansion_ratio)
     has_skip = strides == 1 and input_channels == output_channels
 
@@ -187,6 +189,10 @@ class EfficientNet(BaseModel):
 
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
+        channels_axis = (
+            -1 if backend.image_data_format() == "channels_last" else -3
+        )
+
         inputs = self.determine_input_tensor(
             input_tensor,
             self._input_shape,
@@ -241,7 +247,7 @@ class EfficientNet(BaseModel):
                         x, c, k, 1, s, se, se_activation=activation, **_kwargs
                     )
                 elif block_type == "ir":
-                    se_c = x.shape[-1]
+                    se_c = x.shape[channels_axis]
                     x = apply_inverted_residual_block(
                         x, c, k, 1, 1, s, e, se, se_channels=se_c, **_kwargs
                     )

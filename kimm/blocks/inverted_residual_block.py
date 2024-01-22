@@ -1,5 +1,6 @@
 import typing
 
+from keras import backend
 from keras import layers
 
 from kimm.blocks.base_block import apply_conv2d_block
@@ -25,7 +26,8 @@ def apply_inverted_residual_block(
     padding: typing.Optional[typing.Literal["same", "valid"]] = None,
     name: str = "inverted_residual_block",
 ):
-    input_channels = inputs.shape[-1]
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    input_channels = inputs.shape[channels_axis]
     hidden_channels = make_divisible(input_channels * expansion_ratio)
     has_skip = strides == 1 and input_channels == output_channels
 

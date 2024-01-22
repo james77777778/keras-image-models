@@ -1,6 +1,7 @@
 import typing
 
 import keras
+from keras import backend
 from keras import layers
 
 from kimm.blocks import apply_conv2d_block
@@ -11,9 +12,11 @@ from kimm.utils import add_model_to_registry
 def apply_dense_layer(
     inputs, growth_rate, expansion_ratio=4.0, name="dense_layer"
 ):
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+
     x = inputs
     x = layers.BatchNormalization(
-        momentum=0.9, epsilon=1e-5, name=f"{name}_norm1"
+        axis=channels_axis, momentum=0.9, epsilon=1e-5, name=f"{name}_norm1"
     )(x)
     x = layers.ReLU()(x)
     x = apply_conv2d_block(
@@ -33,11 +36,12 @@ def apply_dense_layer(
 def apply_dense_block(
     inputs, num_layers, growth_rate, expansion_ratio=4.0, name="dense_block"
 ):
-    x = inputs
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
 
+    x = inputs
     features = [x]
     for i in range(num_layers):
-        new_features = layers.Concatenate()(features)
+        new_features = layers.Concatenate(axis=channels_axis)(features)
         new_features = apply_dense_layer(
             new_features,
             growth_rate,
@@ -45,22 +49,25 @@ def apply_dense_block(
             name=f"{name}_denselayer{i + 1}",
         )
         features.append(new_features)
-    x = layers.Concatenate()(features)
+    x = layers.Concatenate(axis=channels_axis)(features)
     return x
 
 
 def apply_dense_transition_block(
     inputs, output_channels, name="dense_transition_block"
 ):
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
     x = inputs
     x = layers.BatchNormalization(
-        momentum=0.9, epsilon=1e-5, name=f"{name}_norm"
+        axis=channels_axis, momentum=0.9, epsilon=1e-5, name=f"{name}_norm"
     )(x)
     x = layers.ReLU()(x)
     x = layers.Conv2D(
         output_channels, 1, 1, "same", use_bias=False, name=f"{name}_conv"
     )(x)
-    x = layers.AveragePooling2D(2, 2, name=f"{name}_pool")(x)
+    x = layers.AveragePooling2D(
+        2, 2, data_format=backend.image_data_format(), name=f"{name}_pool"
+    )(x)
     return x
 
 
@@ -78,9 +85,12 @@ class DenseNet(BaseModel):
         **kwargs,
     ):
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
+        channels_axis = (
+            -1 if backend.image_data_format() == "channels_last" else -3
+        )
+
         inputs = self.determine_input_tensor(
             input_tensor,
             self._input_shape,
@@ -127,7 +137,10 @@ class DenseNet(BaseModel):
 
         # Final batch norm
         x = layers.BatchNormalization(
-            momentum=0.9, epsilon=1e-5, name="features_norm5"
+            axis=channels_axis,
+            momentum=0.9,
+            epsilon=1e-5,
+            name="features_norm5",
         )(x)
         x = layers.ReLU()(x)
 

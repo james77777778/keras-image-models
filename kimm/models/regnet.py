@@ -2,6 +2,7 @@ import typing
 
 import keras
 import numpy as np
+from keras import backend
 from keras import layers
 
 from kimm.blocks import apply_conv2d_block
@@ -84,7 +85,8 @@ def apply_bottleneck_block(
     linear_out: bool = False,
     name="bottleneck_block",
 ):
-    input_channels = inputs.shape[-1]
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    input_channels = inputs.shape[channels_axis]
     expansion_channels = int(round(output_channels * expansion_ratio))
     groups = expansion_channels // group_size
 

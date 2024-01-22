@@ -1,6 +1,7 @@
 import typing
 
 import keras
+from keras import backend
 from keras import layers
 
 from kimm.blocks import apply_conv2d_block
@@ -15,7 +16,8 @@ def apply_basic_block(
     activation="relu",
     name="basic_block",
 ):
-    input_channels = inputs.shape[-1]
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    input_channels = inputs.shape[channels_axis]
     shortcut = inputs
     x = inputs
     x = apply_conv2d_block(
@@ -58,7 +60,8 @@ def apply_bottleneck_block(
     activation="relu",
     name="bottleneck_block",
 ):
-    input_channels = inputs.shape[-1]
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    input_channels = inputs.shape[channels_axis]
     expansion = 4
     shortcut = inputs
     x = inputs

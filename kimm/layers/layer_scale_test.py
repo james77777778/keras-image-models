@@ -8,7 +8,7 @@ class LayerScaleTest(testing.TestCase, parameterized.TestCase):
     def test_layer_scale_basic(self):
         self.run_layer_test(
             LayerScale,
-            init_kwargs={"hidden_size": 10},
+            init_kwargs={"axis": -1},
             input_shape=(1, 10),
             expected_output_shape=(1, 10),
             expected_num_trainable_weights=1,

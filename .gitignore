@@ -162,3 +162,7 @@ cython_debug/
 # Keras
 *.keras
 exported
+
+# Exported model
+*.tflite
+*.onnx

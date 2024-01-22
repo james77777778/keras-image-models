@@ -1,3 +1,4 @@
+import pytest
 from absl.testing import parameterized
 from keras import layers
 from keras.src import testing
@@ -6,6 +7,7 @@ from kimm.layers.position_embedding import PositionEmbedding
 
 
 class PositionEmbeddingTest(testing.TestCase, parameterized.TestCase):
+    @pytest.mark.requires_trainable_backend
     def test_position_embedding_basic(self):
         self.run_layer_test(
             PositionEmbedding,
@@ -18,6 +20,7 @@ class PositionEmbeddingTest(testing.TestCase, parameterized.TestCase):
             supports_masking=False,
         )
 
+    @pytest.mark.requires_trainable_backend
     def test_position_embedding_invalid_input_shape(self):
         inputs = layers.Input([3])
         with self.assertRaisesRegex(

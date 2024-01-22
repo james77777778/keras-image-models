@@ -1,3 +1,4 @@
+import pytest
 from absl.testing import parameterized
 from keras.src import testing
 
@@ -5,6 +6,7 @@ from kimm.layers.attention import Attention
 
 
 class AttentionTest(testing.TestCase, parameterized.TestCase):
+    @pytest.mark.requires_trainable_backend
     def test_attention_basic(self):
         self.run_layer_test(
             Attention,

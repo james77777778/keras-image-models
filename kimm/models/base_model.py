@@ -109,7 +109,7 @@ class BaseModel(models.Model):
             input_shape,
             default_size=default_size,
             min_size=min_size,
-            data_format="channels_last",  # always channels_last
+            data_format=backend.image_data_format(),
             require_flatten=require_flatten or static_shape,
             weights=None,
         )
@@ -130,11 +130,16 @@ class BaseModel(models.Model):
     ):
         if self._include_preprocessing is False:
             return inputs
+        channels_axis = (
+            -1 if backend.image_data_format() == "channels_last" else -3
+        )
         if mode == "imagenet":
             # [0, 255] to [0, 1] and apply ImageNet mean and variance
             x = layers.Rescaling(scale=1.0 / 255.0)(inputs)
             x = layers.Normalization(
-                mean=[0.485, 0.456, 0.406], variance=[0.229, 0.224, 0.225]
+                axis=channels_axis,
+                mean=[0.485, 0.456, 0.406],
+                variance=[0.229, 0.224, 0.225],
             )(x)
         elif mode == "0_1":
             # [0, 255] to [-1, 1]

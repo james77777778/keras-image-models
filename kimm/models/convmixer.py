@@ -1,6 +1,7 @@
 import typing
 
 import keras
+from keras import backend
 from keras import layers
 
 from kimm.models.base_model import BaseModel
@@ -10,6 +11,8 @@ from kimm.utils import add_model_to_registry
 def apply_convmixer_block(
     inputs, output_channels, kernel_size, activation, name="convmixer_block"
 ):
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+
     x = inputs
 
     # Depthwise
@@ -22,7 +25,7 @@ def apply_convmixer_block(
         name=f"{name}_0_fn_0_dwconv2d",
     )(x)
     x = layers.BatchNormalization(
-        momentum=0.9, epsilon=1e-5, name=f"{name}_0_fn_2"
+        axis=channels_axis, momentum=0.9, epsilon=1e-5, name=f"{name}_0_fn_2"
     )(x)
     x = layers.Add()([x, inputs])
 
@@ -35,9 +38,9 @@ def apply_convmixer_block(
         use_bias=True,
         name=f"{name}_1_conv2d",
     )(x)
-    x = layers.BatchNormalization(momentum=0.9, epsilon=1e-5, name=f"{name}_3")(
-        x
-    )
+    x = layers.BatchNormalization(
+        axis=channels_axis, momentum=0.9, epsilon=1e-5, name=f"{name}_3"
+    )(x)
     return x
 
 
@@ -53,9 +56,12 @@ class ConvMixer(BaseModel):
         **kwargs,
     ):
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
+        channels_axis = (
+            -1 if backend.image_data_format() == "channels_last" else -3
+        )
+
         inputs = self.determine_input_tensor(
             input_tensor,
             self._input_shape,
@@ -78,7 +84,7 @@ class ConvMixer(BaseModel):
             name="stem_conv2d",
         )(x)
         x = layers.BatchNormalization(
-            momentum=0.9, epsilon=1e-5, name="stem_bn"
+            axis=channels_axis, momentum=0.9, epsilon=1e-5, name="stem_bn"
         )(x)
         features["STEM"] = x
 

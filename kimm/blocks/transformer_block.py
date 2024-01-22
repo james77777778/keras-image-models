@@ -1,5 +1,6 @@
 import typing
 
+from keras import backend
 from keras import layers
 
 from kimm import layers as kimm_layers
@@ -13,9 +14,13 @@ def apply_mlp_block(
     use_bias: bool = True,
     dropout_rate: float = 0.0,
     use_conv_mlp: bool = False,
+    data_format: typing.Optional[str] = None,
     name: str = "mlp_block",
 ):
-    input_dim = inputs.shape[-1]
+    if data_format is None:
+        data_format = backend.image_data_format()
+    dim_axis = -1 if data_format == "channels_last" else 1
+    input_dim = inputs.shape[dim_axis]
     output_dim = output_dim or input_dim
 
     x = inputs
@@ -71,6 +76,7 @@ def apply_transformer_block(
         int(dim * mlp_ratio),
         activation=activation,
         dropout_rate=projection_dropout_rate,
+        data_format="channels_last",  # TODO: let backend decides
         name=f"{name}_mlp",
     )
     x = layers.Add()([residual_2, x])

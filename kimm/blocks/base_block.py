@@ -1,5 +1,6 @@
 import typing
 
+from keras import backend
 from keras import layers
 
 from kimm.utils import make_divisible
@@ -43,7 +44,9 @@ def apply_conv2d_block(
         )
     if isinstance(kernel_size, int):
         kernel_size = [kernel_size, kernel_size]
-    input_channels = inputs.shape[-1]
+
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    input_channels = inputs.shape[channels_axis]
     has_skip = add_skip and strides == 1 and input_channels == filters
     x = inputs
 
@@ -74,7 +77,10 @@ def apply_conv2d_block(
             name=f"{name}_dwconv2d",
         )(x)
     x = layers.BatchNormalization(
-        name=f"{name}_bn", momentum=bn_momentum, epsilon=bn_epsilon
+        axis=channels_axis,
+        name=f"{name}_bn",
+        momentum=bn_momentum,
+        epsilon=bn_epsilon,
     )(x)
     x = apply_activation(x, activation, name=name)
     if has_skip:
@@ -91,7 +97,8 @@ def apply_se_block(
     se_input_channels: typing.Optional[int] = None,
     name: str = "se_block",
 ):
-    input_channels = inputs.shape[-1]
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    input_channels = inputs.shape[channels_axis]
     if se_input_channels is None:
         se_input_channels = input_channels
     if make_divisible_number is None:
@@ -102,7 +109,11 @@ def apply_se_block(
         )
 
     x = inputs
-    x = layers.GlobalAveragePooling2D(keepdims=True, name=f"{name}_mean")(x)
+    x = layers.GlobalAveragePooling2D(
+        data_format=backend.image_data_format(),
+        keepdims=True,
+        name=f"{name}_mean",
+    )(x)
     x = layers.Conv2D(
         se_channels, 1, use_bias=True, name=f"{name}_conv_reduce"
     )(x)

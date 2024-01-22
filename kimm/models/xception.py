@@ -1,6 +1,7 @@
 import typing
 
 import keras
+from keras import backend
 from keras import layers
 
 from kimm.models import BaseModel
@@ -16,7 +17,8 @@ def apply_xception_block(
     grow_first=True,
     name="xception_block",
 ):
-    input_channels = inputs.shape[-1]
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    input_channels = inputs.shape[channels_axis]
     x = inputs
     residual = inputs
 
@@ -38,6 +40,7 @@ def apply_xception_block(
             name=f"{name}_rep_{current_layer_idx}",
         )(x)
         x = layers.BatchNormalization(
+            axis=channels_axis,
             name=f"{name}_rep_{current_layer_idx + 1}",
         )(x)
         current_layer_idx += 2
@@ -57,7 +60,7 @@ def apply_xception_block(
             name=f"{name}_skipconv2d",
         )(residual)
         residual = layers.BatchNormalization(
-            name=f"{name}_skipbn",
+            axis=channels_axis, name=f"{name}_skipbn"
         )(residual)
 
     x = layers.Add()([x, residual])
@@ -76,6 +79,10 @@ class XceptionBase(BaseModel):
 
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
+        channels_axis = (
+            -1 if backend.image_data_format() == "channels_last" else -3
+        )
+
         inputs = self.determine_input_tensor(
             input_tensor,
             self._input_shape,
@@ -91,10 +98,10 @@ class XceptionBase(BaseModel):
 
         # Stem
         x = layers.Conv2D(32, 3, 2, use_bias=False, name="conv1")(x)
-        x = layers.BatchNormalization(name="bn1")(x)
+        x = layers.BatchNormalization(axis=channels_axis, name="bn1")(x)
         x = layers.ReLU()(x)
         x = layers.Conv2D(64, 3, 1, use_bias=False, name="conv2")(x)
-        x = layers.BatchNormalization(name="bn2")(x)
+        x = layers.BatchNormalization(axis=channels_axis, name="bn2")(x)
         x = layers.ReLU()(x)
         features["STEM_S2"] = x
 
@@ -123,13 +130,13 @@ class XceptionBase(BaseModel):
         x = layers.SeparableConv2D(
             1536, 3, 1, "same", use_bias=False, name="conv3"
         )(x)
-        x = layers.BatchNormalization(name="bn3")(x)
+        x = layers.BatchNormalization(axis=channels_axis, name="bn3")(x)
         x = layers.ReLU()(x)
 
         x = layers.SeparableConv2D(
             2048, 3, 1, "same", use_bias=False, name="conv4"
         )(x)
-        x = layers.BatchNormalization(name="bn4")(x)
+        x = layers.BatchNormalization(axis=channels_axis, name="bn4")(x)
         x = layers.ReLU()(x)
         features["BLOCK3_S32"] = x
 

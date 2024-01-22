@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PYTHON: ${{ matrix.python-version }}
+      KERAS_BACKEND: ${{ matrix.backend }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python

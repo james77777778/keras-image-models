@@ -9,30 +9,47 @@ from keras.initializers import Initializer
 class LayerScale(layers.Layer):
     def __init__(
         self,
-        hidden_size: int,
+        axis: int = -1,
         initializer: Initializer = initializers.Constant(1e-5),
         name: str = "layer_scale",
         **kwargs,
     ):
         super().__init__(**kwargs)
-        self.hidden_size = hidden_size
+        self.axis = axis
         self.initializer = initializer
         self.name = name
 
     def build(self, input_shape):
+        if isinstance(self.axis, list):
+            shape = tuple([input_shape[dim] for dim in self.axis])
+        else:
+            shape = (input_shape[self.axis],)
+            self.axis = [self.axis]
         self.gamma = self.add_weight(
-            [self.hidden_size], initializer=self.initializer, name="gamma"
+            shape, initializer=self.initializer, name="gamma"
         )
         self.built = True
 
     def call(self, inputs, training=None, mask=None):
-        return ops.multiply(inputs, self.gamma)
+        inputs = ops.cast(inputs, self.compute_dtype)
+
+        # Broadcasting only necessary for norm when the axis is not just
+        # the last dimension
+        input_shape = inputs.shape
+        ndims = len(inputs.shape)
+        broadcast_shape = [1] * ndims
+        for dim in self.axis:
+            broadcast_shape[dim] = input_shape[dim]
+        gamma = ops.reshape(self.gamma, broadcast_shape)
+        gamma = ops.cast(gamma, self.compute_dtype)
+
+        return ops.multiply(inputs, gamma)
 
     def get_config(self):
         config = super().get_config()
         config.update(
             {
-                "hidden_size": self.hidden_size,
+                "axis": self.axis,
                 "initializer": initializers.serialize(self.initializer),
                 "name": self.name,
             }

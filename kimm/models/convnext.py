@@ -1,6 +1,7 @@
 import typing
 
 import keras
+from keras import backend
 from keras import initializers
 from keras import layers
 
@@ -21,7 +22,9 @@ def apply_convnext_block(
     use_grn=False,
     name="convnext_block",
 ):
-    input_channels = inputs.shape[-1]
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    input_channels = inputs.shape[channels_axis]
+
     hidden_channels = int(mlp_ratio * output_channels)
     x = inputs
     shortcut = inputs
@@ -42,7 +45,9 @@ def apply_convnext_block(
         use_bias=True,
         name=f"{name}_conv_dw_dwconv2d",
     )(x)
-    x = layers.LayerNormalization(epsilon=1e-6, name=f"{name}_norm")(x)
+    x = layers.LayerNormalization(
+        axis=channels_axis, epsilon=1e-6, name=f"{name}_norm"
+    )(x)
 
     # MLP
     x = apply_mlp_block(
@@ -57,7 +62,9 @@ def apply_convnext_block(
 
     # LayerScale
     x = kimm_layers.LayerScale(
-        output_channels, initializers.Constant(1e-6), name=f"{name}_layerscale"
+        axis=channels_axis,
+        initializer=initializers.Constant(1e-6),
+        name=f"{name}_layerscale",
     )(x)
 
     # Downsample
@@ -85,14 +92,16 @@ def apply_convnext_stage(
     use_grn=False,
     name="convnext_stage",
 ):
-    input_channels = inputs.shape[-1]
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    input_channels = inputs.shape[channels_axis]
+
     x = inputs
 
     # Downsample
     if input_channels != output_channels or strides > 1:
         ds_ks = 2 if strides > 1 else 1
         x = layers.LayerNormalization(
-            epsilon=1e-6, name=f"{name}_downsample_0"
+            axis=channels_axis, epsilon=1e-6, name=f"{name}_downsample_0"
         )(x)
         x = layers.Conv2D(
             output_channels,
@@ -136,9 +145,12 @@ class ConvNeXt(BaseModel):
         **kwargs,
     ):
         kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
         input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
+        channels_axis = (
+            -1 if backend.image_data_format() == "channels_last" else -3
+        )
+
         inputs = self.determine_input_tensor(
             input_tensor,
             self._input_shape,
@@ -159,7 +171,9 @@ class ConvNeXt(BaseModel):
             use_bias=True,
             name="stem_0_conv2d",
         )(x)
-        x = layers.LayerNormalization(epsilon=1e-6, name="stem_1")(x)
+        x = layers.LayerNormalization(
+            axis=channels_axis, epsilon=1e-6, name="stem_1"
+        )(x)
         features["STEM_S4"] = x
 
         # Blocks (4 stages)
@@ -197,7 +211,9 @@ class ConvNeXt(BaseModel):
     def build_top(self, inputs, classes, classifier_activation, dropout_rate):
         x = inputs
         x = layers.GlobalAveragePooling2D(name="avg_pool")(inputs)
-        x = layers.LayerNormalization(epsilon=1e-6, name="head_norm")(x)
+        x = layers.LayerNormalization(axis=-1, epsilon=1e-6, name="head_norm")(
+            x
+        )
         x = layers.Dropout(rate=dropout_rate, name="head_dropout")(x)
         x = layers.Dense(
             classes, activation=classifier_activation, name="classifier"

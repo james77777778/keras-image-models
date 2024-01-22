@@ -1,6 +1,7 @@
 import typing
 
 import keras
+from keras import backend
 from keras import layers
 from keras import ops
 
@@ -64,6 +65,7 @@ def apply_ghost_block(
     activation="relu",
     name="ghost_block",
 ):
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
     hidden_channels_1 = int(ops.ceil(output_channels / expand_ratio))
     hidden_channels_2 = int(hidden_channels_1 * (expand_ratio - 1.0))
 
@@ -85,8 +87,11 @@ def apply_ghost_block(
         use_depthwise=True,
         name=f"{name}_cheap_operation",
     )
-    out = layers.Concatenate(name=f"{name}")([x1, x2])
-    return out[..., :output_channels]
+    out = layers.Concatenate(axis=channels_axis, name=f"{name}")([x1, x2])
+    if channels_axis == -1:
+        return out[..., :output_channels]
+    else:
+        return out[:, :output_channels, ...]
 
 
 def apply_ghost_block_v2(
@@ -99,6 +104,12 @@ def apply_ghost_block_v2(
     activation="relu",
     name="ghost_block_v2",
 ):
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    if backend.image_data_format() == "channels_last":
+        output_axis = (-3, -2)
+    else:
+        output_axis = (-2, -1)
+
     hidden_channels_1 = int(ops.ceil(output_channels / expand_ratio))
     hidden_channels_2 = int(hidden_channels_1 * (expand_ratio - 1.0))
 
@@ -121,9 +132,13 @@ def apply_ghost_block_v2(
         use_depthwise=True,
         name=f"{name}_cheap_operation",
     )
-    out = layers.Concatenate(name=f"{name}_concat")([x1, x2])
+    out = layers.Concatenate(axis=channels_axis, name=f"{name}_concat")(
+        [x1, x2]
+    )
 
-    residual = layers.AveragePooling2D(2, 2, name=f"{name}_avg_pool")(residual)
+    residual = layers.AveragePooling2D(
+        2, 2, data_format=backend.image_data_format(), name=f"{name}_avg_pool"
+    )(residual)
     residual = apply_conv2d_block(
         residual,
         output_channels,
@@ -149,10 +164,13 @@ def apply_ghost_block_v2(
     )
     residual = layers.Activation("sigmoid", name=f"{name}_gate")(residual)
     # TODO: support dynamic shape
-    residual = layers.Resizing(out.shape[-3], out.shape[-2], "nearest")(
-        residual
-    )
-    out = out[..., :output_channels]
+    residual = layers.Resizing(
+        out.shape[output_axis[0]], out.shape[output_axis[1]], "nearest"
+    )(residual)
+    if channels_axis == -1:
+        out = out[..., :output_channels]
+    else:
+        out = out[:, :output_channels, ...]
     out = layers.Multiply(name=name)([out, residual])
     return out
 
@@ -168,7 +186,8 @@ def apply_ghost_bottleneck(
     use_attention=False,  # GhostNetV2
     name="ghost_bottlenect",
 ):
-    input_channels = inputs.shape[-1]
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    input_channels = inputs.shape[channels_axis]
     has_se = se_ratio is not None and se_ratio > 0.0
 
     x = inputs

@@ -27,7 +27,12 @@ dependencies = ["keras"]
 
 [project.optional-dependencies]
 tests = [
-    "opencv-python",
+    # export
+    "tf2onnx",
+    "onnx",
+    "onnxoptimizer",
+    "onnxsim",
+    # linter and formatter
     "isort",
     "ruff",
     "black",

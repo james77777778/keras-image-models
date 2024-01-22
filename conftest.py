@@ -1,6 +1,7 @@
 import os
 
 import pytest
+from keras import backend
 
 
 def pytest_addoption(parser):
@@ -27,6 +28,10 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "serialization: mark test as a serialization test"
     )
+    config.addinivalue_line(
+        "markers",
+        "requires_trainable_backend: mark test for trainable backend only",
+    )
 
 
 def pytest_collection_modifyitems(config, items):
@@ -35,6 +40,11 @@ def pytest_collection_modifyitems(config, items):
         not run_serialization_tests,
         reason="need --run_serialization option to run",
     )
+    requires_trainable_backend = pytest.mark.skipif(
+        backend.backend() == "numpy", reason="require trainable backend"
+    )
     for item in items:
+        if "requires_trainable_backend" in item.keywords:
+            item.add_marker(requires_trainable_backend)
         if "serialization" in item.name:
             item.add_marker(skip_serialization)

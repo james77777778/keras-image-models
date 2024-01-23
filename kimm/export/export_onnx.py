@@ -1,5 +1,4 @@
 import pathlib
-import tempfile
 import typing
 
 from keras import backend
@@ -8,64 +7,7 @@ from keras import models
 from keras import ops
 
 from kimm.models import BaseModel
-
-
-def _export_onnx_tf(
-    model: BaseModel,
-    inputs_as_nchw,
-    export_path: typing.Union[str, pathlib.Path],
-):
-    try:
-        import tf2onnx
-        import tf2onnx.tf_loader
-    except ModuleNotFoundError:
-        raise ModuleNotFoundError(
-            "Failed to import 'tf2onnx'. Please install it by the following "
-            "instruction:\n'pip install tf2onnx'"
-        )
-
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = pathlib.Path(temp_dir, "temp_saved_model")
-        model.export(temp_path)
-
-        (
-            graph_def,
-            inputs,
-            outputs,
-            tensors_to_rename,
-        ) = tf2onnx.tf_loader.from_saved_model(
-            temp_path,
-            None,
-            None,
-            return_tensors_to_rename=True,
-        )
-
-        tf2onnx.convert.from_graph_def(
-            graph_def,
-            input_names=inputs,
-            output_names=outputs,
-            output_path=export_path,
-            inputs_as_nchw=inputs_as_nchw,
-            tensors_to_rename=tensors_to_rename,
-        )
-
-
-def _export_onnx_torch(
-    model: BaseModel,
-    input_shape: typing.Union[int, int, int],
-    export_path: typing.Union[str, pathlib.Path],
-):
-    try:
-        import torch
-    except ModuleNotFoundError:
-        raise ModuleNotFoundError(
-            "Failed to import 'torch'. Please install it before calling"
-            "`export_onnx` using torch backend"
-        )
-    full_input_shape = [1] + list(input_shape)
-    dummy_inputs = ops.ones(full_input_shape)
-    scripted_model = torch.jit.trace(model, dummy_inputs).eval()
-    torch.onnx.export(scripted_model, dummy_inputs, export_path)
+from kimm.utils.module_utils import torch
 
 
 def export_onnx(
@@ -73,12 +15,28 @@ def export_onnx(
     input_shape: typing.Union[int, typing.Sequence[int]],
     export_path: typing.Union[str, pathlib.Path],
     batch_size: int = 1,
-    use_nchw: bool = True,
 ):
-    if backend.backend() not in ("tensorflow", "torch"):
+    """Export the model to onnx format (in float32).
+
+    Only torch backend with 'channels_first' is supported. The onnx model will
+    be generated using `torch.onnx.export` and optimized through `onnxsim` and
+    `onnxoptimizer`.
+
+    Note that `onnx`, `onnxruntime`, `onnxsim` and `onnxoptimizer` must be
+    installed.
+
+    Args:
+        model: keras.Model, the model to be exported.
+        input_shape: int or sequence of int, specifying the shape of the input.
+        export_path: str or pathlib.Path, specifying the path to export.
+        batch_size: int, specifying the batch size of the input,
+            defaults to `1`.
+    """
+    if backend.backend() != "torch":
+        raise ValueError("`export_onnx` only supports torch backend")
+    if backend.image_data_format() != "channels_first":
         raise ValueError(
-            "Currently, `export_onnx` only supports tensorflow and torch "
-            "backend"
+            "`export_onnx` only supports 'channels_first' data format."
         )
     try:
         import onnx
@@ -86,33 +44,17 @@ def export_onnx(
         import onnxsim
     except ModuleNotFoundError:
         raise ModuleNotFoundError(
-            "Failed to import 'onnx', 'onnxsim' or 'onnxoptimizer'. Please "
-            "install them by the following instruction:\n"
-            "'pip install onnx onnxsim onnxoptimizer'"
+            "Failed to import 'onnx', 'onnxsim' or 'onnxoptimizer'. "
+            "Please install them by the following instruction:\n"
+            "'pip install torch onnx onnxsim onnxoptimizer'"
         )
 
     if isinstance(input_shape, int):
-        input_shape = [input_shape, input_shape, 3]
+        input_shape = [3, input_shape, input_shape]
     elif len(input_shape) == 2:
-        input_shape = [input_shape[0], input_shape[1], 3]
+        input_shape = [3, input_shape[0], input_shape[1]]
     elif len(input_shape) == 3:
         input_shape = input_shape
-    if use_nchw:
-        if backend.backend() == "torch":
-            raise ValueError(
-                "Currently, torch backend doesn't support `use_nchw=True`. "
-                "You can use tensorflow backend to overcome this issue or "
-                "set `use_nchw=False`. "
-                "Note that there might be a significant performance "
-                "degradation when using torch backend to export onnx due to "
-                "the pre- and post-transpose of the Conv2D."
-            )
-        elif backend.backend() == "tensorflow":
-            inputs_as_nchw = ["inputs"]
-        else:
-            inputs_as_nchw = None
-    else:
-        inputs_as_nchw = None
 
     # Fix input shape
     inputs = layers.Input(
@@ -120,11 +62,14 @@ def export_onnx(
     )
     outputs = model(inputs, training=False)
     model = models.Model(inputs, outputs)
+    model = model.eval()
 
-    if backend.backend() == "tensorflow":
-        _export_onnx_tf(model, inputs_as_nchw, export_path)
-    elif backend.backend() == "torch":
-        _export_onnx_torch(model, input_shape, export_path)
+    full_input_shape = [1] + list(input_shape)
+    dummy_inputs = ops.ones(full_input_shape, dtype="float32")
+    scripted_model = torch.jit.trace(
+        model.forward, example_inputs=[dummy_inputs]
+    )
+    torch.onnx.export(scripted_model, dummy_inputs, export_path)
 
     # Further optimization
     model = onnx.load(export_path)

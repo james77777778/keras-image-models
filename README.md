@@ -4,9 +4,11 @@
 <div align="center">
 <img width="50%" src="https://github.com/james77777778/kimm/assets/20734616/b21db8f2-307b-4791-b93d-e913e45fb238" alt="KIMM">
 
+![Keras](https://img.shields.io/badge/keras-v3.0.4+-success.svg)
 [![PyPI](https://img.shields.io/pypi/v/kimm)](https://pypi.org/project/kimm/)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/james77777778/kimm/issues)
-[![codecov](https://codecov.io/gh/james77777778/kimm/graph/badge.svg?token=eEha1SR80D)](https://codecov.io/gh/james77777778/kimm)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/james77777778/keras-image-models/actions.yml?label=tests)](https://github.com/james77777778/keras-image-models/actions/workflows/actions.yml?query=branch%3Amain++)
+[![codecov](https://codecov.io/gh/james77777778/keras-image-models/graph/badge.svg?token=eEha1SR80D)](https://codecov.io/gh/james77777778/keras-image-models)
 </div>
 
 # Keras Image Models
@@ -15,15 +17,15 @@
 
 **K**eras **Im**age **M**odels (`kimm`) is a collection of image models, blocks and layers written in Keras 3. The goal is to offer SOTA models with pretrained weights in a user-friendly manner.
 
-## Features
+`kimm` is:
 
-- 🚀 Almost all models have pre-trained weights on ImageNet
+- 🚀 A model zoo where almost all models come with pre-trained weights on ImageNet.
 
   > **Note:**
-  > The accuracy of the exported models can be found at [results-imagenet.csv (timm)](https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv) and [https://keras.io/api/applications/ (keras)](https://keras.io/api/applications/),
-  > and the numerical differences of the exported models can be verified in `tools/convert_*.py`
+  > The accuracy of the converted models can be found at [results-imagenet.csv (timm)](https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv) and [https://keras.io/api/applications/ (keras)](https://keras.io/api/applications/),
+  > and the numerical differences of the converted models can be verified in `tools/convert_*.py`
 
-- 🧰 All models have a common API identical to `keras.applications.*`
+- ✨ Exposing a common API identical to offcial `keras.applications.*`.
   
   ```python
   model = kimm.models.RegNetY002(
@@ -40,7 +42,7 @@
   )
   ```
 
-- 🔥 All models support feature extraction (`feature_extractor=True`)
+- 🔥 Integrated with feature extraction capability.
 
   ```python
   from keras import random
@@ -52,6 +54,28 @@
   # y becomes a dict
   for k, v in y.items():
       print(k, v.shape)
+  ```
+
+- 🧰 Providing APIs to export models to `.tflite` and `.onnx`.
+
+  ```python
+  # in tensorflow backend
+  from keras import backend
+  import kimm
+
+  backend.set_image_data_format("channels_last")
+  model = kimm.models.MobileNet050V3Small()
+  kimm.export.export_tflite(model, [224, 224, 3], "model.tflite")
+  ```
+
+  ```python
+  # in torch backend
+  from keras import backend
+  import kimm
+
+  backend.set_image_data_format("channels_first")
+  model = kimm.models.MobileNet050V3Small()
+  kimm.export.export_onnx(model, [3, 224, 224], "model.onnx")
   ```
 
 ## Installation

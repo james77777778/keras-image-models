@@ -18,9 +18,30 @@ def export_tflite(
     representative_dataset: typing.Optional[typing.Iterator] = None,
     batch_size: int = 1,
 ):
+    """Export the model to tflite format.
+
+    Only tensorflow backend with 'channels_last' is supported. The tflite model
+    will be generated using `tf.lite.TFLiteConverter.from_saved_model` and
+    optimized through tflite built-in functions.
+
+    Note that when exporting an `int8` tflite model, `representative_dataset`
+    must be passed.
+
+    Args:
+        model: keras.Model, the model to be exported.
+        input_shape: int or sequence of int, specifying the shape of the input.
+        export_path: str or pathlib.Path, specifying the path to export.
+        export_dtype: str, specifying the export dtype.
+        representative_dataset: None or Iterator, the calibration dataset for
+            exporting int8 tflite.
+        batch_size: int, specifying the batch size of the input,
+            defaults to `1`.
+    """
     if backend.backend() != "tensorflow":
+        raise ValueError("`export_tflite` only supports tensorflow backend")
+    if backend.image_data_format() != "channels_last":
         raise ValueError(
-            "Currently, `export_tflite` only supports tensorflow backend"
+            "`export_tflite` only supports 'channels_last' data format."
         )
     if export_dtype not in ("float32", "float16", "int8"):
         raise ValueError(

@@ -24,6 +24,14 @@ class ExportTFLiteTest(testing.TestCase, parameterized.TestCase):
 
         return input_shape, model, representative_dataset
 
+    @classmethod
+    def setUpClass(cls):
+        cls.original_image_data_format = backend.image_data_format()
+
+    @classmethod
+    def tearDownClass(cls):
+        backend.set_image_data_format(cls.original_image_data_format)
+
     @pytest.mark.skipif(
         backend.backend() != "tensorflow", reason="Requires tensorflow backend."
     )

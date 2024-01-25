@@ -138,6 +138,19 @@ MODEL_CONFIGS = [
             ("BLOCK7_S32", [1, 7, 7, 160]),
         ],
     ),
+    # inception_next
+    (
+        kimm_models.InceptionNeXtTiny.__name__,
+        kimm_models.InceptionNeXtTiny,
+        224,
+        [
+            ("STEM_S4", [1, 56, 56, 96]),
+            ("BLOCK0_S4", [1, 56, 56, 96]),
+            ("BLOCK1_S8", [1, 28, 28, 192]),
+            ("BLOCK2_S16", [1, 14, 14, 384]),
+            ("BLOCK3_S32", [1, 7, 7, 768]),
+        ],
+    ),
     # inception_v3
     (
         kimm_models.InceptionV3.__name__,

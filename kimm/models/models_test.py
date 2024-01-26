@@ -166,8 +166,8 @@ MODEL_CONFIGS = [
     ),
     # mobilenet_v2
     (
-        kimm_models.MobileNet050V2.__name__,
-        kimm_models.MobileNet050V2,
+        kimm_models.MobileNetV2W050.__name__,
+        kimm_models.MobileNetV2W050,
         224,
         [
             ("STEM_S2", [1, 112, 112, make_divisible(32 * 0.5)]),
@@ -175,18 +175,6 @@ MODEL_CONFIGS = [
             ("BLOCK2_S8", [1, 28, 28, make_divisible(32 * 0.5)]),
             ("BLOCK3_S16", [1, 14, 14, make_divisible(64 * 0.5)]),
             ("BLOCK5_S32", [1, 7, 7, make_divisible(160 * 0.5)]),
-        ],
-    ),
-    (
-        kimm_models.MobileNet100V2.__name__,
-        kimm_models.MobileNet100V2,
-        224,
-        [
-            ("STEM_S2", [1, 112, 112, make_divisible(32 * 1.0)]),
-            ("BLOCK1_S4", [1, 56, 56, make_divisible(24 * 1.0)]),
-            ("BLOCK2_S8", [1, 28, 28, make_divisible(32 * 1.0)]),
-            ("BLOCK3_S16", [1, 14, 14, make_divisible(64 * 1.0)]),
-            ("BLOCK5_S32", [1, 7, 7, make_divisible(160 * 1.0)]),
         ],
     ),
     # mobilenet_v3
@@ -203,32 +191,20 @@ MODEL_CONFIGS = [
         ],
     ),
     (
-        kimm_models.MobileNet100V3Large.__name__,
-        kimm_models.MobileNet100V3Large,
+        kimm_models.MobileNetV3W050Small.__name__,
+        kimm_models.MobileNetV3W050Small,
         224,
         [
-            ("STEM_S2", [1, 112, 112, make_divisible(16 * 1.0)]),
-            ("BLOCK1_S4", [1, 56, 56, make_divisible(24 * 1.0)]),
-            ("BLOCK2_S8", [1, 28, 28, make_divisible(40 * 1.0)]),
-            ("BLOCK3_S16", [1, 14, 14, make_divisible(80 * 1.0)]),
-            ("BLOCK5_S32", [1, 7, 7, make_divisible(160 * 1.0)]),
+            ("STEM_S2", [1, 112, 112, 16]),
+            ("BLOCK0_S4", [1, 56, 56, 8]),
+            ("BLOCK1_S8", [1, 28, 28, 16]),
+            ("BLOCK2_S16", [1, 14, 14, 24]),
+            ("BLOCK4_S32", [1, 7, 7, 48]),
         ],
     ),
     (
-        kimm_models.MobileNet100V3Small.__name__,
-        kimm_models.MobileNet100V3Small,
-        224,
-        [
-            ("STEM_S2", [1, 112, 112, make_divisible(16 * 1.0)]),
-            ("BLOCK0_S4", [1, 56, 56, make_divisible(16 * 1.0)]),
-            ("BLOCK1_S8", [1, 28, 28, make_divisible(24 * 1.0)]),
-            ("BLOCK2_S16", [1, 14, 14, make_divisible(40 * 1.0)]),
-            ("BLOCK4_S32", [1, 7, 7, make_divisible(96 * 1.0)]),
-        ],
-    ),
-    (
-        kimm_models.MobileNet100V3SmallMinimal.__name__,
-        kimm_models.MobileNet100V3SmallMinimal,
+        kimm_models.MobileNetV3W100SmallMinimal.__name__,
+        kimm_models.MobileNetV3W100SmallMinimal,
         224,
         [
             ("STEM_S2", [1, 112, 112, make_divisible(16 * 1.0)]),
@@ -251,22 +227,10 @@ MODEL_CONFIGS = [
             ("BLOCK4_S32", [1, 8, 8, 160]),
         ],
     ),
-    (
-        kimm_models.MobileViTXS.__name__,
-        kimm_models.MobileViTXS,
-        256,
-        [
-            ("STEM_S2", [1, 128, 128, 16]),
-            ("BLOCK1_S4", [1, 64, 64, 48]),
-            ("BLOCK2_S8", [1, 32, 32, 64]),
-            ("BLOCK3_S16", [1, 16, 16, 80]),
-            ("BLOCK4_S32", [1, 8, 8, 96]),
-        ],
-    ),
     # mobilevitv2
     (
-        kimm_models.MobileViT050V2.__name__,
-        kimm_models.MobileViT050V2,
+        kimm_models.MobileViTV2W050.__name__,
+        kimm_models.MobileViTV2W050,
         256,
         [
             ("STEM_S2", [1, 128, 128, 16]),

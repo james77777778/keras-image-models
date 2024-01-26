@@ -242,6 +242,14 @@ class InceptionNeXt(BaseModel):
         return config
 
     def fix_config(self, config: typing.Dict):
+        unused_kwargs = [
+            "depths",
+            "hidden_channels",
+            "mlp_ratios",
+            "activation",
+        ]
+        for k in unused_kwargs:
+            config.pop(k, None)
         return config
 
 

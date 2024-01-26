@@ -263,6 +263,19 @@ MODEL_CONFIGS = [
             ("BLOCK4_S32", [1, 8, 8, 96]),
         ],
     ),
+    # mobilevitv2
+    (
+        kimm_models.MobileViT050V2.__name__,
+        kimm_models.MobileViT050V2,
+        256,
+        [
+            ("STEM_S2", [1, 128, 128, 16]),
+            ("BLOCK1_S4", [1, 64, 64, 64]),
+            ("BLOCK2_S8", [1, 32, 32, 128]),
+            ("BLOCK3_S16", [1, 16, 16, 192]),
+            ("BLOCK4_S32", [1, 8, 8, 256]),
+        ],
+    ),
     # regnet
     (
         kimm_models.RegNetX002.__name__,

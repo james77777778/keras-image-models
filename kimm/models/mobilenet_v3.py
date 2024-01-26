@@ -303,7 +303,7 @@ Model Definition
 """
 
 
-class MobileNet050V3Small(MobileNetV3):
+class MobileNetV3W050Small(MobileNetV3):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])],
@@ -328,7 +328,7 @@ class MobileNet050V3Small(MobileNetV3):
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "small",
-        name: str = "MobileNet050V3Small",
+        name: str = "MobileNetV3W050Small",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
@@ -351,7 +351,7 @@ class MobileNet050V3Small(MobileNetV3):
         )
 
 
-class MobileNet075V3Small(MobileNetV3):
+class MobileNetV3W075Small(MobileNetV3):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])],
@@ -376,7 +376,7 @@ class MobileNet075V3Small(MobileNetV3):
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "small",
-        name: str = "MobileNet075V3Small",
+        name: str = "MobileNetV3W075Small",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
@@ -399,7 +399,7 @@ class MobileNet075V3Small(MobileNetV3):
         )
 
 
-class MobileNet100V3Small(MobileNetV3):
+class MobileNetV3W100Small(MobileNetV3):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])],
@@ -424,7 +424,7 @@ class MobileNet100V3Small(MobileNetV3):
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "small",
-        name: str = "MobileNet100V3Small",
+        name: str = "MobileNetV3W100Small",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
@@ -447,7 +447,7 @@ class MobileNet100V3Small(MobileNetV3):
         )
 
 
-class MobileNet100V3SmallMinimal(MobileNetV3):
+class MobileNetV3W100SmallMinimal(MobileNetV3):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])],
@@ -475,7 +475,7 @@ class MobileNet100V3SmallMinimal(MobileNetV3):
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "small",
-        name: str = "MobileNet100V3SmallMinimal",
+        name: str = "MobileNetV3W100SmallMinimal",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
@@ -502,7 +502,7 @@ class MobileNet100V3SmallMinimal(MobileNetV3):
         )
 
 
-class MobileNet100V3Large(MobileNetV3):
+class MobileNetV3W100Large(MobileNetV3):
     available_feature_keys = [
         "STEM_S2",
         *[
@@ -533,7 +533,7 @@ class MobileNet100V3Large(MobileNetV3):
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "large",
-        name: str = "MobileNet100V3Large",
+        name: str = "MobileNetV3W100Large",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
@@ -566,7 +566,7 @@ class MobileNet100V3Large(MobileNetV3):
             return super().build_preprocessing(inputs, mode)
 
 
-class MobileNet100V3LargeMinimal(MobileNetV3):
+class MobileNetV3W100LargeMinimal(MobileNetV3):
     available_feature_keys = [
         "STEM_S2",
         *[
@@ -597,7 +597,7 @@ class MobileNet100V3LargeMinimal(MobileNetV3):
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "large",
-        name: str = "MobileNet100V3LargeMinimal",
+        name: str = "MobileNetV3W100LargeMinimal",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
@@ -860,12 +860,12 @@ class LCNet150(MobileNetV3):
         )
 
 
-add_model_to_registry(MobileNet050V3Small, "imagenet")
-add_model_to_registry(MobileNet075V3Small, "imagenet")
-add_model_to_registry(MobileNet100V3Small, "imagenet")
-add_model_to_registry(MobileNet100V3SmallMinimal, "imagenet")
-add_model_to_registry(MobileNet100V3Large, "imagenet")
-add_model_to_registry(MobileNet100V3LargeMinimal, "imagenet")
+add_model_to_registry(MobileNetV3W050Small, "imagenet")
+add_model_to_registry(MobileNetV3W075Small, "imagenet")
+add_model_to_registry(MobileNetV3W100Small, "imagenet")
+add_model_to_registry(MobileNetV3W100SmallMinimal, "imagenet")
+add_model_to_registry(MobileNetV3W100Large, "imagenet")
+add_model_to_registry(MobileNetV3W100LargeMinimal, "imagenet")
 add_model_to_registry(LCNet035)
 add_model_to_registry(LCNet050, "imagenet")
 add_model_to_registry(LCNet075, "imagenet")

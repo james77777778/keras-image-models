@@ -16,14 +16,28 @@ from kimm.utils.timm_utils import separate_keras_weights
 from kimm.utils.timm_utils import separate_torch_state_dict
 
 timm_model_names = [
-    "mobilevit_s.cvnets_in1k",
-    "mobilevit_xs.cvnets_in1k",
     "mobilevit_xxs.cvnets_in1k",
+    "mobilevit_xs.cvnets_in1k",
+    "mobilevit_s.cvnets_in1k",
+    "mobilevitv2_050.cvnets_in1k",
+    "mobilevitv2_075.cvnets_in1k",
+    "mobilevitv2_100.cvnets_in1k",
+    "mobilevitv2_125.cvnets_in1k",
+    "mobilevitv2_150.cvnets_in22k_ft_in1k_384",
+    "mobilevitv2_175.cvnets_in22k_ft_in1k_384",
+    "mobilevitv2_200.cvnets_in22k_ft_in1k_384",
 ]
 keras_model_classes = [
-    mobilevit.MobileViTS,
-    mobilevit.MobileViTXS,
     mobilevit.MobileViTXXS,
+    mobilevit.MobileViTXS,
+    mobilevit.MobileViTS,
+    mobilevit.MobileViTV2W050,
+    mobilevit.MobileViTV2W075,
+    mobilevit.MobileViTV2W100,
+    mobilevit.MobileViTV2W125,
+    mobilevit.MobileViTV2W150,
+    mobilevit.MobileViTV2W175,
+    mobilevit.MobileViTV2W200,
 ]
 
 for timm_model_name, keras_model_class in zip(
@@ -42,6 +56,7 @@ for timm_model_name, keras_model_class in zip(
         input_shape=input_shape,
         include_preprocessing=False,
         classifier_activation="linear",
+        weights=None,
     )
     trainable_weights, non_trainable_weights = separate_keras_weights(
         keras_model
@@ -85,6 +100,16 @@ for timm_model_name, keras_model_class in zip(
             "conv.fusion.conv2d", "conv_fusion.conv"
         )
         torch_name = torch_name.replace("conv.fusion.bn", "conv_fusion.bn")
+        # mobilevitv2 block
+        torch_name = torch_name.replace("conv.kxk.dwconv2d", "conv_kxk.conv")
+        torch_name = torch_name.replace(
+            "attn.qkv.qkv.proj.conv2d", "attn.qkv_proj"
+        )
+        torch_name = torch_name.replace(
+            "attn.qkv.out.proj.conv2d", "attn.out_proj"
+        )
+        torch_name = torch_name.replace("mlp.fc1.conv2d", "mlp.fc1")
+        torch_name = torch_name.replace("mlp.fc2.conv2d", "mlp.fc2")
         # final block
         torch_name = torch_name.replace("final.conv.conv2d", "final_conv.conv")
         torch_name = torch_name.replace("final.conv.bn", "final_conv.bn")

@@ -10,63 +10,21 @@ import numpy as np
 import timm
 import torch
 
-from kimm.models import regnet
+from kimm.models import inception_next
 from kimm.utils.timm_utils import assign_weights
 from kimm.utils.timm_utils import is_same_weights
 from kimm.utils.timm_utils import separate_keras_weights
 from kimm.utils.timm_utils import separate_torch_state_dict
 
 timm_model_names = [
-    "regnetx_002.pycls_in1k",
-    "regnety_002.pycls_in1k",
-    "regnetx_004.pycls_in1k",
-    "regnety_004.tv2_in1k",
-    "regnetx_006.pycls_in1k",
-    "regnety_006.pycls_in1k",
-    "regnetx_008.tv2_in1k",
-    "regnety_008.pycls_in1k",
-    "regnetx_016.tv2_in1k",
-    "regnety_016.tv2_in1k",
-    "regnetx_032.tv2_in1k",
-    "regnety_032.ra_in1k",
-    "regnetx_040.pycls_in1k",
-    "regnety_040.ra3_in1k",
-    "regnetx_064.pycls_in1k",
-    "regnety_064.ra3_in1k",
-    "regnetx_080.tv2_in1k",
-    "regnety_080.ra3_in1k",
-    "regnetx_120.pycls_in1k",
-    "regnety_120.sw_in12k_ft_in1k",
-    "regnetx_160.tv2_in1k",
-    "regnety_160.swag_ft_in1k",
-    "regnetx_320.tv2_in1k",
-    "regnety_320.swag_ft_in1k",
+    "inception_next_tiny.sail_in1k",
+    "inception_next_small.sail_in1k",
+    "inception_next_base.sail_in1k_384",
 ]
 keras_model_classes = [
-    regnet.RegNetX002,
-    regnet.RegNetY002,
-    regnet.RegNetX004,
-    regnet.RegNetY004,
-    regnet.RegNetX006,
-    regnet.RegNetY006,
-    regnet.RegNetX008,
-    regnet.RegNetY008,
-    regnet.RegNetX016,
-    regnet.RegNetY016,
-    regnet.RegNetX032,
-    regnet.RegNetY032,
-    regnet.RegNetX040,
-    regnet.RegNetY040,
-    regnet.RegNetX064,
-    regnet.RegNetY064,
-    regnet.RegNetX080,
-    regnet.RegNetY080,
-    regnet.RegNetX120,
-    regnet.RegNetY120,
-    regnet.RegNetX160,
-    regnet.RegNetY160,
-    regnet.RegNetX320,
-    regnet.RegNetY320,
+    inception_next.InceptionNeXtTiny,
+    inception_next.InceptionNeXtSmall,
+    inception_next.InceptionNeXtBase,
 ]
 
 for timm_model_name, keras_model_class in zip(
@@ -97,7 +55,6 @@ for timm_model_name, keras_model_class in zip(
 
     # print(len(trainable_state_dict.keys()))
     # print(len(trainable_weights))
-    # print(timm_model_name, keras_model_class.__name__)
 
     # exit()
 
@@ -105,22 +62,34 @@ for timm_model_name, keras_model_class in zip(
     Assign weights
     """
     for keras_weight, keras_name in trainable_weights + non_trainable_weights:
+        # prevent gamma to be replaced
+        is_layerscale = False
         keras_name: str
         torch_name = keras_name
         torch_name = torch_name.replace("_", ".")
+
         # stem
-        torch_name = torch_name.replace("stem_conv2d", "stem.conv")
+        torch_name = torch_name.replace("stem.0.conv2d.kernel", "stem.0.weight")
+        torch_name = torch_name.replace("stem.0.conv2d.bias", "stem.0.bias")
+
         # blocks
-        torch_name = torch_name.replace("conv2d", "conv")
-        # se
-        torch_name = torch_name.replace("se.conv.reduce", "se.fc1")
-        torch_name = torch_name.replace("se.conv.expand", "se.fc2")
+        torch_name = torch_name.replace("dwconv2d.", "")
+        torch_name = torch_name.replace("conv2d.", "")
+        torch_name = torch_name.replace("conv.dw", "conv_dw")
+        if "layerscale" in torch_name:
+            is_layerscale = True
+        torch_name = torch_name.replace("layerscale.", "")
+        torch_name = torch_name.replace("token.mixer", "token_mixer")
+        torch_name = torch_name.replace("dwconv.hw.", "dwconv_hw.")
+        torch_name = torch_name.replace("dwconv.w.", "dwconv_w.")
+        torch_name = torch_name.replace("dwconv.h.", "dwconv_h.")
         # head
-        torch_name = torch_name.replace("classifier", "head.fc")
+        torch_name = torch_name.replace("classifier", "head.fc2")
 
         # weights naming mapping
         torch_name = torch_name.replace("kernel", "weight")  # conv2d
-        torch_name = torch_name.replace("gamma", "weight")  # bn
+        if not is_layerscale:
+            torch_name = torch_name.replace("gamma", "weight")  # bn
         torch_name = torch_name.replace("beta", "bias")  # bn
         torch_name = torch_name.replace("moving.mean", "running_mean")  # bn
         torch_name = torch_name.replace("moving.variance", "running_var")  # bn
@@ -135,7 +104,11 @@ for timm_model_name, keras_model_class in zip(
                 "Can't find the corresponding torch weights. "
                 f"Got keras_name={keras_name}, torch_name={torch_name}"
             )
-        if is_same_weights(keras_name, keras_weight, torch_name, torch_weights):
+        if is_layerscale:
+            assign_weights(keras_name, keras_weight, torch_weights)
+        elif is_same_weights(
+            keras_name, keras_weight, torch_name, torch_weights
+        ):
             assign_weights(keras_name, keras_weight, torch_weights)
         else:
             raise ValueError(
@@ -156,11 +129,7 @@ for timm_model_name, keras_model_class in zip(
     keras_y = keras_model(keras_data, training=False)
     torch_y = torch_y.detach().cpu().numpy()
     keras_y = keras.ops.convert_to_numpy(keras_y)
-    try:
-        np.testing.assert_allclose(torch_y, keras_y, atol=1e-5)
-    except AssertionError as e:
-        print(timm_model_name, keras_model_class.__name__)
-        raise e
+    np.testing.assert_allclose(torch_y, keras_y, atol=1e-4)
     print(f"{keras_model_class.__name__}: output matched!")
 
     """

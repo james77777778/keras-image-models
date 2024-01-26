@@ -12,7 +12,7 @@ from kimm import models
 class ExportTFLiteTest(testing.TestCase, parameterized.TestCase):
     def get_model_and_representative_dataset(self):
         input_shape = [224, 224, 3]
-        model = models.MobileNet050V3Small(include_preprocessing=False)
+        model = models.MobileNetV3W050Small(include_preprocessing=False)
 
         def representative_dataset():
             for _ in range(10):

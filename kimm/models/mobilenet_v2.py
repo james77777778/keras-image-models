@@ -150,7 +150,7 @@ Model Definition
 """
 
 
-class MobileNet050V2(MobileNetV2):
+class MobileNetV2W050(MobileNetV2):
     available_weights = [
         (
             "imagenet",
@@ -171,7 +171,7 @@ class MobileNet050V2(MobileNetV2):
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
-        name: str = "MobileNet050V2",
+        name: str = "MobileNetV2W050",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
@@ -194,7 +194,7 @@ class MobileNet050V2(MobileNetV2):
         )
 
 
-class MobileNet100V2(MobileNetV2):
+class MobileNetV2W100(MobileNetV2):
     available_weights = [
         (
             "imagenet",
@@ -215,7 +215,7 @@ class MobileNet100V2(MobileNetV2):
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
-        name: str = "MobileNet100V2",
+        name: str = "MobileNetV2W100",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
@@ -238,7 +238,7 @@ class MobileNet100V2(MobileNetV2):
         )
 
 
-class MobileNet110V2(MobileNetV2):
+class MobileNetV2W110(MobileNetV2):
     available_weights = [
         (
             "imagenet",
@@ -259,7 +259,7 @@ class MobileNet110V2(MobileNetV2):
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
-        name: str = "MobileNet110V2",
+        name: str = "MobileNetV2W110",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
@@ -282,7 +282,7 @@ class MobileNet110V2(MobileNetV2):
         )
 
 
-class MobileNet120V2(MobileNetV2):
+class MobileNetV2W120(MobileNetV2):
     available_weights = [
         (
             "imagenet",
@@ -303,7 +303,7 @@ class MobileNet120V2(MobileNetV2):
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
-        name: str = "MobileNet120V2",
+        name: str = "MobileNetV2W120",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
@@ -326,7 +326,7 @@ class MobileNet120V2(MobileNetV2):
         )
 
 
-class MobileNet140V2(MobileNetV2):
+class MobileNetV2W140(MobileNetV2):
     available_weights = [
         (
             "imagenet",
@@ -347,7 +347,7 @@ class MobileNet140V2(MobileNetV2):
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
         config: typing.Union[str, typing.List] = "default",
-        name: str = "MobileNet140V2",
+        name: str = "MobileNetV2W140",
         **kwargs,
     ):
         kwargs = self.fix_config(kwargs)
@@ -370,8 +370,8 @@ class MobileNet140V2(MobileNetV2):
         )
 
 
-add_model_to_registry(MobileNet050V2, "imagenet")
-add_model_to_registry(MobileNet100V2, "imagenet")
-add_model_to_registry(MobileNet110V2, "imagenet")
-add_model_to_registry(MobileNet120V2, "imagenet")
-add_model_to_registry(MobileNet140V2, "imagenet")
+add_model_to_registry(MobileNetV2W050, "imagenet")
+add_model_to_registry(MobileNetV2W100, "imagenet")
+add_model_to_registry(MobileNetV2W110, "imagenet")
+add_model_to_registry(MobileNetV2W120, "imagenet")
+add_model_to_registry(MobileNetV2W140, "imagenet")

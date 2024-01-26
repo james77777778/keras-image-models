@@ -2,6 +2,7 @@
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 pip install timm
 """
+
 import os
 
 import keras
@@ -27,12 +28,12 @@ timm_model_names = [
     "lcnet_100.ra2_in1k",
 ]
 keras_model_classes = [
-    mobilenet_v3.MobileNet050V3Small,
-    mobilenet_v3.MobileNet075V3Small,
-    mobilenet_v3.MobileNet100V3SmallMinimal,
-    mobilenet_v3.MobileNet100V3Small,
-    mobilenet_v3.MobileNet100V3Large,
-    mobilenet_v3.MobileNet100V3LargeMinimal,
+    mobilenet_v3.MobileNetV3W050Small,
+    mobilenet_v3.MobileNetV3W075Small,
+    mobilenet_v3.MobileNetV3W100SmallMinimal,
+    mobilenet_v3.MobileNetV3W100Small,
+    mobilenet_v3.MobileNetV3W100Large,
+    mobilenet_v3.MobileNetV3W100LargeMinimal,
     mobilenet_v3.LCNet050,
     mobilenet_v3.LCNet075,
     mobilenet_v3.LCNet100,

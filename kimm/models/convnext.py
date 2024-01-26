@@ -24,8 +24,8 @@ def apply_convnext_block(
 ):
     channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
     input_channels = inputs.shape[channels_axis]
-
     hidden_channels = int(mlp_ratio * output_channels)
+
     x = inputs
     shortcut = inputs
 

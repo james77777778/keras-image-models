@@ -10,7 +10,7 @@ from kimm import models
 class ExportOnnxTest(testing.TestCase, parameterized.TestCase):
     def get_model(self):
         input_shape = [3, 224, 224]  # channels_first
-        model = models.MobileNet050V3Small(include_preprocessing=False)
+        model = models.MobileNetV3W050Small(include_preprocessing=False)
         return input_shape, model
 
     @classmethod

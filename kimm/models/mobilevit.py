@@ -624,7 +624,7 @@ class MobileViTV2(BaseModel):
         return config
 
     def fix_config(self, config):
-        unused_kwargs = ["multiplier", "stem_channels", "activation", "config"]
+        unused_kwargs = ["multiplier", "activation", "config"]
         for k in unused_kwargs:
             config.pop(k, None)
         return config

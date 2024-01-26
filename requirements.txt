@@ -10,7 +10,7 @@
 # "jax[cuda12_local]"
 
 # Following is for github runner
-tensorflow-cpu==2.15.0.post1
+tf-nightly-cpu==2.16.0.dev20240101
 
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch>=2.1.0

@@ -47,7 +47,7 @@ model = kimm.models.RegNetY002(
 ```python
 model = kimm.models.ConvNeXtAtto(feature_extractor=True)
 x = keras.random.uniform([1, 224, 224, 3])
-y = model(x, training=False)
+y = model.predict(x)
 # y becomes a dict
 for k, v in y.items():
     print(k, v.shape)

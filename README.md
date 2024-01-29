@@ -71,6 +71,7 @@ kimm.export.export_onnx(model, [3, 224, 224], "model.onnx")
 
 > [!IMPORTANT]
 > `kimm.export.export_tflite` is currently restricted to `tensorflow` backend and `channels_last`.
+> [!IMPORTANT]
 > `kimm.export.export_onnx` is currently restricted to `torch` backend and `channels_first`.
 
 🔧 Supporting the reparameterization technique.

@@ -438,7 +438,7 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
     )
     def test_model_get_reparameterized_model(self, model_class, image_size):
         x = random.uniform([1, image_size, image_size, 3]) * 255.0
-        model = model_class(weights=None)
+        model = model_class()
         reparameterized_model = model.get_reparameterized_model()
 
         y1 = model(x, training=False)

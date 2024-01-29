@@ -23,7 +23,7 @@ KIMM is:
 
 > [!NOTE]
 > The accuracy of the converted models can be found at [results-imagenet.csv (timm)](https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv) and [https://keras.io/api/applications/ (keras)](https://keras.io/api/applications/),
-> and the numerical differences of the converted models can be verified in `tools/convert_*.py`
+> and the numerical differences of the converted models can be verified in `tools/convert_*.py`.
 
 ✨ Exposing a common API identical to offcial `keras.applications.*`.
   
@@ -56,22 +56,22 @@ for k, v in y.items():
 🧰 Providing APIs to export models to `.tflite` and `.onnx`.
 
 ```python
+# tensorflow backend
 keras.backend.set_image_data_format("channels_last")
 model = kimm.models.MobileNet050V3Small()
 kimm.export.export_tflite(model, [224, 224, 3], "model.tflite")
 ```
 
-> [!IMPORTANT]
-> Currently, `kimm.export.export_tflite` can only be used with `tensorflow` backend and `channels_last`
-
 ```python
+# torch backend
 keras.backend.set_image_data_format("channels_first")
 model = kimm.models.MobileNet050V3Small()
 kimm.export.export_onnx(model, [3, 224, 224], "model.onnx")
 ```
 
 > [!IMPORTANT]
-> Currently, `kimm.export.export_onnx` can only be used with `torch` backend and `channels_first`
+> `kimm.export.export_tflite` is currently restricted to `tensorflow` backend and `channels_last`.
+> `kimm.export.export_onnx` is currently restricted to `torch` backend and `channels_first`.
 
 🔧 Supporting the reparameterization technique.
 

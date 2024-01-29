@@ -13,6 +13,7 @@ def get_reparameterized_model(model: BaseModel):
         return model
 
     config["reparameterized"] = True
+    config["weights"] = None
     reparameterized_model = type(model).from_config(config)
     for layer, reparameterized_layer in zip(
         model.layers, reparameterized_model.layers

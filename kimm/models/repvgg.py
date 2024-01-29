@@ -126,6 +126,7 @@ class RepVGG(BaseModel):
     def get_reparameterized_model(self):
         config = self.get_config()
         config["reparameterized"] = True
+        config["weights"] = None
         model = RepVGG(**config)
         for layer, reparameterized_layer in zip(self.layers, model.layers):
             if hasattr(layer, "get_reparameterized_weights"):

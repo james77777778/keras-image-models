@@ -265,6 +265,19 @@ MODEL_CONFIGS = [
             ("BLOCK3_S32", [1, 7, 7, 368]),
         ],
     ),
+    # repvgg
+    (
+        kimm_models.RepVGGA0.__name__,
+        kimm_models.RepVGGA0,
+        224,
+        [
+            ("STEM_S2", [1, 112, 112, 48]),
+            ("BLOCK0_S4", [1, 56, 56, 48]),
+            ("BLOCK1_S8", [1, 28, 28, 96]),
+            ("BLOCK2_S16", [1, 14, 14, 192]),
+            ("BLOCK3_S32", [1, 7, 7, 1280]),
+        ],
+    ),
     # resnet
     (
         kimm_models.ResNet18.__name__,

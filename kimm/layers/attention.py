@@ -30,7 +30,7 @@ class Attention(layers.Layer):
         self.qkv = layers.Dense(
             hidden_dim * 3,
             use_bias=use_qkv_bias,
-            dtype=self.dtype,
+            dtype=self.dtype_policy,
             name=f"{name}_qkv",
         )
         if use_qk_norm:

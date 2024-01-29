@@ -21,7 +21,7 @@
 
 - 🚀 A model zoo where almost all models come with pre-trained weights on ImageNet.
 
-  > **Note:**
+  > [!NOTE]
   > The accuracy of the converted models can be found at [results-imagenet.csv (timm)](https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv) and [https://keras.io/api/applications/ (keras)](https://keras.io/api/applications/),
   > and the numerical differences of the converted models can be verified in `tools/convert_*.py`
 
@@ -45,11 +45,8 @@
 - 🔥 Integrated with feature extraction capability.
 
   ```python
-  from keras import random
-  import kimm
-
   model = kimm.models.ConvNeXtAtto(feature_extractor=True)
-  x = random.uniform([1, 224, 224, 3])
+  x = keras.random.uniform([1, 224, 224, 3])
   y = model(x, training=False)
   # y becomes a dict
   for k, v in y.items():
@@ -59,23 +56,33 @@
 - 🧰 Providing APIs to export models to `.tflite` and `.onnx`.
 
   ```python
-  # in tensorflow backend
-  from keras import backend
-  import kimm
-
-  backend.set_image_data_format("channels_last")
+  keras.backend.set_image_data_format("channels_last")
   model = kimm.models.MobileNet050V3Small()
   kimm.export.export_tflite(model, [224, 224, 3], "model.tflite")
   ```
 
-  ```python
-  # in torch backend
-  from keras import backend
-  import kimm
+  > [!IMPORTANT]
+  > Currently, `kimm.export.export_tflite` can only be used with `tensorflow` backend and `channels_last`
 
-  backend.set_image_data_format("channels_first")
+  ```python
+  keras.backend.set_image_data_format("channels_first")
   model = kimm.models.MobileNet050V3Small()
   kimm.export.export_onnx(model, [3, 224, 224], "model.onnx")
+  ```
+
+  > [!IMPORTANT]
+  > Currently, `kimm.export.export_onnx` can only be used with `torch` backend and `channels_first`
+
+- 🔧 Supporting the reparameterization technique.
+
+  ```python
+  model = kimm.models.RepVGGA0()
+  reparameterized_model = kimm.utils.get_reparameterized_model(model)
+  # or
+  # reparameterized_model = model.get_reparameterized_model()
+  y1 = model.predict(x)
+  y2 = model.predict(x)
+  np.testing.assert_allclose(y1, y2, atol=1e-5)
   ```
 
 ## Installation
@@ -175,6 +182,7 @@ Reference: [Grad-CAM class activation visualization (keras.io)](https://keras.io
 |MobileViT|[ICLR 2022](https://arxiv.org/abs/2110.02178)|`timm`|`kimm.models.MobileViT*`|
 |MobileViTV2|[arXiv 2022](https://arxiv.org/abs/2206.02680)|`timm`|`kimm.models.MobileViTV2*`|
 |RegNet|[CVPR 2020](https://arxiv.org/abs/2003.13678)|`timm`|`kimm.models.RegNet*`|
+|RepVGG|[CVPR 2021](https://arxiv.org/abs/2101.03697)|`timm`|`kimm.models.RepVGG*`|
 |ResNet|[CVPR 2015](https://arxiv.org/abs/1512.03385)|`timm`|`kimm.models.ResNet*`|
 |TinyNet|[NeurIPS 2020](https://arxiv.org/abs/2010.14819)|`timm`|`kimm.models.TinyNet*`|
 |VGG|[ICLR 2015](https://arxiv.org/abs/1409.1556)|`timm`|`kimm.models.VGG*`|

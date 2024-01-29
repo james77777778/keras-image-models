@@ -43,13 +43,27 @@ def separate_keras_weights(keras_model: keras.Model):
     trainable_weights = []
     non_trainable_weights = []
     for layer in keras_model.layers:
-        layer: keras.Layer
-        for weight in layer.trainable_weights:
-            trainable_weights.append((weight, layer.name + "_" + weight.name))
-        for weight in layer.non_trainable_weights:
-            non_trainable_weights.append(
-                (weight, layer.name + "_" + weight.name)
-            )
+        if hasattr(layer, "extra_layers"):
+            for sub_layer in layer.extra_layers:
+                sub_layer: keras.Layer
+                for weight in sub_layer.trainable_weights:
+                    trainable_weights.append(
+                        (weight, sub_layer.name + "_" + weight.name)
+                    )
+                for weight in sub_layer.non_trainable_weights:
+                    non_trainable_weights.append(
+                        (weight, sub_layer.name + "_" + weight.name)
+                    )
+        else:
+            layer: keras.Layer
+            for weight in layer.trainable_weights:
+                trainable_weights.append(
+                    (weight, layer.name + "_" + weight.name)
+                )
+            for weight in layer.non_trainable_weights:
+                non_trainable_weights.append(
+                    (weight, layer.name + "_" + weight.name)
+                )
     return trainable_weights, non_trainable_weights
 
 

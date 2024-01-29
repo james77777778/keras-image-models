@@ -265,6 +265,19 @@ MODEL_CONFIGS = [
             ("BLOCK3_S32", [1, 7, 7, 368]),
         ],
     ),
+    # repvgg
+    (
+        kimm_models.RepVGGA0.__name__,
+        kimm_models.RepVGGA0,
+        224,
+        [
+            ("STEM_S2", [1, 112, 112, 48]),
+            ("BLOCK0_S4", [1, 56, 56, 48]),
+            ("BLOCK1_S8", [1, 28, 28, 96]),
+            ("BLOCK2_S16", [1, 14, 14, 192]),
+            ("BLOCK3_S32", [1, 7, 7, 1280]),
+        ],
+    ),
     # resnet
     (
         kimm_models.ResNet18.__name__,
@@ -335,6 +348,7 @@ MODEL_CONFIGS = [
 ]
 
 
+@pytest.mark.requires_trainable_backend  # numpy is too slow to test
 class ModelTest(testing.TestCase, parameterized.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -418,6 +432,19 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
         for feature_info in features:
             name, shape = feature_info
             self.assertEqual(list(y[name].shape), shape)
+
+    @parameterized.named_parameters(
+        (kimm_models.RepVGGA0.__name__, kimm_models.RepVGGA0, 224)
+    )
+    def test_model_get_reparameterized_model(self, model_class, image_size):
+        x = random.uniform([1, image_size, image_size, 3]) * 255.0
+        model = model_class()
+        reparameterized_model = model.get_reparameterized_model()
+
+        y1 = model(x, training=False)
+        y2 = reparameterized_model(x, training=False)
+
+        self.assertAllClose(y1, y2, atol=1e-5)
 
     @pytest.mark.serialization
     @parameterized.named_parameters(MODEL_CONFIGS)

@@ -81,7 +81,7 @@ reparameterized_model = kimm.utils.get_reparameterized_model(model)
 # or
 # reparameterized_model = model.get_reparameterized_model()
 y1 = model.predict(x)
-y2 = model.predict(x)
+y2 = reparameterized_model.predict(x)
 np.testing.assert_allclose(y1, y2, atol=1e-5)
 ```
 

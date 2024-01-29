@@ -433,6 +433,19 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
             name, shape = feature_info
             self.assertEqual(list(y[name].shape), shape)
 
+    @parameterized.named_parameters(
+        (kimm_models.RepVGGA0.__name__, kimm_models.RepVGGA0, 224)
+    )
+    def test_model_get_reparameterized_model(self, model_class, image_size):
+        x = random.uniform([1, image_size, image_size, 3]) * 255.0
+        model = model_class(weights=None)
+        reparameterized_model = model.get_reparameterized_model()
+
+        y1 = model(x, training=False)
+        y2 = reparameterized_model(x, training=False)
+
+        self.assertAllClose(y1, y2, atol=1e-5)
+
     @pytest.mark.serialization
     @parameterized.named_parameters(MODEL_CONFIGS)
     def test_model_serialization(

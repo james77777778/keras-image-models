@@ -348,6 +348,7 @@ MODEL_CONFIGS = [
 ]
 
 
+@pytest.mark.requires_trainable_backend  # numpy is too slow to test
 class ModelTest(testing.TestCase, parameterized.TestCase):
     @classmethod
     def setUpClass(cls):

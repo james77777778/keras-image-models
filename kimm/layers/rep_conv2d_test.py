@@ -1,5 +1,6 @@
 import pytest
 from absl.testing import parameterized
+from keras import backend
 from keras import random
 from keras.src import testing
 
@@ -63,6 +64,14 @@ class RepConv2DTest(testing.TestCase, parameterized.TestCase):
         num_trainable_weights,
         num_non_trainable_weights,
     ):
+        if (
+            backend.backend() == "tensorflow"
+            and data_format == "channels_first"
+        ):
+            self.skipTest(
+                "Conv2D in tensorflow backend with 'channels_first' is limited "
+                "to be supported"
+            )
         self.run_layer_test(
             RepConv2D,
             init_kwargs={
@@ -91,6 +100,14 @@ class RepConv2DTest(testing.TestCase, parameterized.TestCase):
         num_trainable_weights,
         num_non_trainable_weights,
     ):
+        if (
+            backend.backend() == "tensorflow"
+            and data_format == "channels_first"
+        ):
+            self.skipTest(
+                "Conv2D in tensorflow backend with 'channels_first' is limited "
+                "to be supported"
+            )
         layer = RepConv2D(
             filters=filters,
             kernel_size=kernel_size,

@@ -17,73 +17,73 @@
 
 **K**eras **Im**age **M**odels (`kimm`) is a collection of image models, blocks and layers written in Keras 3. The goal is to offer SOTA models with pretrained weights in a user-friendly manner.
 
-`kimm` is:
+KIMM is:
 
-- 🚀 A model zoo where almost all models come with pre-trained weights on ImageNet.
+🚀 A model zoo where almost all models come with pre-trained weights on ImageNet.
 
-  > [!NOTE]
-  > The accuracy of the converted models can be found at [results-imagenet.csv (timm)](https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv) and [https://keras.io/api/applications/ (keras)](https://keras.io/api/applications/),
-  > and the numerical differences of the converted models can be verified in `tools/convert_*.py`
+> [!NOTE]
+> The accuracy of the converted models can be found at [results-imagenet.csv (timm)](https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv) and [https://keras.io/api/applications/ (keras)](https://keras.io/api/applications/),
+> and the numerical differences of the converted models can be verified in `tools/convert_*.py`
 
-- ✨ Exposing a common API identical to offcial `keras.applications.*`.
+✨ Exposing a common API identical to offcial `keras.applications.*`.
   
-  ```python
-  model = kimm.models.RegNetY002(
-      input_tensor: keras.KerasTensor = None,
-      input_shape: typing.Optional[typing.Sequence[int]] = None,
-      include_preprocessing: bool = True,
-      include_top: bool = True,
-      pooling: typing.Optional[str] = None,
-      dropout_rate: float = 0.0,
-      classes: int = 1000,
-      classifier_activation: str = "softmax",
-      weights: typing.Optional[str] = "imagenet",
-      name: str = "RegNetY002",
-  )
-  ```
+```python
+model = kimm.models.RegNetY002(
+    input_tensor: keras.KerasTensor = None,
+    input_shape: typing.Optional[typing.Sequence[int]] = None,
+    include_preprocessing: bool = True,
+    include_top: bool = True,
+    pooling: typing.Optional[str] = None,
+    dropout_rate: float = 0.0,
+    classes: int = 1000,
+    classifier_activation: str = "softmax",
+    weights: typing.Optional[str] = "imagenet",
+    name: str = "RegNetY002",
+)
+```
 
-- 🔥 Integrated with feature extraction capability.
+🔥 Integrated with feature extraction capability.
 
-  ```python
-  model = kimm.models.ConvNeXtAtto(feature_extractor=True)
-  x = keras.random.uniform([1, 224, 224, 3])
-  y = model(x, training=False)
-  # y becomes a dict
-  for k, v in y.items():
-      print(k, v.shape)
-  ```
+```python
+model = kimm.models.ConvNeXtAtto(feature_extractor=True)
+x = keras.random.uniform([1, 224, 224, 3])
+y = model(x, training=False)
+# y becomes a dict
+for k, v in y.items():
+    print(k, v.shape)
+```
 
-- 🧰 Providing APIs to export models to `.tflite` and `.onnx`.
+🧰 Providing APIs to export models to `.tflite` and `.onnx`.
 
-  ```python
-  keras.backend.set_image_data_format("channels_last")
-  model = kimm.models.MobileNet050V3Small()
-  kimm.export.export_tflite(model, [224, 224, 3], "model.tflite")
-  ```
+```python
+keras.backend.set_image_data_format("channels_last")
+model = kimm.models.MobileNet050V3Small()
+kimm.export.export_tflite(model, [224, 224, 3], "model.tflite")
+```
 
-  > [!IMPORTANT]
-  > Currently, `kimm.export.export_tflite` can only be used with `tensorflow` backend and `channels_last`
+> [!IMPORTANT]
+> Currently, `kimm.export.export_tflite` can only be used with `tensorflow` backend and `channels_last`
 
-  ```python
-  keras.backend.set_image_data_format("channels_first")
-  model = kimm.models.MobileNet050V3Small()
-  kimm.export.export_onnx(model, [3, 224, 224], "model.onnx")
-  ```
+```python
+keras.backend.set_image_data_format("channels_first")
+model = kimm.models.MobileNet050V3Small()
+kimm.export.export_onnx(model, [3, 224, 224], "model.onnx")
+```
 
-  > [!IMPORTANT]
-  > Currently, `kimm.export.export_onnx` can only be used with `torch` backend and `channels_first`
+> [!IMPORTANT]
+> Currently, `kimm.export.export_onnx` can only be used with `torch` backend and `channels_first`
 
-- 🔧 Supporting the reparameterization technique.
+🔧 Supporting the reparameterization technique.
 
-  ```python
-  model = kimm.models.RepVGGA0()
-  reparameterized_model = kimm.utils.get_reparameterized_model(model)
-  # or
-  # reparameterized_model = model.get_reparameterized_model()
-  y1 = model.predict(x)
-  y2 = model.predict(x)
-  np.testing.assert_allclose(y1, y2, atol=1e-5)
-  ```
+```python
+model = kimm.models.RepVGGA0()
+reparameterized_model = kimm.utils.get_reparameterized_model(model)
+# or
+# reparameterized_model = model.get_reparameterized_model()
+y1 = model.predict(x)
+y2 = model.predict(x)
+np.testing.assert_allclose(y1, y2, atol=1e-5)
+```
 
 ## Installation
 

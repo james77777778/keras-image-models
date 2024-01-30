@@ -16,8 +16,8 @@
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Quickstart](#quickstart)
-  - [Image classification using the model pretrained on ImageNet](#image-classification-using-the-model-pretrained-on-imagenet)
-  - [An end-to-end example: fine-tuning an image classification model on a cats vs. dogs dataset](#an-end-to-end-example-fine-tuning-an-image-classification-model-on-a-cats-vs-dogs-dataset)
+  - [Image classification with ImageNet weights](#image-classification-using-the-model-pretrained-on-imagenet)
+  - [An end-to-end fine-tuning example: cats vs. dogs dataset](#an-end-to-end-example-fine-tuning-an-image-classification-model-on-a-cats-vs-dogs-dataset)
   - [Grad-CAM](#grad-cam)
 - [Model Zoo](#model-zoo)
 - [License](#license)
@@ -27,7 +27,7 @@
 
 **K**eras **Im**age **M**odels (`kimm`) is a collection of image models, blocks and layers written in Keras 3. The goal is to offer SOTA models with pretrained weights in a user-friendly manner.
 
-KIMM is:
+**KIMM** is:
 
 🚀 A model zoo where almost all models come with **pre-trained weights on ImageNet**.
 

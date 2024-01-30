@@ -13,13 +13,23 @@
 
 # Keras Image Models
 
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Quickstart](#quickstart)
+  - [Image classification using the model pretrained on ImageNet](#image-classification-using-the-model-pretrained-on-imagenet)
+  - [An end-to-end example: fine-tuning an image classification model on a cats vs. dogs dataset](#an-end-to-end-example-fine-tuning-an-image-classification-model-on-a-cats-vs-dogs-dataset)
+  - [Grad-CAM](#grad-cam)
+- [Model Zoo](#model-zoo)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
+
 ## Introduction
 
 **K**eras **Im**age **M**odels (`kimm`) is a collection of image models, blocks and layers written in Keras 3. The goal is to offer SOTA models with pretrained weights in a user-friendly manner.
 
 KIMM is:
 
-🚀 A model zoo where almost all models come with pre-trained weights on ImageNet.
+🚀 A model zoo where almost all models come with **pre-trained weights on ImageNet**.
 
 > [!NOTE]
 > The accuracy of the converted models can be found at [results-imagenet.csv (timm)](https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv) and [https://keras.io/api/applications/ (keras)](https://keras.io/api/applications/),
@@ -42,7 +52,7 @@ model = kimm.models.RegNetY002(
 )
 ```
 
-🔥 Integrated with feature extraction capability.
+🔥 Integrated with **feature extraction** capability.
 
 ```python
 model = kimm.models.ConvNeXtAtto(feature_extractor=True)
@@ -58,14 +68,14 @@ for k, v in y.items():
 ```python
 # tensorflow backend
 keras.backend.set_image_data_format("channels_last")
-model = kimm.models.MobileNet050V3Small()
+model = kimm.models.MobileNetV3W050Small()
 kimm.export.export_tflite(model, [224, 224, 3], "model.tflite")
 ```
 
 ```python
 # torch backend
 keras.backend.set_image_data_format("channels_first")
-model = kimm.models.MobileNet050V3Small()
+model = kimm.models.MobileNetV3W050Small()
 kimm.export.export_onnx(model, [3, 224, 224], "model.onnx")
 ```
 
@@ -73,13 +83,17 @@ kimm.export.export_onnx(model, [3, 224, 224], "model.onnx")
 > `kimm.export.export_tflite` is currently restricted to `tensorflow` backend and `channels_last`.
 > `kimm.export.export_onnx` is currently restricted to `torch` backend and `channels_first`.
 
-🔧 Supporting the reparameterization technique.
+🔧 Supporting the **reparameterization** technique.
 
 ```python
 model = kimm.models.RepVGGA0()
 reparameterized_model = kimm.utils.get_reparameterized_model(model)
 # or
 # reparameterized_model = model.get_reparameterized_model()
+model.summary()
+# Total params: 9,132,616 (34.84 MB)
+reparameterized_model.summary()
+# Total params: 8,309,384 (31.70 MB)
 y1 = model.predict(x)
 y2 = reparameterized_model.predict(x)
 np.testing.assert_allclose(y1, y2, atol=1e-5)
@@ -88,12 +102,12 @@ np.testing.assert_allclose(y1, y2, atol=1e-5)
 ## Installation
 
 ```bash
-pip install keras kimm
+pip install keras kimm -U
 ```
 
 ## Quickstart
 
-### Image Classification Using the Model Pretrained on ImageNet
+### Image classification using the model pretrained on ImageNet
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/14WxYgVjlwCIO9MwqPYW-dskbTL2UHsVN?usp=sharing)
 

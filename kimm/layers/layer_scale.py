@@ -11,13 +11,11 @@ class LayerScale(layers.Layer):
         self,
         axis: int = -1,
         initializer: Initializer = initializers.Constant(1e-5),
-        name: str = "layer_scale",
         **kwargs,
     ):
         super().__init__(**kwargs)
         self.axis = axis
         self.initializer = initializer
-        self.name = name
 
     def build(self, input_shape):
         if isinstance(self.axis, list):

@@ -13,6 +13,7 @@ python3 -m tools.convert_inception_next_from_timm
 python3 -m tools.convert_inception_v3_from_timm
 python3 -m tools.convert_mobilenet_v2_from_timm
 python3 -m tools.convert_mobilenet_v3_from_timm
+python3 -m tools.convert_mobileone_from_timm
 python3 -m tools.convert_mobilevit_from_timm
 python3 -m tools.convert_regnet_from_timm
 python3 -m tools.convert_repvgg_from_timm

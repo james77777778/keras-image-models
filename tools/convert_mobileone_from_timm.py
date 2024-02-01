@@ -10,33 +10,25 @@ import numpy as np
 import timm
 import torch
 
-from kimm.models import mobilenet_v3
+from kimm.models import mobileone
 from kimm.utils.timm_utils import assign_weights
 from kimm.utils.timm_utils import is_same_weights
 from kimm.utils.timm_utils import separate_keras_weights
 from kimm.utils.timm_utils import separate_torch_state_dict
 
 timm_model_names = [
-    "mobilenetv3_small_050.lamb_in1k",
-    "mobilenetv3_small_075.lamb_in1k",
-    "tf_mobilenetv3_small_minimal_100.in1k",
-    "mobilenetv3_small_100.lamb_in1k",
-    "mobilenetv3_large_100.miil_in21k_ft_in1k",
-    "tf_mobilenetv3_large_minimal_100.in1k",
-    "lcnet_050.ra2_in1k",
-    "lcnet_075.ra2_in1k",
-    "lcnet_100.ra2_in1k",
+    "mobileone_s0.apple_in1k",
+    "mobileone_s1.apple_in1k",
+    "mobileone_s2.apple_in1k",
+    "mobileone_s3.apple_in1k",
+    # "mobileone_s4.apple_in1k",
 ]
 keras_model_classes = [
-    mobilenet_v3.MobileNetV3W050Small,
-    mobilenet_v3.MobileNetV3W075Small,
-    mobilenet_v3.MobileNetV3W100SmallMinimal,
-    mobilenet_v3.MobileNetV3W100Small,
-    mobilenet_v3.MobileNetV3W100Large,
-    mobilenet_v3.MobileNetV3W100LargeMinimal,
-    mobilenet_v3.LCNet050,
-    mobilenet_v3.LCNet075,
-    mobilenet_v3.LCNet100,
+    mobileone.MobileOneS0,
+    mobileone.MobileOneS1,
+    mobileone.MobileOneS2,
+    mobileone.MobileOneS3,
+    # mobileone.MobileOneS4,
 ]
 
 for timm_model_name, keras_model_class in zip(
@@ -69,6 +61,14 @@ for timm_model_name, keras_model_class in zip(
     # print(len(trainable_state_dict.keys()))
     # print(len(trainable_weights))
 
+    # for torch_name, (_, keras_name) in zip(
+    #     non_trainable_state_dict.keys(), non_trainable_weights
+    # ):
+    #     print(f"{torch_name}    {keras_name}")
+
+    # print(len(non_trainable_state_dict.keys()))
+    # print(len(non_trainable_weights))
+
     # exit()
 
     """
@@ -78,45 +78,43 @@ for timm_model_name, keras_model_class in zip(
         keras_name: str
         torch_name = keras_name
         torch_name = torch_name.replace("_", ".")
-        # stem
-        torch_name = torch_name.replace("conv.stem.conv2d", "conv_stem")
-        torch_name = torch_name.replace("conv.stem.bn", "bn1")
-        # LCNet
-        if "LCNet" in keras_model_class.__name__:
-            # depthwise separation block
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn1")
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn2")
-        # blocks
-        if "blocks.0.0" in torch_name:
-            # depthwise separation block
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn1")
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn2")
-        else:
-            # inverted residual block
-            torch_name = torch_name.replace("conv.pw.conv2d", "conv_pw")
-            torch_name = torch_name.replace("conv.pw.bn", "bn1")
-            torch_name = torch_name.replace("conv.dw.dwconv2d", "conv_dw")
-            torch_name = torch_name.replace("conv.dw.bn", "bn2")
-            torch_name = torch_name.replace("conv.pwl.conv2d", "conv_pwl")
-            torch_name = torch_name.replace("conv.pwl.bn", "bn3")
-        # se
-        torch_name = torch_name.replace("se.conv.reduce", "se.conv_reduce")
-        torch_name = torch_name.replace("se.conv.expand", "se.conv_expand")
-        # last conv block
-        if "Small" in keras_model_class.__name__:
-            if "blocks.5.0" in torch_name:
-                torch_name = torch_name.replace("conv2d", "conv")
-                torch_name = torch_name.replace("bn", "bn1")
-        if "Large" in keras_model_class.__name__:
-            if "blocks.6.0" in torch_name:
-                torch_name = torch_name.replace("conv2d", "conv")
-                torch_name = torch_name.replace("bn", "bn1")
-        # conv head
-        torch_name = torch_name.replace("conv.head", "conv_head")
+        # skip reparam_conv
+        if "reparam_conv_conv2d" in keras_name:
+            continue
+        # mobile_one_conv2d
+        if "conv.kxk" in torch_name and "kernel" in torch_name:
+            torch_name = torch_name.replace("conv.kxk", "conv_kxk")
+            torch_name = torch_name.replace("kernel", "conv.kernel")
+        if "conv.kxk" in torch_name and "gamma" in torch_name:
+            torch_name = torch_name.replace("conv.kxk", "conv_kxk")
+            torch_name = torch_name.replace("gamma", "bn.gamma")
+        if "conv.kxk" in torch_name and "beta" in torch_name:
+            torch_name = torch_name.replace("conv.kxk", "conv_kxk")
+            torch_name = torch_name.replace("beta", "bn.beta")
+        torch_name = torch_name.replace(
+            "conv.scale.kernel", "conv_scale.conv.kernel"
+        )
+        torch_name = torch_name.replace(
+            "conv.scale.gamma", "conv_scale.bn.gamma"
+        )
+        torch_name = torch_name.replace("conv.scale.beta", "conv_scale.bn.beta")
+        # mobile_one_conv2d bn
+        if "conv.kxk" in torch_name and "moving.mean" in torch_name:
+            torch_name = torch_name.replace("conv.kxk", "conv_kxk")
+            torch_name = torch_name.replace("moving.mean", "bn.moving.mean")
+        if "conv.kxk" in torch_name and "moving.variance" in torch_name:
+            torch_name = torch_name.replace("conv.kxk", "conv_kxk")
+            torch_name = torch_name.replace(
+                "moving.variance", "bn.moving.variance"
+            )
+        torch_name = torch_name.replace(
+            "conv.scale.moving.mean", "conv_scale.bn.moving.mean"
+        )
+        torch_name = torch_name.replace(
+            "conv.scale.moving.variance", "conv_scale.bn.moving.variance"
+        )
+        # head
+        torch_name = torch_name.replace("classifier", "head.fc")
 
         # weights naming mapping
         torch_name = torch_name.replace("kernel", "weight")  # conv2d

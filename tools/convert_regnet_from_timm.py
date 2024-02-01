@@ -85,6 +85,7 @@ for timm_model_name, keras_model_class in zip(
         input_shape=input_shape,
         include_preprocessing=False,
         classifier_activation="linear",
+        weights=None,
     )
     trainable_weights, non_trainable_weights = separate_keras_weights(
         keras_model

@@ -214,6 +214,19 @@ MODEL_CONFIGS = [
             ("BLOCK4_S32", [1, 7, 7, make_divisible(96 * 1.0)]),
         ],
     ),
+    # mobileone
+    (
+        kimm_models.MobileOneS0.__name__,
+        kimm_models.MobileOneS0,
+        224,
+        [
+            ("STEM_S2", [1, 112, 112, 48]),
+            ("BLOCK0_S4", [1, 56, 56, 48]),
+            ("BLOCK1_S8", [1, 28, 28, 128]),
+            ("BLOCK2_S16", [1, 14, 14, 256]),
+            ("BLOCK3_S32", [1, 7, 7, 1024]),
+        ],
+    ),
     # mobilevit
     (
         kimm_models.MobileViTS.__name__,
@@ -434,7 +447,8 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
             self.assertEqual(list(y[name].shape), shape)
 
     @parameterized.named_parameters(
-        (kimm_models.RepVGGA0.__name__, kimm_models.RepVGGA0, 224)
+        (kimm_models.RepVGGA0.__name__, kimm_models.RepVGGA0, 224),
+        (kimm_models.MobileOneS0.__name__, kimm_models.MobileOneS0, 224),
     )
     def test_model_get_reparameterized_model(self, model_class, image_size):
         x = random.uniform([1, image_size, image_size, 3]) * 255.0

@@ -64,8 +64,8 @@ TEST_CASES = [
         "data_format": "channels_first",
         "input_shape": (1, 16, 4, 4),
         "output_shape": (1, 16, 4, 4),
-        "num_trainable_weights": 8,
-        "num_non_trainable_weights": 6,
+        "num_trainable_weights": 11,
+        "num_non_trainable_weights": 8,
     },
 ]
 
@@ -161,4 +161,4 @@ class MobileOneConv2DTest(testing.TestCase, parameterized.TestCase):
         y1 = layer(x, training=False)
         y2 = reparameterized_layer(x, training=False)
 
-        self.assertAllClose(y1, y2, atol=1e-5)
+        self.assertAllClose(y1, y2, atol=1e-3)

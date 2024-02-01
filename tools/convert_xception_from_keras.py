@@ -27,6 +27,7 @@ for ori_model_class, keras_model_class in zip(
         input_shape=input_shape,
         include_preprocessing=False,
         classifier_activation="linear",
+        weights=None,
     )
     with tempfile.TemporaryDirectory() as temp_dir:
         ori_model.save_weights(temp_dir + "/model.weights.h5")

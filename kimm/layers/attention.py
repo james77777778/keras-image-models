@@ -13,7 +13,6 @@ class Attention(layers.Layer):
         use_qk_norm: bool = False,
         attention_dropout_rate: float = 0.0,
         projection_dropout_rate: float = 0.0,
-        name: str = "attention",
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -25,20 +24,19 @@ class Attention(layers.Layer):
         self.use_qk_norm = use_qk_norm
         self.attention_dropout_rate = attention_dropout_rate
         self.projection_dropout_rate = projection_dropout_rate
-        self.name = name
 
         self.qkv = layers.Dense(
             hidden_dim * 3,
             use_bias=use_qkv_bias,
             dtype=self.dtype_policy,
-            name=f"{name}_qkv",
+            name=f"{self.name}_qkv",
         )
         if use_qk_norm:
             self.q_norm = layers.LayerNormalization(
-                dtype=self.dtype_policy, name=f"{name}_q_norm"
+                dtype=self.dtype_policy, name=f"{self.name}_q_norm"
             )
             self.k_norm = layers.LayerNormalization(
-                dtype=self.dtype_policy, name=f"{name}_k_norm"
+                dtype=self.dtype_policy, name=f"{self.name}_k_norm"
             )
         else:
             self.q_norm = layers.Identity(dtype=self.dtype_policy)
@@ -47,15 +45,15 @@ class Attention(layers.Layer):
         self.attention_dropout = layers.Dropout(
             attention_dropout_rate,
             dtype=self.dtype_policy,
-            name=f"{name}_attn_drop",
+            name=f"{self.name}_attn_drop",
         )
         self.projection = layers.Dense(
-            hidden_dim, dtype=self.dtype_policy, name=f"{name}_proj"
+            hidden_dim, dtype=self.dtype_policy, name=f"{self.name}_proj"
         )
         self.projection_dropout = layers.Dropout(
             projection_dropout_rate,
             dtype=self.dtype_policy,
-            name=f"{name}_proj_drop",
+            name=f"{self.name}_proj_drop",
         )
 
     def build(self, input_shape):

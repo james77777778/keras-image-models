@@ -24,7 +24,6 @@ class MobileOneConv2D(Layer):
         reparameterized: bool = False,
         data_format=None,
         activation=None,
-        name="rep_conv2d",
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -38,7 +37,6 @@ class MobileOneConv2D(Layer):
         self._reparameterized = reparameterized
         self.data_format = standardize_data_format(data_format)
         self.activation = activation
-        self.name = name
 
         if self.kernel_size[0] != self.kernel_size[1]:
             raise ValueError(
@@ -65,7 +63,7 @@ class MobileOneConv2D(Layer):
                     (self.kernel_size[0] // 2, self.kernel_size[1] // 2),
                     data_format=self.data_format,
                     dtype=self.dtype_policy,
-                    name=f"{name}_pad",
+                    name=f"{self.name}_pad",
                 )
             self.padding = padding
         else:
@@ -86,7 +84,7 @@ class MobileOneConv2D(Layer):
                 self.strides,
                 self.padding,
                 use_bias=True,
-                name=f"{name}_reparam_conv",
+                name=f"{self.name}_reparam_conv",
             )
         else:
             # Skip connection
@@ -96,7 +94,7 @@ class MobileOneConv2D(Layer):
                     momentum=0.9,
                     epsilon=1e-5,
                     dtype=self.dtype_policy,
-                    name=f"{name}_identity",
+                    name=f"{self.name}_identity",
                 )
             else:
                 self.identity = None
@@ -122,7 +120,7 @@ class MobileOneConv2D(Layer):
                                 dtype=self.dtype_policy,
                             ),
                         ],
-                        name=f"{name}_conv_kxk_{i}",
+                        name=f"{self.name}_conv_kxk_{i}",
                     )
                 )
 
@@ -146,7 +144,7 @@ class MobileOneConv2D(Layer):
                             dtype=self.dtype_policy,
                         ),
                     ],
-                    name=f"{name}_conv_scale",
+                    name=f"{self.name}_conv_scale",
                 )
 
         if activation is None:

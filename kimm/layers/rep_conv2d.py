@@ -20,7 +20,6 @@ class RepConv2D(Layer):
         reparameterized: bool = False,
         data_format=None,
         activation=None,
-        name="rep_conv2d",
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -32,8 +31,17 @@ class RepConv2D(Layer):
         self._reparameterized = reparameterized
         self.data_format = standardize_data_format(data_format)
         self.activation = activation
-        self.name = name
 
+        if self.kernel_size[0] != self.kernel_size[1]:
+            raise ValueError(
+                "The value of kernel_size must be the same. "
+                f"Received: kernel_size={kernel_size}"
+            )
+        if self.strides[0] != self.strides[1]:
+            raise ValueError(
+                "The value of strides must be the same. "
+                f"Received: strides={strides}"
+            )
         if has_skip is True and (self.strides[0] != 1 or self.strides[1] != 1):
             raise ValueError(
                 "strides must be `1` when `has_skip=True`. "
@@ -49,7 +57,7 @@ class RepConv2D(Layer):
                     (self.kernel_size[0] // 2, self.kernel_size[1] // 2),
                     data_format=self.data_format,
                     dtype=self.dtype_policy,
-                    name=f"{name}_pad",
+                    name=f"{self.name}_pad",
                 )
             self.padding = padding
         else:
@@ -65,7 +73,7 @@ class RepConv2D(Layer):
                 data_format=self.data_format,
                 use_bias=True,
                 dtype=self.dtype_policy,
-                name=f"{name}_reparam_conv",
+                name=f"{self.name}_reparam_conv",
             )
             self.identity = None
             self.conv_kxk = None
@@ -78,7 +86,7 @@ class RepConv2D(Layer):
                     momentum=0.9,
                     epsilon=1e-5,
                     dtype=self.dtype_policy,
-                    name=f"{name}_identity",
+                    name=f"{self.name}_identity",
                 )
             else:
                 self.identity = None
@@ -100,7 +108,7 @@ class RepConv2D(Layer):
                         dtype=self.dtype_policy,
                     ),
                 ],
-                name=f"{name}_conv_kxk",
+                name=f"{self.name}_conv_kxk",
             )
             self.conv_1x1 = Sequential(
                 [
@@ -120,7 +128,7 @@ class RepConv2D(Layer):
                         dtype=self.dtype_policy,
                     ),
                 ],
-                name=f"{name}_conv_1x1",
+                name=f"{self.name}_conv_1x1",
             )
 
         if activation is None:

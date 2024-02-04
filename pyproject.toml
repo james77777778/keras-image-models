@@ -4,8 +4,20 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kimm"
-description = ""
-keywords = []
+description = "A Keras model zoo with pretrained weights."
+keywords = [
+    "deep-learning",
+    "model-zoo",
+    "keras",
+    "jax",
+    "tensorflow",
+    "torch",
+    "imagenet",
+    "pretrained-weights",
+    "timm",
+]
+authors = [{ name = "Hong-Yu Chiu", email = "james77777778@gmail.com" }]
+maintainers = [{ name = "Hong-Yu Chiu", email = "james77777778@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.9"
 license = { file = "LICENSE" }
@@ -24,6 +36,12 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = ["keras"]
+
+[project.urls]
+Homepage = "https://github.com/james77777778/keras-image-models"
+Documentation = "https://github.com/james77777778/keras-image-models"
+Repository = "https://github.com/james77777778/keras-image-models.git"
+Issues = "https://github.com/james77777778/keras-image-models/issues"
 
 [project.optional-dependencies]
 tests = [

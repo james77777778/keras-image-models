@@ -4,11 +4,23 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kimm"
-description = ""
-keywords = []
+description = "A Keras model zoo with pretrained weights."
+keywords = [
+    "deep-learning",
+    "model-zoo",
+    "keras",
+    "jax",
+    "tensorflow",
+    "torch",
+    "imagenet",
+    "pretrained-weights",
+    "timm",
+]
+authors = [{ name = "Hong-Yu Chiu", email = "james77777778@gmail.com" }]
+maintainers = [{ name = "Hong-Yu Chiu", email = "james77777778@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.9"
-license = { file = "LICENSE" }
+license = "Apache License 2.0"
 classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",

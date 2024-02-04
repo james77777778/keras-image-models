@@ -37,6 +37,12 @@ classifiers = [
 dynamic = ["version"]
 dependencies = ["keras"]
 
+[project.urls]
+Homepage = "https://github.com/james77777778/keras-image-models"
+Documentation = "https://github.com/james77777778/keras-image-models"
+Repository = "https://github.com/james77777778/keras-image-models.git"
+Issues = "https://github.com/james77777778/keras-image-models/issues"
+
 [project.optional-dependencies]
 tests = [
     # export

@@ -14,6 +14,7 @@
 # Keras Image Models
 
 - [Introduction](#introduction)
+- [Usage](#usage)
 - [Installation](#installation)
 - [Quickstart](#quickstart)
   - [Image classification with ImageNet weights](#image-classification-using-the-model-pretrained-on-imagenet)
@@ -29,74 +30,67 @@
 
 **KIMM** is:
 
-🚀 A model zoo where almost all models come with **pre-trained weights on ImageNet**.
+- 🚀 A model zoo where almost all models come with **pre-trained weights on ImageNet**.
+- 🧰 Providing APIs to export models to `.tflite` and `.onnx`.
+- 🔧 Supporting the **reparameterization** technique.
+- ✨ Integrated with **feature extraction** capability.
 
-> [!NOTE]
-> The accuracy of the converted models can be found at [results-imagenet.csv (timm)](https://github.com/huggingface/pytorch-image-models/blob/main/results/results-imagenet.csv) and [https://keras.io/api/applications/ (keras)](https://keras.io/api/applications/),
-> and the numerical differences of the converted models can be verified in `tools/convert_*.py`.
+## Usage
 
-✨ Exposing a common API identical to offcial `keras.applications.*`.
-  
-```python
-model = kimm.models.RegNetY002(
-    input_tensor: keras.KerasTensor = None,
-    input_shape: typing.Optional[typing.Sequence[int]] = None,
-    include_preprocessing: bool = True,
-    include_top: bool = True,
-    pooling: typing.Optional[str] = None,
-    dropout_rate: float = 0.0,
-    classes: int = 1000,
-    classifier_activation: str = "softmax",
-    weights: typing.Optional[str] = "imagenet",
-    name: str = "RegNetY002",
-)
-```
-
-🔥 Integrated with **feature extraction** capability.
+- `kimm.list_models`
+- `kimm.models.*.available_feature_keys`
+- `kimm.models.*(...)`
+- `kimm.models.*(..., feature_extractor=True, feature_keys=[...])`
+- `kimm.utils.get_reparameterized_model`
+- `kimm.export.export_tflite`
+- `kimm.export.export_onnx`
 
 ```python
-model = kimm.models.ConvNeXtAtto(feature_extractor=True)
+import keras
+import kimm
+import numpy as np
+
+
+# List available models
+print(kimm.list_models("mobileone", weights="imagenet"))
+# ['MobileOneS0', 'MobileOneS1', 'MobileOneS2', 'MobileOneS3']
+
+# Initialize model with pretrained ImageNet weights
 x = keras.random.uniform([1, 224, 224, 3])
+model = kimm.models.MobileOneS0()
 y = model.predict(x)
-# y becomes a dict
-for k, v in y.items():
-    print(k, v.shape)
-```
+print(y.shape)
+# (1, 1000)
 
-🧰 Providing APIs to export models to `.tflite` and `.onnx`.
-
-```python
-# tensorflow backend
-keras.backend.set_image_data_format("channels_last")
-model = kimm.models.MobileNetV3W050Small()
-kimm.export.export_tflite(model, [224, 224, 3], "model.tflite")
-```
-
-```python
-# torch backend
-keras.backend.set_image_data_format("channels_first")
-model = kimm.models.MobileNetV3W050Small()
-kimm.export.export_onnx(model, [3, 224, 224], "model.onnx")
-```
-
-> [!IMPORTANT]
-> `kimm.export.export_tflite` is currently restricted to `tensorflow` backend and `channels_last`.
-> `kimm.export.export_onnx` is currently restricted to `torch` backend and `channels_first`.
-
-🔧 Supporting the **reparameterization** technique.
-
-```python
-model = kimm.models.RepVGGA0()
+# Get reparameterized model by kimm.utils.get_reparameterized_model
 reparameterized_model = kimm.utils.get_reparameterized_model(model)
-# or
-# reparameterized_model = model.get_reparameterized_model()
-model.summary()
-# Total params: 9,132,616 (34.84 MB)
-reparameterized_model.summary()
-# Total params: 8,309,384 (31.70 MB)
-y1 = model.predict(x)
 y2 = reparameterized_model.predict(x)
-np.testing.assert_allclose(y1, y2, atol=1e-5)
+np.testing.assert_allclose(
+    keras.ops.convert_to_numpy(y), keras.ops.convert_to_numpy(y2), atol=1e-5
+)
+
+# Export model to tflite format
+kimm.export.export_tflite(reparameterized_model, 224, "model.tflite")
+
+# Export model to onnx format (note: must be "channels_first" format)
+# kimm.export.export_onnx(reparameterized_model, 224, "model.onnx")
+
+# List available feature keys of the model class
+print(kimm.models.MobileOneS0.available_feature_keys)
+# ['STEM_S2', 'BLOCK0_S4', 'BLOCK1_S8', 'BLOCK2_S16', 'BLOCK3_S32']
+
+# Enable feature extraction by setting `feature_extractor=True`
+# `feature_keys` can be optionally specified
+model = kimm.models.MobileOneS0(
+    feature_extractor=True, feature_keys=["BLOCK2_S16", "BLOCK3_S32"]
+)
+features = model.predict(x)
+for feature_name, feature in features.items():
+    print(feature_name, feature.shape)
+# BLOCK2_S16 (1, 14, 14, 256)
+# BLOCK3_S32 (1, 7, 7, 1024)
+# TOP (1, 1000)
+
 ```
 
 ## Installation
@@ -111,41 +105,13 @@ pip install keras kimm -U
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/14WxYgVjlwCIO9MwqPYW-dskbTL2UHsVN?usp=sharing)
 
-```python
-import keras
-from keras import ops
-from keras import utils
-from keras.applications.imagenet_utils import decode_predictions
+Using `kimm.models.VisionTransformerTiny16`:
 
-import kimm
-
-# Use `kimm.list_models` to get the list of available models
-print(kimm.list_models())
-
-# Specify the name and other arguments to filter the result
-print(kimm.list_models("vision_transformer", weights="imagenet"))  # fuzzy search
-
-# Initialize the model with pretrained weights
-model = kimm.models.VisionTransformerTiny16()
-image_size = (model._default_size, model._default_size)
-
-# Load an image as the model input
-image_path = keras.utils.get_file(
-    "african_elephant.jpg", "https://i.imgur.com/Bvro0YD.png"
-)
-image = utils.load_img(image_path, target_size=image_size)
-image = utils.img_to_array(image)
-x = ops.convert_to_tensor(image)
-x = ops.expand_dims(x, axis=0)
-
-# Predict
-preds = model.predict(x)
-print("Predicted:", decode_predictions(preds, top=3)[0])
-```
+<div align="center">
+<img width="50%" src="https://github.com/james77777778/keras-image-models/assets/20734616/7caa4e5e-8561-425b-aaf2-6ae44ac3ea00" alt="african_elephant">
+</div>
 
 ```bash
-['ConvMixer1024D20', 'ConvMixer1536D20', 'ConvMixer736D32', 'ConvNeXtAtto', ...]
-['VisionTransformerBase16', 'VisionTransformerBase32', 'VisionTransformerSmall16', ...]
 1/1 ━━━━━━━━━━━━━━━━━━━━ 1s 1s/step
 Predicted: [('n02504458', 'African_elephant', 0.6895825), ('n01871265', 'tusker', 0.17934209), ('n02504013', 'Indian_elephant', 0.12927249)]
 ```
@@ -171,7 +137,7 @@ Reference: [Transfer learning & fine-tuning (keras.io)](https://keras.io/guides/
 Using `kimm.models.MobileViTS`:
 
 <div align="center">
-<img width="75%" src="https://github.com/james77777778/kimm/assets/20734616/cb5022a3-aaea-4324-a9cd-3d2e63a0a6b2" alt="grad_cam">
+<img width="50%" src="https://github.com/james77777778/kimm/assets/20734616/cb5022a3-aaea-4324-a9cd-3d2e63a0a6b2" alt="grad_cam">
 </div>
 
 Reference: [Grad-CAM class activation visualization (keras.io)](https://keras.io/examples/vision/grad_cam/)

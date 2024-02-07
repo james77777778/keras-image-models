@@ -14,6 +14,7 @@
 # Keras Image Models
 
 - [Introduction](#introduction)
+- [Usage](#usage)
 - [Installation](#installation)
 - [Quickstart](#quickstart)
   - [Image classification with ImageNet weights](#image-classification-using-the-model-pretrained-on-imagenet)

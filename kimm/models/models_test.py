@@ -378,7 +378,8 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
         backend.set_image_data_format("channels_last")
         model = model_class(weights=weights)
         image_path = keras.utils.get_file(
-            "african_elephant.jpg", "https://i.imgur.com/Bvro0YD.png"
+            "elephant.png",
+            "https://github.com/james77777778/keras-image-models/releases/download/0.1.0/elephant.png",
         )
         # preprocessing
         image = utils.load_img(image_path, target_size=(image_size, image_size))
@@ -411,7 +412,8 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
         backend.set_image_data_format("channels_first")
         model = model_class(weights=weights)
         image_path = keras.utils.get_file(
-            "african_elephant.jpg", "https://i.imgur.com/Bvro0YD.png"
+            "elephant.png",
+            "https://github.com/james77777778/keras-image-models/releases/download/0.1.0/elephant.png",
         )
         # preprocessing
         image = utils.load_img(image_path, target_size=(image_size, image_size))

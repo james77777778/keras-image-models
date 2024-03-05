@@ -20,13 +20,14 @@ authors = [{ name = "Hong-Yu Chiu", email = "james77777778@gmail.com" }]
 maintainers = [{ name = "Hong-Yu Chiu", email = "james77777778@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.9"
-license = { file = "LICENSE" }
+license = { text = "Apache License 2.0" }
 classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3 :: Only",
     "Operating System :: Unix",
     "Operating System :: MacOS",

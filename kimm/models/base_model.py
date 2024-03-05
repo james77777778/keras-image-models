@@ -225,7 +225,7 @@ class BaseModel(models.Model):
 
         for _weights, _origin, _file_name in self.available_weights:
             if weights == _weights:
-                return f"{_origin}/{_file_name}"
+                return f"{_origin}{_file_name}"
 
         # Failed to find the weights
         _available_weights_name = [

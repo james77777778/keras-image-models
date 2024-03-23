@@ -96,6 +96,9 @@ def assign_weights(
         keras_weight.assign(torch_weight)
     elif tuple(keras_weight.shape) == tuple(torch_weight.shape):
         keras_weight.assign(torch_weight)
+    elif len(keras_weight.shape) == 0:  # Deal with scalar
+        if len(torch_weight.shape) == 1:
+            keras_weight.assign(torch_weight[0])
     else:
         raise ValueError(
             f"Failed to assign {keras_name}, "
@@ -111,6 +114,9 @@ def is_same_weights(
     torch_weights: np.ndarray,
 ):
     if np.sum(keras_weights.shape) != np.sum(torch_weights.shape):
+        if np.sum(keras_weights.shape) == 0:  # Deal with scalar
+            if np.sum(torch_weights.shape) == 1:
+                return True
         return False
     elif keras_name[-6:] == "kernel" and torch_name[-6:] != "weight":
         # Conv kernel

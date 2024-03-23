@@ -9,6 +9,7 @@ python3 -m tools.convert_convnext_from_timm
 python3 -m tools.convert_densenet_from_timm
 python3 -m tools.convert_efficientnet_from_timm
 python3 -m tools.convert_ghostnet_from_timm
+python3 -m tools.convert_hgnet_from_timm
 python3 -m tools.convert_inception_next_from_timm
 python3 -m tools.convert_inception_v3_from_timm
 python3 -m tools.convert_mobilenet_v2_from_timm

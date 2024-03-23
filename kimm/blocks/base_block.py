@@ -55,7 +55,8 @@ def apply_conv2d_block(
         if strides > 1:
             padding = "valid"
             x = layers.ZeroPadding2D(
-                (kernel_size[0] // 2, kernel_size[1] // 2), name=f"{name}_pad"
+                ((kernel_size[0] - 1) // 2, (kernel_size[1] - 1) // 2),
+                name=f"{name}_pad",
             )(x)
 
     if not use_depthwise:

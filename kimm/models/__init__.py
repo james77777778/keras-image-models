@@ -4,6 +4,7 @@ from kimm.models.convnext import *  # noqa:F403
 from kimm.models.densenet import *  # noqa:F403
 from kimm.models.efficientnet import *  # noqa:F403
 from kimm.models.ghostnet import *  # noqa:F403
+from kimm.models.hgnet import *  # noqa:F403
 from kimm.models.inception_next import *  # noqa:F403
 from kimm.models.inception_v3 import *  # noqa:F403
 from kimm.models.mobilenet_v2 import *  # noqa:F403

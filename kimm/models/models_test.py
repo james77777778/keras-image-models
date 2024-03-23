@@ -138,6 +138,31 @@ MODEL_CONFIGS = [
             ("BLOCK7_S32", [1, 7, 7, 160]),
         ],
     ),
+    # hgnet
+    (
+        kimm_models.HGNetTiny.__name__,
+        kimm_models.HGNetTiny,
+        224,
+        [
+            ("STEM_S4", [1, 56, 56, 96]),
+            ("BLOCK0_S4", [1, 56, 56, 224]),
+            ("BLOCK1_S8", [1, 28, 28, 448]),
+            ("BLOCK2_S16", [1, 14, 14, 512]),
+            ("BLOCK3_S32", [1, 7, 7, 768]),
+        ],
+    ),
+    (
+        kimm_models.HGNetV2B0.__name__,
+        kimm_models.HGNetV2B0,
+        224,
+        [
+            ("STEM_S4", [1, 56, 56, 16]),
+            ("BLOCK0_S4", [1, 56, 56, 64]),
+            ("BLOCK1_S8", [1, 28, 28, 256]),
+            ("BLOCK2_S16", [1, 14, 14, 512]),
+            ("BLOCK3_S32", [1, 7, 7, 1024]),
+        ],
+    ),
     # inception_next
     (
         kimm_models.InceptionNeXtTiny.__name__,

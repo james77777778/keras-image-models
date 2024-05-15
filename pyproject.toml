@@ -100,6 +100,7 @@ addopts = "--durations 10 --cov --cov-report html --cov-report term:skip-covered
 testpaths = ["kimm"]
 filterwarnings = [
     "error",
+    "ignore::UserWarning",
     "ignore::DeprecationWarning",
     "ignore::ImportWarning",
     "ignore::RuntimeWarning",

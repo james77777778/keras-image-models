@@ -630,7 +630,56 @@ class MobileViTV2(BaseModel):
         return config
 
 
-class MobileViTXXS(MobileViT):
+# Model Definition
+
+
+class MobileViTVariant(MobileViT):
+    # Parameters
+    stem_channels = None
+    head_channels = None
+    activation = None
+    config = None
+
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.1,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is MobileViTVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        super().__init__(
+            stem_channels=self.stem_channels,
+            head_channels=self.head_channels,
+            activation=self.activation,
+            config=self.config,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            **kwargs,
+        )
+
+
+class MobileViTXXS(MobileViTVariant):
     available_weights = [
         (
             "imagenet",
@@ -639,42 +688,14 @@ class MobileViTXXS(MobileViT):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: str = "v1_xxs",
-        name="MobileViTXXS",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            16,
-            320,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    stem_channels = 16
+    head_channels = 320
+    activation = "swish"
+    config = "v1_xxs"
 
 
-class MobileViTXS(MobileViT):
+class MobileViTXS(MobileViTVariant):
     available_weights = [
         (
             "imagenet",
@@ -683,42 +704,14 @@ class MobileViTXS(MobileViT):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: str = "v1_xs",
-        name="MobileViTXS",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            16,
-            384,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    stem_channels = 16
+    head_channels = 384
+    activation = "swish"
+    config = "v1_xs"
 
 
-class MobileViTS(MobileViT):
+class MobileViTS(MobileViTVariant):
     available_weights = [
         (
             "imagenet",
@@ -727,6 +720,19 @@ class MobileViTS(MobileViT):
         )
     ]
 
+    # Parameters
+    stem_channels = 16
+    head_channels = 640
+    activation = "swish"
+    config = "v1_s"
+
+
+class MobileViTV2Variant(MobileViTV2):
+    # Parameters
+    multiplier = None
+    activation = None
+    config = None
+
     def __init__(
         self,
         input_tensor: keras.KerasTensor = None,
@@ -738,16 +744,19 @@ class MobileViTS(MobileViT):
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
-        config: str = "v1_s",
-        name="MobileViTS",
+        name: typing.Optional[str] = None,
         **kwargs,
     ):
+        if type(self) is MobileViTVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
         kwargs = self.fix_config(kwargs)
         super().__init__(
-            16,
-            640,
-            "swish",
-            config,
+            multiplier=self.multiplier,
+            activation=self.activation,
+            config=self.config,
             input_tensor=input_tensor,
             input_shape=input_shape,
             include_preprocessing=include_preprocessing,
@@ -757,12 +766,12 @@ class MobileViTS(MobileViT):
             classes=classes,
             classifier_activation=classifier_activation,
             weights=weights,
-            name=name,
+            name=name or str(self.__class__.__name__),
             **kwargs,
         )
 
 
-class MobileViTV2W050(MobileViTV2):
+class MobileViTV2W050(MobileViTV2Variant):
     available_weights = [
         (
             "imagenet",
@@ -771,41 +780,13 @@ class MobileViTV2W050(MobileViTV2):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: str = "v2",
-        name="MobileViTV2W050",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            0.5,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    multiplier = 0.5
+    activation = "swish"
+    config = "v2"
 
 
-class MobileViTV2W075(MobileViTV2):
+class MobileViTV2W075(MobileViTV2Variant):
     available_weights = [
         (
             "imagenet",
@@ -814,41 +795,13 @@ class MobileViTV2W075(MobileViTV2):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: str = "v2",
-        name="MobileViTV2W075",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            0.75,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    multiplier = 0.75
+    activation = "swish"
+    config = "v2"
 
 
-class MobileViTV2W100(MobileViTV2):
+class MobileViTV2W100(MobileViTV2Variant):
     available_weights = [
         (
             "imagenet",
@@ -857,41 +810,13 @@ class MobileViTV2W100(MobileViTV2):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: str = "v2",
-        name="MobileViTV2W100",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.0,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    multiplier = 1.0
+    activation = "swish"
+    config = "v2"
 
 
-class MobileViTV2W125(MobileViTV2):
+class MobileViTV2W125(MobileViTV2Variant):
     available_weights = [
         (
             "imagenet",
@@ -900,41 +825,13 @@ class MobileViTV2W125(MobileViTV2):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: str = "v2",
-        name="MobileViTV2W125",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.25,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    multiplier = 1.25
+    activation = "swish"
+    config = "v2"
 
 
-class MobileViTV2W150(MobileViTV2):
+class MobileViTV2W150(MobileViTV2Variant):
     available_weights = [
         (
             "imagenet",
@@ -943,41 +840,13 @@ class MobileViTV2W150(MobileViTV2):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: str = "v2",
-        name="MobileViTV2W150",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.5,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    multiplier = 1.5
+    activation = "swish"
+    config = "v2"
 
 
-class MobileViTV2W175(MobileViTV2):
+class MobileViTV2W175(MobileViTV2Variant):
     available_weights = [
         (
             "imagenet",
@@ -986,41 +855,13 @@ class MobileViTV2W175(MobileViTV2):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: str = "v2",
-        name="MobileViTV2W175",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.75,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    multiplier = 1.75
+    activation = "swish"
+    config = "v2"
 
 
-class MobileViTV2W200(MobileViTV2):
+class MobileViTV2W200(MobileViTV2Variant):
     available_weights = [
         (
             "imagenet",
@@ -1029,38 +870,10 @@ class MobileViTV2W200(MobileViTV2):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: str = "v2",
-        name="MobileViTV2W200",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            2.0,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    multiplier = 2.0
+    activation = "swish"
+    config = "v2"
 
 
 add_model_to_registry(MobileViTXXS, "imagenet")

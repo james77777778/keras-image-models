@@ -253,12 +253,58 @@ class InceptionNeXt(BaseModel):
         return config
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class InceptionNeXtTiny(InceptionNeXt):
+class InceptionNeXtVariant(InceptionNeXt):
+    # Parameters
+    depths = None
+    hidden_channels = None
+    mlp_ratios = None
+    activation = None
+
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is InceptionNeXtVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        if hasattr(self, "default_size"):
+            kwargs["default_size"] = self.default_size
+        super().__init__(
+            depths=self.depths,
+            hidden_channels=self.hidden_channels,
+            mlp_ratios=self.mlp_ratios,
+            activation=self.activation,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            **kwargs,
+        )
+
+
+class InceptionNeXtTiny(InceptionNeXtVariant):
     available_weights = [
         (
             "imagenet",
@@ -267,41 +313,14 @@ class InceptionNeXtTiny(InceptionNeXt):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "InceptionNeXtTiny",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            (3, 3, 9, 3),
-            (96, 192, 384, 768),
-            (4, 4, 4, 3),
-            "gelu",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depths = (3, 3, 9, 3)
+    hidden_channels = (96, 192, 384, 768)
+    mlp_ratios = (4, 4, 4, 3)
+    activation = "gelu"
 
 
-class InceptionNeXtSmall(InceptionNeXt):
+class InceptionNeXtSmall(InceptionNeXtVariant):
     available_weights = [
         (
             "imagenet",
@@ -310,41 +329,14 @@ class InceptionNeXtSmall(InceptionNeXt):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "InceptionNeXtSmall",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            (3, 3, 27, 3),
-            (96, 192, 384, 768),
-            (4, 4, 4, 3),
-            "gelu",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depths = (3, 3, 27, 3)
+    hidden_channels = (96, 192, 384, 768)
+    mlp_ratios = (4, 4, 4, 3)
+    activation = "gelu"
 
 
-class InceptionNeXtBase(InceptionNeXt):
+class InceptionNeXtBase(InceptionNeXtVariant):
     available_weights = [
         (
             "imagenet",
@@ -353,39 +345,12 @@ class InceptionNeXtBase(InceptionNeXt):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "InceptionNeXtBase",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            (3, 3, 27, 3),
-            (128, 256, 512, 1024),
-            (4, 4, 4, 3),
-            "gelu",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=384,
-            **kwargs,
-        )
+    # Parameters
+    depths = (3, 3, 27, 3)
+    hidden_channels = (128, 256, 512, 1024)
+    mlp_ratios = (4, 4, 4, 3)
+    activation = "gelu"
+    default_size = 384
 
 
 add_model_to_registry(InceptionNeXtTiny, "imagenet")

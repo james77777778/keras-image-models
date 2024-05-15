@@ -551,12 +551,50 @@ class HGNet(BaseModel):
         return config
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class HGNetTiny(HGNet):
+class HGNetVariant(HGNet):
+    # Parameters
+    config = None
+
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is HGNetVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        super().__init__(
+            config=self.config,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            **kwargs,
+        )
+
+
+class HGNetTiny(HGNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -565,38 +603,11 @@ class HGNetTiny(HGNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "HGNetTiny",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            config="v1_tiny",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    config = "v1_tiny"
 
 
-class HGNetSmall(HGNet):
+class HGNetSmall(HGNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -605,38 +616,11 @@ class HGNetSmall(HGNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "HGNetSmall",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            config="v1_small",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    config = "v1_small"
 
 
-class HGNetBase(HGNet):
+class HGNetBase(HGNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -645,38 +629,11 @@ class HGNetBase(HGNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "HGNetBase",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            config="v1_base",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    config = "v1_base"
 
 
-class HGNetV2B0(HGNet):
+class HGNetV2B0(HGNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -685,38 +642,11 @@ class HGNetV2B0(HGNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "HGNetV2B0",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            config="v2_b0",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    config = "v2_b0"
 
 
-class HGNetV2B1(HGNet):
+class HGNetV2B1(HGNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -725,38 +655,11 @@ class HGNetV2B1(HGNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "HGNetV2B1",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            config="v2_b1",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    config = "v2_b1"
 
 
-class HGNetV2B2(HGNet):
+class HGNetV2B2(HGNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -765,38 +668,11 @@ class HGNetV2B2(HGNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "HGNetV2B2",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            config="v2_b2",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    config = "v2_b2"
 
 
-class HGNetV2B3(HGNet):
+class HGNetV2B3(HGNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -805,38 +681,11 @@ class HGNetV2B3(HGNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "HGNetV2B3",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            config="v2_b3",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    config = "v2_b3"
 
 
-class HGNetV2B4(HGNet):
+class HGNetV2B4(HGNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -845,38 +694,11 @@ class HGNetV2B4(HGNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "HGNetV2B4",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            config="v2_b4",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    config = "v2_b4"
 
 
-class HGNetV2B5(HGNet):
+class HGNetV2B5(HGNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -885,38 +707,11 @@ class HGNetV2B5(HGNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "HGNetV2B5",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            config="v2_b5",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    config = "v2_b5"
 
 
-class HGNetV2B6(HGNet):
+class HGNetV2B6(HGNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -925,35 +720,8 @@ class HGNetV2B6(HGNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "HGNetV2B6",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            config="v2_b6",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    config = "v2_b6"
 
 
 add_model_to_registry(HGNetTiny, "imagenet")

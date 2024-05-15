@@ -309,6 +309,9 @@ class InceptionV3Base(BaseModel):
         return config
 
 
+# Model Definition
+
+
 class InceptionV3(InceptionV3Base):
     available_weights = [
         (

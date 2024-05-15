@@ -196,12 +196,52 @@ class ResNet(BaseModel):
         return config
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class ResNet18(ResNet):
+class ResNetVariant(ResNet):
+    # Parameters
+    block_fn = None
+    num_blocks = None
+
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is ResNetVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        super().__init__(
+            block_fn=self.block_fn,
+            num_blocks=self.num_blocks,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            **kwargs,
+        )
+
+
+class ResNet18(ResNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -210,39 +250,12 @@ class ResNet18(ResNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ResNet18",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            "basic",
-            [2, 2, 2, 2],
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    block_fn = "basic"
+    num_blocks = [2, 2, 2, 2]
 
 
-class ResNet34(ResNet):
+class ResNet34(ResNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -251,39 +264,12 @@ class ResNet34(ResNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ResNet34",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            "basic",
-            [3, 4, 6, 3],
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    block_fn = "basic"
+    num_blocks = [3, 4, 6, 3]
 
 
-class ResNet50(ResNet):
+class ResNet50(ResNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -292,39 +278,12 @@ class ResNet50(ResNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ResNet50",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            "bottleneck",
-            [3, 4, 6, 3],
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    block_fn = "bottleneck"
+    num_blocks = [3, 4, 6, 3]
 
 
-class ResNet101(ResNet):
+class ResNet101(ResNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -333,39 +292,12 @@ class ResNet101(ResNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ResNet101",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            "bottleneck",
-            [3, 4, 23, 3],
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    block_fn = "bottleneck"
+    num_blocks = [3, 4, 23, 3]
 
 
-class ResNet152(ResNet):
+class ResNet152(ResNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -374,36 +306,9 @@ class ResNet152(ResNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ResNet152",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            "bottleneck",
-            [3, 8, 36, 3],
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    block_fn = "bottleneck"
+    num_blocks = [3, 8, 36, 3]
 
 
 add_model_to_registry(ResNet18, "imagenet")

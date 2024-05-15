@@ -248,12 +248,62 @@ class ConvNeXt(BaseModel):
         return config
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class ConvNeXtAtto(ConvNeXt):
+class ConvNeXtVariant(ConvNeXt):
+    # Parameters
+    depths = None
+    hidden_channels = None
+    patch_size = None
+    kernel_size = None
+    activation = None
+    use_conv_mlp = None
+
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is ConvNeXtVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        if len(getattr(self, "available_weights", [])) == 0:
+            weights = None
+        super().__init__(
+            depths=self.depths,
+            hidden_channels=self.hidden_channels,
+            patch_size=self.patch_size,
+            kernel_size=self.kernel_size,
+            activation=self.activation,
+            use_conv_mlp=self.use_conv_mlp,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            **kwargs,
+        )
+
+
+class ConvNeXtAtto(ConvNeXtVariant):
     available_weights = [
         (
             "imagenet",
@@ -262,43 +312,16 @@ class ConvNeXtAtto(ConvNeXt):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ConvNeXtAtto",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            (2, 2, 6, 2),
-            (40, 80, 160, 320),
-            4,
-            7,
-            "gelu",
-            True,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depths = (2, 2, 6, 2)
+    hidden_channels = (40, 80, 160, 320)
+    patch_size = 4
+    kernel_size = 7
+    activation = "gelu"
+    use_conv_mlp = True
 
 
-class ConvNeXtFemto(ConvNeXt):
+class ConvNeXtFemto(ConvNeXtVariant):
     available_weights = [
         (
             "imagenet",
@@ -307,43 +330,16 @@ class ConvNeXtFemto(ConvNeXt):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ConvNeXtFemto",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            (2, 2, 6, 2),
-            (48, 96, 192, 384),
-            4,
-            7,
-            "gelu",
-            True,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depths = (2, 2, 6, 2)
+    hidden_channels = (48, 96, 192, 384)
+    patch_size = 4
+    kernel_size = 7
+    activation = "gelu"
+    use_conv_mlp = True
 
 
-class ConvNeXtPico(ConvNeXt):
+class ConvNeXtPico(ConvNeXtVariant):
     available_weights = [
         (
             "imagenet",
@@ -352,43 +348,16 @@ class ConvNeXtPico(ConvNeXt):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ConvNeXtPico",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            (2, 2, 6, 2),
-            (64, 128, 256, 512),
-            4,
-            7,
-            "gelu",
-            True,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depths = (2, 2, 6, 2)
+    hidden_channels = (64, 128, 256, 512)
+    patch_size = 4
+    kernel_size = 7
+    activation = "gelu"
+    use_conv_mlp = True
 
 
-class ConvNeXtNano(ConvNeXt):
+class ConvNeXtNano(ConvNeXtVariant):
     available_weights = [
         (
             "imagenet",
@@ -397,43 +366,16 @@ class ConvNeXtNano(ConvNeXt):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ConvNeXtNano",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            (2, 2, 8, 2),
-            (80, 160, 320, 640),
-            4,
-            7,
-            "gelu",
-            True,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depths = (2, 2, 8, 2)
+    hidden_channels = (80, 160, 320, 640)
+    patch_size = 4
+    kernel_size = 7
+    activation = "gelu"
+    use_conv_mlp = True
 
 
-class ConvNeXtTiny(ConvNeXt):
+class ConvNeXtTiny(ConvNeXtVariant):
     available_weights = [
         (
             "imagenet",
@@ -442,43 +384,16 @@ class ConvNeXtTiny(ConvNeXt):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ConvNeXtTiny",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            (3, 3, 9, 3),
-            (96, 192, 384, 768),
-            4,
-            7,
-            "gelu",
-            False,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depths = (3, 3, 9, 3)
+    hidden_channels = (96, 192, 384, 768)
+    patch_size = 4
+    kernel_size = 7
+    activation = "gelu"
+    use_conv_mlp = False
 
 
-class ConvNeXtSmall(ConvNeXt):
+class ConvNeXtSmall(ConvNeXtVariant):
     available_weights = [
         (
             "imagenet",
@@ -487,43 +402,16 @@ class ConvNeXtSmall(ConvNeXt):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ConvNeXtSmall",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            (3, 3, 27, 3),
-            (96, 192, 384, 768),
-            4,
-            7,
-            "gelu",
-            False,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depths = (3, 3, 27, 3)
+    hidden_channels = (96, 192, 384, 768)
+    patch_size = 4
+    kernel_size = 7
+    activation = "gelu"
+    use_conv_mlp = False
 
 
-class ConvNeXtBase(ConvNeXt):
+class ConvNeXtBase(ConvNeXtVariant):
     available_weights = [
         (
             "imagenet",
@@ -532,43 +420,16 @@ class ConvNeXtBase(ConvNeXt):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ConvNeXtBase",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            (3, 3, 27, 3),
-            (128, 256, 512, 1024),
-            4,
-            7,
-            "gelu",
-            False,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depths = (3, 3, 27, 3)
+    hidden_channels = (128, 256, 512, 1024)
+    patch_size = 4
+    kernel_size = 7
+    activation = "gelu"
+    use_conv_mlp = False
 
 
-class ConvNeXtLarge(ConvNeXt):
+class ConvNeXtLarge(ConvNeXtVariant):
     available_weights = [
         (
             "imagenet",
@@ -577,79 +438,25 @@ class ConvNeXtLarge(ConvNeXt):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ConvNeXtLarge",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            (3, 3, 27, 3),
-            (192, 384, 768, 1536),
-            4,
-            7,
-            "gelu",
-            False,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depths = (3, 3, 27, 3)
+    hidden_channels = (192, 384, 768, 1536)
+    patch_size = 4
+    kernel_size = 7
+    activation = "gelu"
+    use_conv_mlp = False
 
 
-class ConvNeXtXLarge(ConvNeXt):
+class ConvNeXtXLarge(ConvNeXtVariant):
     available_weights = []
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        name: str = "ConvNeXtXLarge",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            (3, 3, 27, 3),
-            (256, 512, 1024, 2048),
-            4,
-            7,
-            "gelu",
-            False,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depths = (3, 3, 27, 3)
+    hidden_channels = (256, 512, 1024, 2048)
+    patch_size = 4
+    kernel_size = 7
+    activation = "gelu"
+    use_conv_mlp = False
 
 
 add_model_to_registry(ConvNeXtAtto, "imagenet")

@@ -58,6 +58,8 @@ tests = [
     "pytest",
     "pytest-cov",
     "coverage",
+    # tool
+    "pre-commit",
 ]
 examples = ["opencv-python", "matplotlib"]
 
@@ -107,7 +109,7 @@ filterwarnings = [
 
 [tool.coverage.run]
 source = ["kimm"]
-omit = ["**/__init__.py", "*test*", "kimm/utils/timm_utils.py"]
+omit = ["**/__init__.py", "*test*"]
 
 [tool.coverage.report]
 exclude_lines = [

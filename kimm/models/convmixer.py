@@ -134,12 +134,58 @@ class ConvMixer(BaseModel):
         return config
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class ConvMixer736D32(ConvMixer):
+class ConvMixerVariant(ConvMixer):
+    # Parameters
+    depth = None
+    hidden_channels = None
+    patch_size = None
+    kernel_size = None
+    activation = None
+
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is ConvMixerVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        super().__init__(
+            depth=self.depth,
+            hidden_channels=self.hidden_channels,
+            patch_size=self.patch_size,
+            kernel_size=self.kernel_size,
+            activation=self.activation,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            **kwargs,
+        )
+
+
+class ConvMixer736D32(ConvMixerVariant):
     available_feature_keys = ["STEM", *[f"BLOCK{i}" for i in range(32)]]
     available_weights = [
         (
@@ -149,42 +195,15 @@ class ConvMixer736D32(ConvMixer):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ConvMixer736D32",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            32,
-            768,
-            7,
-            7,
-            "relu",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depth = 32
+    hidden_channels = 768
+    patch_size = 7
+    kernel_size = 7
+    activation = "relu"
 
 
-class ConvMixer1024D20(ConvMixer):
+class ConvMixer1024D20(ConvMixerVariant):
     available_feature_keys = ["STEM", *[f"BLOCK{i}" for i in range(20)]]
     available_weights = [
         (
@@ -194,42 +213,15 @@ class ConvMixer1024D20(ConvMixer):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ConvMixer1024D20",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            20,
-            1024,
-            14,
-            9,
-            "gelu",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depth = 20
+    hidden_channels = 1024
+    patch_size = 14
+    kernel_size = 9
+    activation = "gelu"
 
 
-class ConvMixer1536D20(ConvMixer):
+class ConvMixer1536D20(ConvMixerVariant):
     available_feature_keys = ["STEM", *[f"BLOCK{i}" for i in range(20)]]
     available_weights = [
         (
@@ -239,39 +231,12 @@ class ConvMixer1536D20(ConvMixer):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "ConvMixer1536D20",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            20,
-            1536,
-            7,
-            9,
-            "gelu",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    depth = 20
+    hidden_channels = 1536
+    patch_size = 7
+    kernel_size = 9
+    activation = "gelu"
 
 
 add_model_to_registry(ConvMixer736D32, "imagenet")

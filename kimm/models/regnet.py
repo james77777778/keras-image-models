@@ -232,12 +232,60 @@ class RegNet(BaseModel):
         return config
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class RegNetX002(RegNet):
+class RegNetVariant(RegNet):
+    # Parameters
+    w0 = None
+    wa = None
+    wm = None
+    group_size = None
+    depth = None
+    se_ratio = None
+
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is RegNetVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        super().__init__(
+            w0=self.w0,
+            wa=self.wa,
+            wm=self.wm,
+            group_size=self.group_size,
+            depth=self.depth,
+            se_ratio=self.se_ratio,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            **kwargs,
+        )
+
+
+class RegNetX002(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -246,42 +294,16 @@ class RegNetX002(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetX002",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            24,
-            36.44,
-            2.49,
-            8,
-            13,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 24
+    wa = 36.44
+    wm = 2.49
+    group_size = 8
+    depth = 13
+    se_ratio = 0.0
 
 
-class RegNetY002(RegNet):
+class RegNetY002(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -290,43 +312,16 @@ class RegNetY002(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetY002",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            24,
-            36.44,
-            2.49,
-            8,
-            13,
-            0.25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 24
+    wa = 36.44
+    wm = 2.49
+    group_size = 8
+    depth = 13
+    se_ratio = 0.25
 
 
-class RegNetX004(RegNet):
+class RegNetX004(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -335,42 +330,16 @@ class RegNetX004(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetX004",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            24,
-            24.48,
-            2.54,
-            16,
-            22,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 24
+    wa = 24.48
+    wm = 2.54
+    group_size = 16
+    depth = 22
+    se_ratio = 0.0
 
 
-class RegNetY004(RegNet):
+class RegNetY004(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -379,43 +348,16 @@ class RegNetY004(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetY004",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            48,
-            27.89,
-            2.09,
-            8,
-            16,
-            0.25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 48
+    wa = 27.89
+    wm = 2.09
+    group_size = 8
+    depth = 16
+    se_ratio = 0.25
 
 
-class RegNetX006(RegNet):
+class RegNetX006(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -424,42 +366,16 @@ class RegNetX006(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetX006",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            48,
-            36.97,
-            2.24,
-            24,
-            16,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 48
+    wa = 36.97
+    wm = 2.24
+    group_size = 24
+    depth = 16
+    se_ratio = 0.0
 
 
-class RegNetY006(RegNet):
+class RegNetY006(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -468,43 +384,16 @@ class RegNetY006(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetY006",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            48,
-            32.54,
-            2.32,
-            16,
-            15,
-            0.25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 48
+    wa = 32.54
+    wm = 2.32
+    group_size = 16
+    depth = 15
+    se_ratio = 0.25
 
 
-class RegNetX008(RegNet):
+class RegNetX008(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -513,42 +402,16 @@ class RegNetX008(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetX008",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            56,
-            35.73,
-            2.28,
-            16,
-            16,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 56
+    wa = 35.73
+    wm = 2.28
+    group_size = 16
+    depth = 16
+    se_ratio = 0.0
 
 
-class RegNetY008(RegNet):
+class RegNetY008(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -557,43 +420,16 @@ class RegNetY008(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetY008",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            56,
-            38.84,
-            2.4,
-            16,
-            14,
-            0.25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 56
+    wa = 38.84
+    wm = 2.4
+    group_size = 16
+    depth = 14
+    se_ratio = 0.25
 
 
-class RegNetX016(RegNet):
+class RegNetX016(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -602,42 +438,16 @@ class RegNetX016(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetX016",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            80,
-            34.01,
-            2.25,
-            24,
-            18,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 80
+    wa = 34.01
+    wm = 2.25
+    group_size = 24
+    depth = 18
+    se_ratio = 0.0
 
 
-class RegNetY016(RegNet):
+class RegNetY016(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -646,43 +456,16 @@ class RegNetY016(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetY016",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            48,
-            20.71,
-            2.65,
-            24,
-            27,
-            0.25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 48
+    wa = 20.71
+    wm = 2.65
+    group_size = 24
+    depth = 27
+    se_ratio = 0.25
 
 
-class RegNetX032(RegNet):
+class RegNetX032(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -691,42 +474,16 @@ class RegNetX032(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetX032",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            88,
-            26.31,
-            2.25,
-            48,
-            25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 88
+    wa = 26.31
+    wm = 2.25
+    group_size = 48
+    depth = 25
+    se_ratio = 0.0
 
 
-class RegNetY032(RegNet):
+class RegNetY032(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -735,43 +492,16 @@ class RegNetY032(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetY032",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            80,
-            42.63,
-            2.66,
-            24,
-            21,
-            0.25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 80
+    wa = 42.63
+    wm = 2.66
+    group_size = 24
+    depth = 21
+    se_ratio = 0.25
 
 
-class RegNetX040(RegNet):
+class RegNetX040(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -780,42 +510,16 @@ class RegNetX040(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetX040",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            96,
-            38.65,
-            2.43,
-            40,
-            23,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 96
+    wa = 38.65
+    wm = 2.43
+    group_size = 40
+    depth = 23
+    se_ratio = 0.0
 
 
-class RegNetY040(RegNet):
+class RegNetY040(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -824,43 +528,16 @@ class RegNetY040(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetY040",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            96,
-            31.41,
-            2.24,
-            64,
-            22,
-            0.25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 96
+    wa = 31.41
+    wm = 2.24
+    group_size = 64
+    depth = 22
+    se_ratio = 0.25
 
 
-class RegNetX064(RegNet):
+class RegNetX064(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -869,42 +546,16 @@ class RegNetX064(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetX064",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            184,
-            60.83,
-            2.07,
-            56,
-            17,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 184
+    wa = 60.83
+    wm = 2.07
+    group_size = 56
+    depth = 17
+    se_ratio = 0.0
 
 
-class RegNetY064(RegNet):
+class RegNetY064(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -913,43 +564,16 @@ class RegNetY064(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetY064",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            112,
-            33.22,
-            2.27,
-            72,
-            25,
-            0.25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 112
+    wa = 33.22
+    wm = 2.27
+    group_size = 72
+    depth = 25
+    se_ratio = 0.25
 
 
-class RegNetX080(RegNet):
+class RegNetX080(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -958,42 +582,16 @@ class RegNetX080(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetX080",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            80,
-            49.56,
-            2.88,
-            120,
-            23,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 80
+    wa = 49.56
+    wm = 2.88
+    group_size = 120
+    depth = 23
+    se_ratio = 0.0
 
 
-class RegNetY080(RegNet):
+class RegNetY080(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1002,43 +600,16 @@ class RegNetY080(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetY080",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            192,
-            76.82,
-            2.19,
-            56,
-            17,
-            0.25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 192
+    wa = 76.82
+    wm = 2.19
+    group_size = 56
+    depth = 17
+    se_ratio = 0.25
 
 
-class RegNetX120(RegNet):
+class RegNetX120(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1047,42 +618,16 @@ class RegNetX120(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetX120",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            168,
-            73.36,
-            2.37,
-            112,
-            19,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 168
+    wa = 73.36
+    wm = 2.37
+    group_size = 112
+    depth = 19
+    se_ratio = 0.0
 
 
-class RegNetY120(RegNet):
+class RegNetY120(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1091,43 +636,16 @@ class RegNetY120(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetY120",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            168,
-            73.36,
-            2.37,
-            112,
-            19,
-            0.25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 168
+    wa = 73.36
+    wm = 2.37
+    group_size = 112
+    depth = 19
+    se_ratio = 0.25
 
 
-class RegNetX160(RegNet):
+class RegNetX160(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1136,42 +654,16 @@ class RegNetX160(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetX160",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            216,
-            55.59,
-            2.1,
-            128,
-            22,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 216
+    wa = 55.59
+    wm = 2.1
+    group_size = 128
+    depth = 22
+    se_ratio = 0.0
 
 
-class RegNetY160(RegNet):
+class RegNetY160(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1180,43 +672,16 @@ class RegNetY160(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetY160",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            200,
-            106.23,
-            2.48,
-            112,
-            18,
-            0.25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 200
+    wa = 106.23
+    wm = 2.48
+    group_size = 112
+    depth = 18
+    se_ratio = 0.25
 
 
-class RegNetX320(RegNet):
+class RegNetX320(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1225,42 +690,16 @@ class RegNetX320(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetX320",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            320,
-            69.86,
-            2.0,
-            168,
-            23,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 320
+    wa = 69.86
+    wm = 2.0
+    group_size = 168
+    depth = 23
+    se_ratio = 0.0
 
 
-class RegNetY320(RegNet):
+class RegNetY320(RegNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1269,40 +708,13 @@ class RegNetY320(RegNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RegNetY320",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            232,
-            115.89,
-            2.53,
-            232,
-            20,
-            0.25,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    w0 = 232
+    wa = 115.89
+    wm = 2.53
+    group_size = 232
+    depth = 20
+    se_ratio = 0.25
 
 
 add_model_to_registry(RegNetX002, "imagenet")

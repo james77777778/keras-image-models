@@ -2,16 +2,18 @@ import keras
 import pytest
 import tensorflow as tf
 from absl.testing import parameterized
+from keras import applications
 from keras import backend
 from keras import models
 from keras import ops
 from keras import random
 from keras import utils
-from keras.applications.imagenet_utils import decode_predictions
 from keras.src import testing
 
 from kimm import models as kimm_models
 from kimm.utils import make_divisible
+
+decode_predictions = applications.imagenet_utils.decode_predictions
 
 # name, class, default_size, features (name, shape),
 # weights (defaults to imagenet)

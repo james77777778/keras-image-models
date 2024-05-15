@@ -1,4 +1,5 @@
 import typing
+import warnings
 
 import keras
 from keras import backend
@@ -398,7 +399,7 @@ class GhostNetVariant(GhostNet):
         dropout_rate: float = 0.2,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
+        weights: typing.Optional[str] = "imagenet",
         name: typing.Optional[str] = None,
         **kwargs,
     ):
@@ -409,6 +410,10 @@ class GhostNetVariant(GhostNet):
             )
         kwargs = self.fix_config(kwargs)
         if len(getattr(self, "available_weights", [])) == 0:
+            warnings.warn(
+                f"{self.__class__.__name__} doesn't have pretrained weights "
+                f"for '{weights}'."
+            )
             weights = None
         super().__init__(
             width=self.width,

@@ -1,5 +1,6 @@
 import math
 import typing
+import warnings
 
 import keras
 from keras import layers
@@ -335,6 +336,10 @@ class MobileNetV3Variant(MobileNetV3):
         if hasattr(self, "padding"):
             kwargs["padding"] = self.padding
         if len(getattr(self, "available_weights", [])) == 0:
+            warnings.warn(
+                f"{self.__class__.__name__} doesn't have pretrained weights "
+                f"for '{weights}'."
+            )
             weights = None
         super().__init__(
             width=self.width,

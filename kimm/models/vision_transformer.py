@@ -1,4 +1,5 @@
 import typing
+import warnings
 
 import keras
 from keras import backend
@@ -176,6 +177,10 @@ class VisionTransformerVariant(VisionTransformer):
             )
         kwargs = self.fix_config(kwargs)
         if len(getattr(self, "available_weights", [])) == 0:
+            warnings.warn(
+                f"{self.__class__.__name__} doesn't have pretrained weights "
+                f"for '{weights}'."
+            )
             weights = None
         super().__init__(
             patch_size=self.patch_size,

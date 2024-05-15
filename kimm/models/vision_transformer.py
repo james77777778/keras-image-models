@@ -1,4 +1,5 @@
 import typing
+import warnings
 
 import keras
 from keras import backend
@@ -141,12 +142,70 @@ class VisionTransformer(BaseModel):
         return config
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class VisionTransformerTiny16(VisionTransformer):
+class VisionTransformerVariant(VisionTransformer):
+    # Parameters
+    patch_size = None
+    embed_dim = None
+    depth = None
+    num_heads = None
+    mlp_ratio = None
+    use_qkv_bias = None
+    use_qk_norm = None
+    pos_dropout_rate = None
+
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.1,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is VisionTransformerVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        if len(getattr(self, "available_weights", [])) == 0:
+            warnings.warn(
+                f"{self.__class__.__name__} doesn't have pretrained weights "
+                f"for '{weights}'."
+            )
+            weights = None
+        super().__init__(
+            patch_size=self.patch_size,
+            embed_dim=self.embed_dim,
+            depth=self.depth,
+            num_heads=self.num_heads,
+            mlp_ratio=self.mlp_ratio,
+            use_qkv_bias=self.use_qkv_bias,
+            use_qk_norm=self.use_qk_norm,
+            pos_dropout_rate=self.pos_dropout_rate,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            **kwargs,
+        )
+
+
+class VisionTransformerTiny16(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
         *[f"BLOCK{i}" for i in range(12)],
@@ -159,98 +218,36 @@ class VisionTransformerTiny16(VisionTransformer):
         )
     ]
 
-    def __init__(
-        self,
-        mlp_ratio: float = 4.0,
-        use_qkv_bias: bool = True,
-        use_qk_norm: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        pos_dropout_rate: float = 0.0,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "VisionTransformerTiny16",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            16,
-            192,
-            12,
-            3,
-            mlp_ratio,
-            use_qkv_bias,
-            use_qk_norm,
-            pos_dropout_rate,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    patch_size = 16
+    embed_dim = 192
+    depth = 12
+    num_heads = 3
+    mlp_ratio = 4.0
+    use_qkv_bias = True
+    use_qk_norm = False
+    pos_dropout_rate = 0.0
 
 
-class VisionTransformerTiny32(VisionTransformer):
+class VisionTransformerTiny32(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
         *[f"BLOCK{i}" for i in range(12)],
     ]
     available_weights = []
 
-    def __init__(
-        self,
-        mlp_ratio: float = 4.0,
-        use_qkv_bias: bool = True,
-        use_qk_norm: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        pos_dropout_rate: float = 0.0,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        name: str = "VisionTransformerTiny32",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            32,
-            192,
-            12,
-            3,
-            mlp_ratio,
-            use_qkv_bias,
-            use_qk_norm,
-            pos_dropout_rate,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    patch_size = 32
+    embed_dim = 192
+    depth = 12
+    num_heads = 3
+    mlp_ratio = 4.0
+    use_qkv_bias = True
+    use_qk_norm = False
+    pos_dropout_rate = 0.0
 
 
-class VisionTransformerSmall16(VisionTransformer):
+class VisionTransformerSmall16(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
         *[f"BLOCK{i}" for i in range(12)],
@@ -263,49 +260,18 @@ class VisionTransformerSmall16(VisionTransformer):
         )
     ]
 
-    def __init__(
-        self,
-        mlp_ratio: float = 4.0,
-        use_qkv_bias: bool = True,
-        use_qk_norm: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        pos_dropout_rate: float = 0.0,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "VisionTransformerSmall16",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            16,
-            384,
-            12,
-            6,
-            mlp_ratio,
-            use_qkv_bias,
-            use_qk_norm,
-            pos_dropout_rate,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    patch_size = 16
+    embed_dim = 384
+    depth = 12
+    num_heads = 6
+    mlp_ratio = 4.0
+    use_qkv_bias = True
+    use_qk_norm = False
+    pos_dropout_rate = 0.0
 
 
-class VisionTransformerSmall32(VisionTransformer):
+class VisionTransformerSmall32(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
         *[f"BLOCK{i}" for i in range(12)],
@@ -318,49 +284,18 @@ class VisionTransformerSmall32(VisionTransformer):
         )
     ]
 
-    def __init__(
-        self,
-        mlp_ratio: float = 4.0,
-        use_qkv_bias: bool = True,
-        use_qk_norm: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        pos_dropout_rate: float = 0.0,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "VisionTransformerSmall32",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            32,
-            384,
-            12,
-            6,
-            mlp_ratio,
-            use_qkv_bias,
-            use_qk_norm,
-            pos_dropout_rate,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    patch_size = 32
+    embed_dim = 384
+    depth = 12
+    num_heads = 6
+    mlp_ratio = 4.0
+    use_qkv_bias = True
+    use_qk_norm = False
+    pos_dropout_rate = 0.0
 
 
-class VisionTransformerBase16(VisionTransformer):
+class VisionTransformerBase16(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
         *[f"BLOCK{i}" for i in range(12)],
@@ -373,49 +308,18 @@ class VisionTransformerBase16(VisionTransformer):
         )
     ]
 
-    def __init__(
-        self,
-        mlp_ratio: float = 4.0,
-        use_qkv_bias: bool = True,
-        use_qk_norm: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        pos_dropout_rate: float = 0.0,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "VisionTransformerBase16",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            16,
-            768,
-            12,
-            12,
-            mlp_ratio,
-            use_qkv_bias,
-            use_qk_norm,
-            pos_dropout_rate,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    patch_size = 16
+    embed_dim = 768
+    depth = 12
+    num_heads = 12
+    mlp_ratio = 4.0
+    use_qkv_bias = True
+    use_qk_norm = False
+    pos_dropout_rate = 0.0
 
 
-class VisionTransformerBase32(VisionTransformer):
+class VisionTransformerBase32(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
         *[f"BLOCK{i}" for i in range(12)],
@@ -428,144 +332,51 @@ class VisionTransformerBase32(VisionTransformer):
         )
     ]
 
-    def __init__(
-        self,
-        mlp_ratio: float = 4.0,
-        use_qkv_bias: bool = True,
-        use_qk_norm: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        pos_dropout_rate: float = 0.0,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "VisionTransformerBase32",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            32,
-            768,
-            12,
-            12,
-            mlp_ratio,
-            use_qkv_bias,
-            use_qk_norm,
-            pos_dropout_rate,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    patch_size = 32
+    embed_dim = 768
+    depth = 12
+    num_heads = 12
+    mlp_ratio = 4.0
+    use_qkv_bias = True
+    use_qk_norm = False
+    pos_dropout_rate = 0.0
 
 
-class VisionTransformerLarge16(VisionTransformer):
+class VisionTransformerLarge16(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
         *[f"BLOCK{i}" for i in range(24)],
     ]
     available_weights = []
 
-    def __init__(
-        self,
-        mlp_ratio: float = 4.0,
-        use_qkv_bias: bool = True,
-        use_qk_norm: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        pos_dropout_rate: float = 0.0,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        name: str = "VisionTransformerLarge16",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            16,
-            1024,
-            24,
-            16,
-            mlp_ratio,
-            use_qkv_bias,
-            use_qk_norm,
-            pos_dropout_rate,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    patch_size = 16
+    embed_dim = 1024
+    depth = 24
+    num_heads = 16
+    mlp_ratio = 4.0
+    use_qkv_bias = True
+    use_qk_norm = False
+    pos_dropout_rate = 0.0
 
 
-class VisionTransformerLarge32(VisionTransformer):
+class VisionTransformerLarge32(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
         *[f"BLOCK{i}" for i in range(24)],
     ]
     available_weights = []
 
-    def __init__(
-        self,
-        mlp_ratio: float = 4.0,
-        use_qkv_bias: bool = True,
-        use_qk_norm: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        pos_dropout_rate: float = 0.0,
-        dropout_rate: float = 0.1,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        name: str = "VisionTransformerLarge32",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            32,
-            1024,
-            24,
-            16,
-            mlp_ratio,
-            use_qkv_bias,
-            use_qk_norm,
-            pos_dropout_rate,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    patch_size = 32
+    embed_dim = 1024
+    depth = 24
+    num_heads = 16
+    mlp_ratio = 4.0
+    use_qkv_bias = True
+    use_qk_norm = False
+    pos_dropout_rate = 0.0
 
 
 add_model_to_registry(VisionTransformerTiny16, "imagenet")

@@ -319,12 +319,75 @@ class EfficientNet(BaseModel):
         return config
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class EfficientNetB0(EfficientNet):
+class EfficientNetVariant(EfficientNet):
+    # Parameters
+    width = None
+    depth = None
+    stem_channels = None
+    head_channels = None
+    fix_stem_and_head_channels = None
+    fix_first_and_last_blocks = None
+    activation = None
+    config = None
+    default_size = None
+
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is EfficientNetVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        if hasattr(self, "round_limit"):
+            kwargs["round_limit"] = self.round_limit
+        if hasattr(self, "bn_epsilon"):
+            kwargs["bn_epsilon"] = self.bn_epsilon
+        if hasattr(self, "padding"):
+            kwargs["padding"] = self.padding
+        if hasattr(self, "round_fn"):
+            kwargs["round_fn"] = self.round_fn
+        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
+        super().__init__(
+            width=self.width,
+            depth=self.depth,
+            stem_channels=self.stem_channels,
+            head_channels=self.head_channels,
+            fix_stem_and_head_channels=self.fix_stem_and_head_channels,
+            fix_first_and_last_blocks=self.fix_first_and_last_blocks,
+            activation=self.activation,
+            config=self.config,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            default_size=self.default_size,
+            **kwargs,
+        )
+
+
+class EfficientNetB0(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -333,50 +396,21 @@ class EfficientNetB0(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "EfficientNetB0",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.0,
-            32,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=224,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 224
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetB1(EfficientNet):
+class EfficientNetB1(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -385,50 +419,21 @@ class EfficientNetB1(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "EfficientNetB1",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.1,
-            32,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=240,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.1
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 240
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetB2(EfficientNet):
+class EfficientNetB2(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -437,50 +442,21 @@ class EfficientNetB2(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "EfficientNetB2",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.1,
-            1.2,
-            32,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=260,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.1
+    depth = 1.2
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 260
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetB3(EfficientNet):
+class EfficientNetB3(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -489,50 +465,21 @@ class EfficientNetB3(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "EfficientNetB3",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.2,
-            1.4,
-            32,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=300,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.2
+    depth = 1.4
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 300
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetB4(EfficientNet):
+class EfficientNetB4(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -541,50 +488,21 @@ class EfficientNetB4(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "EfficientNetB4",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.4,
-            1.8,
-            32,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=380,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.4
+    depth = 1.8
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 380
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetB5(EfficientNet):
+class EfficientNetB5(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -593,50 +511,21 @@ class EfficientNetB5(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "EfficientNetB5",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.6,
-            2.2,
-            32,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=456,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.6
+    depth = 2.2
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 456
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetB6(EfficientNet):
+class EfficientNetB6(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -645,50 +534,21 @@ class EfficientNetB6(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "EfficientNetB6",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.8,
-            2.6,
-            32,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=528,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.8
+    depth = 2.6
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 528
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetB7(EfficientNet):
+class EfficientNetB7(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -697,50 +557,21 @@ class EfficientNetB7(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "EfficientNetB7",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            2.0,
-            3.1,
-            32,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=600,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 2.0
+    depth = 3.1
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 600
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetLiteB0(EfficientNet):
+class EfficientNetLiteB0(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -749,50 +580,21 @@ class EfficientNetLiteB0(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1_lite",
-        name: str = "EfficientNetLiteB0",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.0,
-            32,
-            1280,
-            True,
-            True,
-            "relu6",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=224,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = True
+    activation = "relu6"
+    config = "v1_lite"
+    default_size = 224
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetLiteB1(EfficientNet):
+class EfficientNetLiteB1(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -801,50 +603,21 @@ class EfficientNetLiteB1(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1_lite",
-        name: str = "EfficientNetLiteB1",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.1,
-            32,
-            1280,
-            True,
-            True,
-            "relu6",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=240,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.1
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = True
+    activation = "relu6"
+    config = "v1_lite"
+    default_size = 240
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetLiteB2(EfficientNet):
+class EfficientNetLiteB2(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -853,50 +626,21 @@ class EfficientNetLiteB2(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1_lite",
-        name: str = "EfficientNetLiteB2",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.1,
-            1.2,
-            32,
-            1280,
-            True,
-            True,
-            "relu6",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=260,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.1
+    depth = 1.2
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = True
+    activation = "relu6"
+    config = "v1_lite"
+    default_size = 260
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetLiteB3(EfficientNet):
+class EfficientNetLiteB3(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -905,50 +649,21 @@ class EfficientNetLiteB3(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1_lite",
-        name: str = "EfficientNetLiteB3",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.2,
-            1.4,
-            32,
-            1280,
-            True,
-            True,
-            "relu6",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=300,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.2
+    depth = 1.4
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = True
+    activation = "relu6"
+    config = "v1_lite"
+    default_size = 300
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetLiteB4(EfficientNet):
+class EfficientNetLiteB4(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -957,50 +672,21 @@ class EfficientNetLiteB4(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1_lite",
-        name: str = "EfficientNetLiteB4",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.4,
-            1.8,
-            32,
-            1280,
-            True,
-            True,
-            "relu6",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=380,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.4
+    depth = 1.8
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = True
+    activation = "relu6"
+    config = "v1_lite"
+    default_size = 380
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetV2S(EfficientNet):
+class EfficientNetV2S(EfficientNetVariant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
@@ -1013,50 +699,21 @@ class EfficientNetV2S(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v2_s",
-        name: str = "EfficientNetV2S",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.0,
-            24,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=300,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    stem_channels = 24
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v2_s"
+    default_size = 300
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetV2M(EfficientNet):
+class EfficientNetV2M(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1065,50 +722,21 @@ class EfficientNetV2M(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v2_m",
-        name: str = "EfficientNetV2M",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.0,
-            24,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=384,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    stem_channels = 24
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v2_m"
+    default_size = 384
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetV2L(EfficientNet):
+class EfficientNetV2L(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1117,50 +745,21 @@ class EfficientNetV2L(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v2_l",
-        name: str = "EfficientNetV2L",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.0,
-            32,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=384,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v2_l"
+    default_size = 384
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetV2XL(EfficientNet):
+class EfficientNetV2XL(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1169,50 +768,21 @@ class EfficientNetV2XL(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v2_xl",
-        name: str = "EfficientNetV2XL",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.0,
-            32,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=384,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v2_xl"
+    default_size = 384
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetV2B0(EfficientNet):
+class EfficientNetV2B0(EfficientNetVariant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
@@ -1225,50 +795,21 @@ class EfficientNetV2B0(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v2_base",
-        name: str = "EfficientNetV2B0",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.0,
-            32,
-            1280,
-            True,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=192,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v2_base"
+    default_size = 192
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetV2B1(EfficientNet):
+class EfficientNetV2B1(EfficientNetVariant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
@@ -1281,50 +822,21 @@ class EfficientNetV2B1(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v2_base",
-        name: str = "EfficientNetV2B1",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.1,
-            32,
-            1280,
-            True,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=192,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.1
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v2_base"
+    default_size = 192
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class EfficientNetV2B2(EfficientNet):
+class EfficientNetV2B2(EfficientNetVariant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
@@ -1337,51 +849,22 @@ class EfficientNetV2B2(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v2_base",
-        name: str = "EfficientNetV2B2",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.1,
-            1.2,
-            make_divisible(32 * 1.1),
-            make_divisible(1280 * 1.1),
-            True,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=208,
-            bn_epsilon=1e-3,
-            padding="same",
-            round_limit=0.0,  # fix
-            **kwargs,
-        )
+    # Parameters
+    width = 1.1
+    depth = 1.2
+    stem_channels = make_divisible(32 * 1.1)
+    head_channels = make_divisible(1280 * 1.1)
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v2_base"
+    default_size = 208
+    bn_epsilon = 1e-3
+    padding = "same"
+    round_limit = 0.0  # fix
 
 
-class EfficientNetV2B3(EfficientNet):
+class EfficientNetV2B3(EfficientNetVariant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
@@ -1394,51 +877,22 @@ class EfficientNetV2B3(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v2_base",
-        name: str = "EfficientNetV2B3",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.2,
-            1.4,
-            make_divisible(32 * 1.2),
-            make_divisible(1280 * 1.2),
-            True,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=240,
-            bn_epsilon=1e-3,
-            padding="same",
-            round_limit=0.0,  # fix
-            **kwargs,
-        )
+    # Parameters
+    width = 1.2
+    depth = 1.4
+    stem_channels = make_divisible(32 * 1.2)
+    head_channels = make_divisible(1280 * 1.2)
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v2_base"
+    default_size = 240
+    bn_epsilon = 1e-3
+    padding = "same"
+    round_limit = 0.0  # fix
 
 
-class TinyNetA(EfficientNet):
+class TinyNetA(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1447,48 +901,20 @@ class TinyNetA(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "TinyNetA",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.0,
-            1.2,
-            32,
-            1280,
-            False,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=192,
-            round_fn=round,  # tinynet config
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.2
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = False
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 192
+    round_fn = round  # tinynet config
 
 
-class TinyNetB(EfficientNet):
+class TinyNetB(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1497,48 +923,20 @@ class TinyNetB(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "TinyNetB",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            0.75,
-            1.1,
-            32,
-            1280,
-            True,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=192,
-            round_fn=round,  # tinynet config
-            **kwargs,
-        )
+    # Parameters
+    width = 0.75
+    depth = 1.1
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 192
+    round_fn = round  # tinynet config
 
 
-class TinyNetC(EfficientNet):
+class TinyNetC(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1547,48 +945,20 @@ class TinyNetC(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "TinyNetC",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            0.54,
-            0.85,
-            32,
-            1280,
-            True,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=188,
-            round_fn=round,  # tinynet config
-            **kwargs,
-        )
+    # Parameters
+    width = 0.54
+    depth = 0.85
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 188
+    round_fn = round  # tinynet config
 
 
-class TinyNetD(EfficientNet):
+class TinyNetD(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1597,48 +967,20 @@ class TinyNetD(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "TinyNetD",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            0.54,
-            0.695,
-            32,
-            1280,
-            True,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=152,
-            round_fn=round,  # tinynet config
-            **kwargs,
-        )
+    # Parameters
+    width = 0.54
+    depth = 0.695
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 152
+    round_fn = round  # tinynet config
 
 
-class TinyNetE(EfficientNet):
+class TinyNetE(EfficientNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -1647,45 +989,17 @@ class TinyNetE(EfficientNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "v1",
-        name: str = "TinyNetE",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            0.51,
-            0.6,
-            32,
-            1280,
-            True,
-            False,
-            "swish",
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=106,
-            round_fn=round,  # tinynet config
-            **kwargs,
-        )
+    # Parameters
+    width = 0.51
+    depth = 0.6
+    stem_channels = 32
+    head_channels = 1280
+    fix_stem_and_head_channels = True
+    fix_first_and_last_blocks = False
+    activation = "swish"
+    config = "v1"
+    default_size = 106
+    round_fn = round  # tinynet config
 
 
 add_model_to_registry(EfficientNetB0, "imagenet")

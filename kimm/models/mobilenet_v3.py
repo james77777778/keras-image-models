@@ -1,5 +1,6 @@
 import math
 import typing
+import warnings
 
 import keras
 from keras import layers
@@ -298,12 +299,68 @@ class MobileNetV3(BaseModel):
         return config
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class MobileNetV3W050Small(MobileNetV3):
+class MobileNetV3Variant(MobileNetV3):
+    # Parameters
+    width = None
+    depth = None
+    fix_stem_and_head_channels = None
+    config = None
+
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is MobileNetV3Variant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        if hasattr(self, "minimal"):
+            kwargs["minimal"] = self.minimal
+        if hasattr(self, "bn_epsilon"):
+            kwargs["bn_epsilon"] = self.bn_epsilon
+        if hasattr(self, "padding"):
+            kwargs["padding"] = self.padding
+        if len(getattr(self, "available_weights", [])) == 0:
+            warnings.warn(
+                f"{self.__class__.__name__} doesn't have pretrained weights "
+                f"for '{weights}'."
+            )
+            weights = None
+        super().__init__(
+            width=self.width,
+            depth=self.depth,
+            fix_stem_and_head_channels=self.fix_stem_and_head_channels,
+            config=self.config,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            **kwargs,
+        )
+
+
+class MobileNetV3W050Small(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])],
@@ -316,42 +373,14 @@ class MobileNetV3W050Small(MobileNetV3):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "small",
-        name: str = "MobileNetV3W050Small",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            0.5,
-            1.0,
-            True,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 0.5
+    depth = 1.0
+    fix_stem_and_head_channels = True
+    config = "small"
 
 
-class MobileNetV3W075Small(MobileNetV3):
+class MobileNetV3W075Small(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])],
@@ -364,42 +393,14 @@ class MobileNetV3W075Small(MobileNetV3):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "small",
-        name: str = "MobileNetV3W075Small",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            0.75,
-            1.0,
-            False,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 0.75
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "small"
 
 
-class MobileNetV3W100Small(MobileNetV3):
+class MobileNetV3W100Small(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])],
@@ -412,42 +413,14 @@ class MobileNetV3W100Small(MobileNetV3):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "small",
-        name: str = "MobileNetV3W100Small",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.0,
-            1.0,
-            False,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "small"
 
 
-class MobileNetV3W100SmallMinimal(MobileNetV3):
+class MobileNetV3W100SmallMinimal(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [4, 8, 16, 16, 32, 32])],
@@ -463,46 +436,17 @@ class MobileNetV3W100SmallMinimal(MobileNetV3):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "small",
-        name: str = "MobileNetV3W100SmallMinimal",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.0,
-            False,
-            config,
-            True,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "small"
+    minimal = True
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class MobileNetV3W100Large(MobileNetV3):
+class MobileNetV3W100Large(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
         *[
@@ -521,39 +465,11 @@ class MobileNetV3W100Large(MobileNetV3):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "large",
-        name: str = "MobileNetV3W100Large",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.0,
-            1.0,
-            False,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "large"
 
     def build_preprocessing(self, inputs, mode="imagenet"):
         if (
@@ -566,7 +482,7 @@ class MobileNetV3W100Large(MobileNetV3):
             return super().build_preprocessing(inputs, mode)
 
 
-class MobileNetV3W100LargeMinimal(MobileNetV3):
+class MobileNetV3W100LargeMinimal(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
         *[
@@ -585,89 +501,31 @@ class MobileNetV3W100LargeMinimal(MobileNetV3):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "large",
-        name: str = "MobileNetV3W100LargeMinimal",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.0,
-            False,
-            config,
-            True,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            bn_epsilon=1e-3,
-            padding="same",
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "large"
+    minimal = True
+    bn_epsilon = 1e-3
+    padding = "same"
 
 
-class LCNet035(MobileNetV3):
+class LCNet035(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
     ]
     available_weights = []
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        config: typing.Union[str, typing.List] = "lcnet",
-        name: str = "LCNet035",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            0.35,
-            1.0,
-            False,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 0.35
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "lcnet"
 
 
-class LCNet050(MobileNetV3):
+class LCNet050(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
@@ -680,43 +538,14 @@ class LCNet050(MobileNetV3):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",  # TODO: imagenet
-        config: typing.Union[str, typing.List] = "lcnet",
-        name: str = "LCNet050",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            0.5,
-            1.0,
-            False,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 0.5
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "lcnet"
 
 
-class LCNet075(MobileNetV3):
+class LCNet075(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
@@ -729,43 +558,14 @@ class LCNet075(MobileNetV3):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "lcnet",
-        name: str = "LCNet075",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            0.75,
-            1.0,
-            False,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 0.75
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "lcnet"
 
 
-class LCNet100(MobileNetV3):
+class LCNet100(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [2, 4, 8, 16, 16, 32])],
@@ -778,40 +578,11 @@ class LCNet100(MobileNetV3):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "lcnet",
-        name: str = "LCNet100",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.0,
-            1.0,
-            False,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "lcnet"
 
 
 class LCNet150(MobileNetV3):
@@ -824,40 +595,11 @@ class LCNet150(MobileNetV3):
     ]
     available_weights = []
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        config: typing.Union[str, typing.List] = "lcnet",
-        name: str = "LCNet150",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        # default to TF configuration (bn_epsilon=1e-3 and padding="same")
-        super().__init__(
-            1.5,
-            1.0,
-            False,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.5
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "lcnet"
 
 
 add_model_to_registry(MobileNetV3W050Small, "imagenet")

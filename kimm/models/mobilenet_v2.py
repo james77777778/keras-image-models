@@ -145,12 +145,56 @@ class MobileNetV2(BaseModel):
         return config
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class MobileNetV2W050(MobileNetV2):
+class MobileNetV2Variant(MobileNetV2):
+    # Parameters
+    width = None
+    depth = None
+    fix_stem_and_head_channels = None
+    config = None
+
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is MobileNetV2Variant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        super().__init__(
+            width=self.width,
+            depth=self.depth,
+            fix_stem_and_head_channels=self.fix_stem_and_head_channels,
+            config=self.config,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            **kwargs,
+        )
+
+
+class MobileNetV2W050(MobileNetV2Variant):
     available_weights = [
         (
             "imagenet",
@@ -159,42 +203,14 @@ class MobileNetV2W050(MobileNetV2):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "default",
-        name: str = "MobileNetV2W050",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            0.5,
-            1.0,
-            False,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 0.5
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "default"
 
 
-class MobileNetV2W100(MobileNetV2):
+class MobileNetV2W100(MobileNetV2Variant):
     available_weights = [
         (
             "imagenet",
@@ -203,42 +219,14 @@ class MobileNetV2W100(MobileNetV2):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "default",
-        name: str = "MobileNetV2W100",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.0,
-            1.0,
-            False,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "default"
 
 
-class MobileNetV2W110(MobileNetV2):
+class MobileNetV2W110(MobileNetV2Variant):
     available_weights = [
         (
             "imagenet",
@@ -247,42 +235,14 @@ class MobileNetV2W110(MobileNetV2):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "default",
-        name: str = "MobileNetV2W110",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.1,
-            1.2,
-            True,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.1
+    depth = 1.2
+    fix_stem_and_head_channels = False
+    config = "default"
 
 
-class MobileNetV2W120(MobileNetV2):
+class MobileNetV2W120(MobileNetV2Variant):
     available_weights = [
         (
             "imagenet",
@@ -291,42 +251,14 @@ class MobileNetV2W120(MobileNetV2):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "default",
-        name: str = "MobileNetV2W120",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.2,
-            1.4,
-            True,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.2
+    depth = 1.4
+    fix_stem_and_head_channels = False
+    config = "default"
 
 
-class MobileNetV2W140(MobileNetV2):
+class MobileNetV2W140(MobileNetV2Variant):
     available_weights = [
         (
             "imagenet",
@@ -335,39 +267,11 @@ class MobileNetV2W140(MobileNetV2):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "default",
-        name: str = "MobileNetV2W140",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.4,
-            1.0,
-            False,
-            config,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.4
+    depth = 1.0
+    fix_stem_and_head_channels = False
+    config = "default"
 
 
 add_model_to_registry(MobileNetV2W050, "imagenet")

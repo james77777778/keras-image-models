@@ -141,12 +141,56 @@ class RepVGG(BaseModel):
         return model
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class RepVGGA0(RepVGG):
+class RepVGGVariant(RepVGG):
+    # Parameters
+    num_blocks = None
+    num_channels = None
+    stem_channels = None
+
+    def __init__(
+        self,
+        reparameterized: bool = False,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is RepVGGVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        super().__init__(
+            num_blocks=self.num_blocks,
+            num_channels=self.num_channels,
+            stem_channels=self.stem_channels,
+            reparameterized=reparameterized,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            **kwargs,
+        )
+
+
+class RepVGGA0(RepVGGVariant):
     available_weights = [
         (
             "imagenet",
@@ -155,42 +199,13 @@ class RepVGGA0(RepVGG):
         )
     ]
 
-    def __init__(
-        self,
-        reparameterized: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RepVGGA0",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            [2, 4, 14, 1],
-            [48, 96, 192, 1280],
-            48,
-            reparameterized=reparameterized,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    num_blocks = [2, 4, 14, 1]
+    num_channels = [48, 96, 192, 1280]
+    stem_channels = 48
 
 
-class RepVGGA1(RepVGG):
+class RepVGGA1(RepVGGVariant):
     available_weights = [
         (
             "imagenet",
@@ -199,42 +214,13 @@ class RepVGGA1(RepVGG):
         )
     ]
 
-    def __init__(
-        self,
-        reparameterized: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RepVGGA1",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            [2, 4, 14, 1],
-            [64, 128, 256, 1280],
-            64,
-            reparameterized=reparameterized,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    num_blocks = [2, 4, 14, 1]
+    num_channels = [64, 128, 256, 1280]
+    stem_channels = 64
 
 
-class RepVGGA2(RepVGG):
+class RepVGGA2(RepVGGVariant):
     available_weights = [
         (
             "imagenet",
@@ -243,42 +229,13 @@ class RepVGGA2(RepVGG):
         )
     ]
 
-    def __init__(
-        self,
-        reparameterized: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RepVGGA2",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            [2, 4, 14, 1],
-            [96, 192, 384, 1408],
-            64,
-            reparameterized=reparameterized,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    num_blocks = [2, 4, 14, 1]
+    num_channels = [96, 192, 384, 1408]
+    stem_channels = 64
 
 
-class RepVGGB0(RepVGG):
+class RepVGGB0(RepVGGVariant):
     available_weights = [
         (
             "imagenet",
@@ -287,42 +244,13 @@ class RepVGGB0(RepVGG):
         )
     ]
 
-    def __init__(
-        self,
-        reparameterized: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RepVGGB0",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            [4, 6, 16, 1],
-            [64, 128, 256, 1280],
-            64,
-            reparameterized=reparameterized,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    num_blocks = [4, 6, 16, 1]
+    num_channels = [64, 128, 256, 1280]
+    stem_channels = 64
 
 
-class RepVGGB1(RepVGG):
+class RepVGGB1(RepVGGVariant):
     available_weights = [
         (
             "imagenet",
@@ -331,42 +259,13 @@ class RepVGGB1(RepVGG):
         )
     ]
 
-    def __init__(
-        self,
-        reparameterized: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RepVGGB1",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            [4, 6, 16, 1],
-            [128, 256, 512, 2048],
-            64,
-            reparameterized=reparameterized,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    num_blocks = [4, 6, 16, 1]
+    num_channels = [128, 256, 512, 2048]
+    stem_channels = 64
 
 
-class RepVGGB2(RepVGG):
+class RepVGGB2(RepVGGVariant):
     available_weights = [
         (
             "imagenet",
@@ -375,39 +274,10 @@ class RepVGGB2(RepVGG):
         )
     ]
 
-    def __init__(
-        self,
-        reparameterized: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RepVGGB2",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            [4, 6, 16, 1],
-            [160, 320, 640, 2560],
-            64,
-            reparameterized=reparameterized,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    num_blocks = [4, 6, 16, 1]
+    num_channels = [160, 320, 640, 2560]
+    stem_channels = 64
 
 
 class RepVGGB3(RepVGG):
@@ -419,39 +289,10 @@ class RepVGGB3(RepVGG):
         )
     ]
 
-    def __init__(
-        self,
-        reparameterized: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "RepVGGB3",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            [4, 6, 16, 1],
-            [192, 384, 768, 2560],
-            64,
-            reparameterized=reparameterized,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    num_blocks = [4, 6, 16, 1]
+    num_channels = [192, 384, 768, 2560]
+    stem_channels = 64
 
 
 add_model_to_registry(RepVGGA0, "imagenet")

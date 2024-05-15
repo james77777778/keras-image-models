@@ -154,9 +154,7 @@ class XceptionBase(BaseModel):
         return config
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
 class Xception(XceptionBase):

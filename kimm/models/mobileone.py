@@ -164,12 +164,58 @@ class MobileOne(BaseModel):
         return model
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class MobileOneS0(MobileOne):
+class MobileOneVariant(MobileOne):
+    # Parameters
+    num_blocks = None
+    num_channels = None
+    stem_channels = None
+    branch_size = None
+
+    def __init__(
+        self,
+        reparameterized: bool = False,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is MobileOneVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        super().__init__(
+            num_blocks=self.num_blocks,
+            num_channels=self.num_channels,
+            stem_channels=self.stem_channels,
+            branch_size=self.branch_size,
+            reparameterized=reparameterized,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            **kwargs,
+        )
+
+
+class MobileOneS0(MobileOneVariant):
     available_weights = [
         (
             "imagenet",
@@ -178,43 +224,14 @@ class MobileOneS0(MobileOne):
         )
     ]
 
-    def __init__(
-        self,
-        reparameterized: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "MobileOneS0",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            [2, 8, 10, 1],
-            [48, 128, 256, 1024],
-            48,
-            4,
-            reparameterized=reparameterized,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    num_blocks = [2, 8, 10, 1]
+    num_channels = [48, 128, 256, 1024]
+    stem_channels = 48
+    branch_size = 4
 
 
-class MobileOneS1(MobileOne):
+class MobileOneS1(MobileOneVariant):
     available_weights = [
         (
             "imagenet",
@@ -223,43 +240,14 @@ class MobileOneS1(MobileOne):
         )
     ]
 
-    def __init__(
-        self,
-        reparameterized: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "MobileOneS1",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            [2, 8, 10, 1],
-            [96, 192, 512, 1280],
-            64,
-            1,
-            reparameterized=reparameterized,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    num_blocks = [2, 8, 10, 1]
+    num_channels = [96, 192, 512, 1280]
+    stem_channels = 64
+    branch_size = 1
 
 
-class MobileOneS2(MobileOne):
+class MobileOneS2(MobileOneVariant):
     available_weights = [
         (
             "imagenet",
@@ -268,43 +256,14 @@ class MobileOneS2(MobileOne):
         )
     ]
 
-    def __init__(
-        self,
-        reparameterized: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "MobileOneS2",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            [2, 8, 10, 1],
-            [96, 256, 640, 2048],
-            64,
-            1,
-            reparameterized=reparameterized,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    num_blocks = [2, 8, 10, 1]
+    num_channels = [96, 256, 640, 2048]
+    stem_channels = 64
+    branch_size = 1
 
 
-class MobileOneS3(MobileOne):
+class MobileOneS3(MobileOneVariant):
     available_weights = [
         (
             "imagenet",
@@ -313,40 +272,11 @@ class MobileOneS3(MobileOne):
         )
     ]
 
-    def __init__(
-        self,
-        reparameterized: bool = False,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "MobileOneS3",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            [2, 8, 10, 1],
-            [128, 320, 768, 2048],
-            64,
-            1,
-            reparameterized=reparameterized,
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    num_blocks = [2, 8, 10, 1]
+    num_channels = [128, 320, 768, 2048]
+    stem_channels = 64
+    branch_size = 1
 
 
 # TODO: Add MobileOneS4 (w/ SE blocks)

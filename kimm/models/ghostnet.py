@@ -1,4 +1,5 @@
 import typing
+import warnings
 
 import keras
 from keras import backend
@@ -379,13 +380,14 @@ class GhostNet(BaseModel):
         return config
 
 
-"""
-Model Definition
-"""
+# Model Definition
 
 
-class GhostNet050(GhostNet):
-    available_weights = []
+class GhostNetVariant(GhostNet):
+    # Parameters
+    width = None
+    config = None
+    version = None
 
     def __init__(
         self,
@@ -397,16 +399,26 @@ class GhostNet050(GhostNet):
         dropout_rate: float = 0.2,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        config: typing.Union[str, typing.List] = "default",
-        name: str = "GhostNet050",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
         **kwargs,
     ):
+        if type(self) is GhostNetVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
         kwargs = self.fix_config(kwargs)
+        if len(getattr(self, "available_weights", [])) == 0:
+            warnings.warn(
+                f"{self.__class__.__name__} doesn't have pretrained weights "
+                f"for '{weights}'."
+            )
+            weights = None
         super().__init__(
-            0.5,
-            config,
-            "v1",
+            width=self.width,
+            config=self.config,
+            version=self.version,
             input_tensor=input_tensor,
             input_shape=input_shape,
             include_preprocessing=include_preprocessing,
@@ -416,12 +428,21 @@ class GhostNet050(GhostNet):
             classes=classes,
             classifier_activation=classifier_activation,
             weights=weights,
-            name=name,
+            name=name or str(self.__class__.__name__),
             **kwargs,
         )
 
 
-class GhostNet100(GhostNet):
+class GhostNet050(GhostNetVariant):
+    available_weights = []
+
+    # Parameters
+    width = 0.5
+    config = "default"
+    version = "v1"
+
+
+class GhostNet100(GhostNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -430,78 +451,22 @@ class GhostNet100(GhostNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.2,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "default",
-        name: str = "GhostNet100",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.0,
-            config,
-            "v1",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    config = "default"
+    version = "v1"
 
 
-class GhostNet130(GhostNet):
+class GhostNet130(GhostNetVariant):
     available_weights = []
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.2,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = None,
-        config: typing.Union[str, typing.List] = "default",
-        name: str = "GhostNet130",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.3,
-            config,
-            "v1",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.3
+    config = "default"
+    version = "v1"
 
 
-class GhostNet100V2(GhostNet):
+class GhostNet100V2(GhostNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -510,41 +475,13 @@ class GhostNet100V2(GhostNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.2,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "default",
-        name: str = "GhostNet100V2",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.0,
-            config,
-            "v2",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.0
+    config = "default"
+    version = "v2"
 
 
-class GhostNet130V2(GhostNet):
+class GhostNet130V2(GhostNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -553,41 +490,13 @@ class GhostNet130V2(GhostNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.2,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "default",
-        name: str = "GhostNet130V2",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.3,
-            config,
-            "v2",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.3
+    config = "default"
+    version = "v2"
 
 
-class GhostNet160V2(GhostNet):
+class GhostNet160V2(GhostNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -596,38 +505,10 @@ class GhostNet160V2(GhostNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.2,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        config: typing.Union[str, typing.List] = "default",
-        name: str = "GhostNet160V2",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            1.6,
-            config,
-            "v2",
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            **kwargs,
-        )
+    # Parameters
+    width = 1.6
+    config = "default"
+    version = "v2"
 
 
 add_model_to_registry(GhostNet050)

@@ -58,6 +58,8 @@ tests = [
     "pytest",
     "pytest-cov",
     "coverage",
+    # tool
+    "pre-commit",
 ]
 examples = ["opencv-python", "matplotlib"]
 
@@ -98,6 +100,7 @@ addopts = "--durations 10 --cov --cov-report html --cov-report term:skip-covered
 testpaths = ["kimm"]
 filterwarnings = [
     "error",
+    "ignore::UserWarning",
     "ignore::DeprecationWarning",
     "ignore::ImportWarning",
     "ignore::RuntimeWarning",
@@ -107,7 +110,7 @@ filterwarnings = [
 
 [tool.coverage.run]
 source = ["kimm"]
-omit = ["**/__init__.py", "*test*", "kimm/utils/timm_utils.py"]
+omit = ["**/__init__.py", "*test*"]
 
 [tool.coverage.report]
 exclude_lines = [

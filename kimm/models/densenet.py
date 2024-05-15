@@ -172,7 +172,51 @@ Model Definition
 """
 
 
-class DenseNet121(DenseNet):
+class DenseNetVariant(DenseNet):
+    # Parameters
+    growth_rate = None
+    num_blocks = None
+    default_size = None
+
+    def __init__(
+        self,
+        input_tensor: keras.KerasTensor = None,
+        input_shape: typing.Optional[typing.Sequence[int]] = None,
+        include_preprocessing: bool = True,
+        include_top: bool = True,
+        pooling: typing.Optional[str] = None,
+        dropout_rate: float = 0.0,
+        classes: int = 1000,
+        classifier_activation: str = "softmax",
+        weights: typing.Optional[str] = "imagenet",
+        name: typing.Optional[str] = None,
+        **kwargs,
+    ):
+        if type(self) is DenseNetVariant:
+            raise NotImplementedError(
+                f"Cannot instantiate base class: {self.__class__.__name__}. "
+                "You should use its subclasses."
+            )
+        kwargs = self.fix_config(kwargs)
+        super().__init__(
+            growth_rate=self.growth_rate,
+            num_blocks=self.num_blocks,
+            input_tensor=input_tensor,
+            input_shape=input_shape,
+            include_preprocessing=include_preprocessing,
+            include_top=include_top,
+            pooling=pooling,
+            dropout_rate=dropout_rate,
+            classes=classes,
+            classifier_activation=classifier_activation,
+            weights=weights,
+            name=name or str(self.__class__.__name__),
+            default_size=self.default_size,
+            **kwargs,
+        )
+
+
+class DenseNet121(DenseNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -181,40 +225,13 @@ class DenseNet121(DenseNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "DenseNet121",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            32,
-            [6, 12, 24, 16],
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=288,
-            **kwargs,
-        )
+    # Parameters
+    growth_rate = 32
+    num_blocks = [6, 12, 24, 16]
+    default_size = 288
 
 
-class DenseNet161(DenseNet):
+class DenseNet161(DenseNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -223,40 +240,13 @@ class DenseNet161(DenseNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "DenseNet161",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            48,
-            [6, 12, 36, 24],
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=224,
-            **kwargs,
-        )
+    # Parameters
+    growth_rate = 48
+    num_blocks = [6, 12, 36, 24]
+    default_size = 224
 
 
-class DenseNet169(DenseNet):
+class DenseNet169(DenseNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -265,40 +255,13 @@ class DenseNet169(DenseNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "DenseNet169",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            32,
-            [6, 12, 32, 32],
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=224,
-            **kwargs,
-        )
+    # Parameters
+    growth_rate = 32
+    num_blocks = [6, 12, 32, 32]
+    default_size = 224
 
 
-class DenseNet201(DenseNet):
+class DenseNet201(DenseNetVariant):
     available_weights = [
         (
             "imagenet",
@@ -307,37 +270,10 @@ class DenseNet201(DenseNet):
         )
     ]
 
-    def __init__(
-        self,
-        input_tensor: keras.KerasTensor = None,
-        input_shape: typing.Optional[typing.Sequence[int]] = None,
-        include_preprocessing: bool = True,
-        include_top: bool = True,
-        pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.0,
-        classes: int = 1000,
-        classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
-        name: str = "DenseNet201",
-        **kwargs,
-    ):
-        kwargs = self.fix_config(kwargs)
-        super().__init__(
-            32,
-            [6, 12, 48, 32],
-            input_tensor=input_tensor,
-            input_shape=input_shape,
-            include_preprocessing=include_preprocessing,
-            include_top=include_top,
-            pooling=pooling,
-            dropout_rate=dropout_rate,
-            classes=classes,
-            classifier_activation=classifier_activation,
-            weights=weights,
-            name=name,
-            default_size=224,
-            **kwargs,
-        )
+    # Parameters
+    growth_rate = 32
+    num_blocks = [6, 12, 48, 32]
+    default_size = 224
 
 
 add_model_to_registry(DenseNet121, "imagenet")

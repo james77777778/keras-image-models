@@ -60,6 +60,7 @@ tests = [
     "coverage",
     # tool
     "pre-commit",
+    "namex",
 ]
 examples = ["opencv-python", "matplotlib"]
 
@@ -86,7 +87,6 @@ exclude = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"./examples/**/*" = ["E402"]
 "**/__init__.py" = ["F401"]
 
 [tool.isort]

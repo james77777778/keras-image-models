@@ -316,6 +316,7 @@ class EfficientNet(BaseModel):
             "fix_stem_and_head_channels",
             "fix_first_and_last_blocks",
             "activation",
+            "config",
         ]
         for k in unused_kwargs:
             config.pop(k, None)

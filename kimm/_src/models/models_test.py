@@ -37,8 +37,9 @@ class SampleModel(kimm_models.BaseModel):
         features["S16"] = s16
         s32 = layers.Conv2D(3, 1, 2, use_bias=False)(s16)
         features["S32"] = s32
+        outputs = layers.GlobalAveragePooling2D()(s32)
         super().__init__(
-            inputs=inputs, outputs=s32, features=features, **kwargs
+            inputs=inputs, outputs=outputs, features=features, **kwargs
         )
 
 
@@ -56,7 +57,7 @@ class BaseModelTest(testing.TestCase, parameterized.TestCase):
         model = SampleModel()
         y = model(x, training=False)
         self.assertNotIsInstance(y, dict)
-        self.assertEqual(list(y.shape), [1, 7, 7, 3])
+        self.assertEqual(list(y.shape), [1, 3])
 
         # Test feature_extractor=True
         model = SampleModel(feature_extractor=True)
@@ -67,7 +68,9 @@ class BaseModelTest(testing.TestCase, parameterized.TestCase):
 
         # Test feature_extractor=True with feature_keys
         model = SampleModel(
-            feature_extractor=True, feature_keys=["S2", "S16", "S32"]
+            include_top=False,
+            feature_extractor=True,
+            feature_keys=["S2", "S16", "S32"],
         )
         y = model(x, training=False)
         self.assertIsInstance(y, dict)
@@ -76,6 +79,7 @@ class BaseModelTest(testing.TestCase, parameterized.TestCase):
         self.assertEqual(list(y["S2"].shape), [1, 112, 112, 3])
         self.assertEqual(list(y["S16"].shape), [1, 14, 14, 3])
         self.assertEqual(list(y["S32"].shape), [1, 7, 7, 3])
+        self.assertNotIn("TOP", y)
 
 
 # Test some small models
@@ -464,20 +468,27 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
         backend.set_image_data_format(cls.original_image_data_format)
 
     @parameterized.named_parameters(MODEL_CONFIGS)
-    def test_model_base_channels_last(
-        self, model_class, image_size, features, weights="imagenet"
+    def test_predict(
+        self,
+        model_class,
+        image_size,
+        features,
+        weights="imagenet",
     ):
-        backend.set_image_data_format("channels_last")
-        model = model_class(weights=weights)
+        # Load the image
         image_path = keras.utils.get_file(
             "elephant.png",
             "https://github.com/james77777778/keras-image-models/releases/download/0.1.0/elephant.png",
         )
-        # Preprocess
         image = utils.load_img(image_path, target_size=(image_size, image_size))
-        image = utils.img_to_array(image, data_format="channels_last")
-        x = ops.convert_to_tensor(image)
-        x = ops.expand_dims(x, axis=0)
+
+        # Test channels_last
+        backend.set_image_data_format("channels_last")
+        model = model_class(weights=weights)
+        if hasattr(model, "get_reparameterized_model"):
+            model = model.get_reparameterized_model()
+        x = utils.img_to_array(image, data_format="channels_last")
+        x = ops.expand_dims(ops.convert_to_tensor(x), axis=0)
 
         y = model(x, training=False)
 
@@ -488,30 +499,20 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
         elif weights is None:
             self.assertEqual(list(y.shape), [1, 1000])
 
-    @parameterized.named_parameters(MODEL_CONFIGS)
-    def test_model_base_channels_first(
-        self, model_class, image_size, features, weights="imagenet"
-    ):
+        # Test channels_first
         if (
             len(tf.config.list_physical_devices("GPU")) == 0
             and backend.backend() == "tensorflow"
         ):
-            self.skipTest(
-                "Conv2D doesn't support channels_first using CPU with "
-                "tensorflow backend"
-            )
+            # TensorFlow doesn't support channels_first using CPU
+            return
 
         backend.set_image_data_format("channels_first")
         model = model_class(weights=weights)
-        image_path = keras.utils.get_file(
-            "elephant.png",
-            "https://github.com/james77777778/keras-image-models/releases/download/0.1.0/elephant.png",
-        )
-        # Preprocess
-        image = utils.load_img(image_path, target_size=(image_size, image_size))
-        image = utils.img_to_array(image, data_format="channels_first")
-        x = ops.convert_to_tensor(image)
-        x = ops.expand_dims(x, axis=0)
+        if hasattr(model, "get_reparameterized_model"):
+            model = model.get_reparameterized_model()
+        x = utils.img_to_array(image, data_format="channels_first")
+        x = ops.expand_dims(ops.convert_to_tensor(x), axis=0)
 
         y = model(x, training=False)
 
@@ -523,12 +524,20 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
             self.assertEqual(list(y.shape), [1, 1000])
 
     @parameterized.named_parameters(MODEL_CONFIGS)
-    def test_model_feature_extractor(
-        self, model_class, image_size, features, weights="imagenet"
+    def test_feature_extractor(
+        self,
+        model_class,
+        image_size,
+        features,
+        weights="imagenet",
     ):
         backend.set_image_data_format("channels_last")
         x = random.uniform([1, image_size, image_size, 3]) * 255.0
-        model = model_class(weights=None, feature_extractor=True)
+        model = model_class(
+            include_top=False, weights=None, feature_extractor=True
+        )
+        if hasattr(model, "get_reparameterized_model"):
+            model = model.get_reparameterized_model()
 
         y = model(x, training=False)
 
@@ -552,7 +561,11 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
             224,
         ),
     )
-    def test_model_get_reparameterized_model(self, model_class, image_size):
+    def test_get_reparameterized_model(
+        self,
+        model_class,
+        image_size,
+    ):
         x = random.uniform([1, image_size, image_size, 3]) * 255.0
         model = model_class()
         reparameterized_model = model.get_reparameterized_model()
@@ -564,13 +577,19 @@ class ModelTest(testing.TestCase, parameterized.TestCase):
 
     @pytest.mark.serialization
     @parameterized.named_parameters(MODEL_CONFIGS)
-    def test_model_serialization(
-        self, model_class, image_size, features, weights="imagenet"
+    def test_serialization(
+        self,
+        model_class,
+        image_size,
+        features,
+        weights="imagenet",
     ):
         backend.set_image_data_format("channels_last")
         x = random.uniform([1, image_size, image_size, 3]) * 255.0
         temp_dir = self.get_temp_dir()
         model1 = model_class(weights=None)
+        if hasattr(model1, "get_reparameterized_model"):
+            model1 = model1.get_reparameterized_model()
 
         y1 = model1(x, training=False)
         model1.save(temp_dir + "/model.keras")

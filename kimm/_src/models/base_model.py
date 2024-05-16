@@ -27,6 +27,7 @@ class BaseModel(models.Model):
         features: typing.Optional[typing.Dict[str, KerasTensor]] = None,
         **kwargs,
     ):
+        _include_top = getattr(self, "_include_top", True)
         if not hasattr(self, "_feature_extractor"):
             del features
             super().__init__(inputs=inputs, outputs=outputs, **kwargs)
@@ -53,7 +54,7 @@ class BaseModel(models.Model):
                         )
                     filtered_features[k] = features[k]
                 # Add outputs
-                if backend.is_keras_tensor(outputs):
+                if _include_top and backend.is_keras_tensor(outputs):
                     filtered_features["TOP"] = outputs
                 super().__init__(
                     inputs=inputs, outputs=filtered_features, **kwargs

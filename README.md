@@ -4,7 +4,7 @@
 <div align="center">
 <img width="50%" src="https://github.com/james77777778/kimm/assets/20734616/b21db8f2-307b-4791-b93d-e913e45fb238" alt="KIMM">
 
-[![Keras](https://img.shields.io/badge/keras-v3.1.0+-success.svg)](https://github.com/keras-team/keras)
+[![Keras](https://img.shields.io/badge/keras-v3.3.0+-success.svg)](https://github.com/keras-team/keras)
 [![PyPI](https://img.shields.io/pypi/v/kimm)](https://pypi.org/project/kimm/)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/james77777778/kimm/issues)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/james77777778/keras-image-models/actions.yml?label=tests)](https://github.com/james77777778/keras-image-models/actions/workflows/actions.yml?query=branch%3Amain++)

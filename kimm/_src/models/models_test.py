@@ -2,19 +2,12 @@ import keras
 import pytest
 import tensorflow as tf
 from absl.testing import parameterized
-from keras import applications
-from keras import backend
-from keras import layers
-from keras import models
-from keras import ops
-from keras import random
-from keras import utils
 from keras.src import testing
 
 from kimm._src import models as kimm_models
 from kimm._src.utils.make_divisble import make_divisible
 
-decode_predictions = applications.imagenet_utils.decode_predictions
+decode_predictions = keras.applications.imagenet_utils.decode_predictions
 
 # Test BaseModel
 
@@ -24,20 +17,20 @@ class SampleModel(kimm_models.BaseModel):
 
     def __init__(self, **kwargs):
         self.set_properties(kwargs)
-        inputs = layers.Input(shape=[224, 224, 3])
+        inputs = keras.layers.Input(shape=[224, 224, 3])
 
         features = {}
-        s2 = layers.Conv2D(3, 1, 2, use_bias=False)(inputs)
+        s2 = keras.layers.Conv2D(3, 1, 2, use_bias=False)(inputs)
         features["S2"] = s2
-        s4 = layers.Conv2D(3, 1, 2, use_bias=False)(s2)
+        s4 = keras.layers.Conv2D(3, 1, 2, use_bias=False)(s2)
         features["S4"] = s4
-        s8 = layers.Conv2D(3, 1, 2, use_bias=False)(s4)
+        s8 = keras.layers.Conv2D(3, 1, 2, use_bias=False)(s4)
         features["S8"] = s8
-        s16 = layers.Conv2D(3, 1, 2, use_bias=False)(s8)
+        s16 = keras.layers.Conv2D(3, 1, 2, use_bias=False)(s8)
         features["S16"] = s16
-        s32 = layers.Conv2D(3, 1, 2, use_bias=False)(s16)
+        s32 = keras.layers.Conv2D(3, 1, 2, use_bias=False)(s16)
         features["S32"] = s32
-        outputs = layers.GlobalAveragePooling2D()(s32)
+        outputs = keras.layers.GlobalAveragePooling2D()(s32)
         super().__init__(
             inputs=inputs, outputs=outputs, features=features, **kwargs
         )
@@ -45,7 +38,7 @@ class SampleModel(kimm_models.BaseModel):
 
 class BaseModelTest(testing.TestCase, parameterized.TestCase):
     def test_feature_extractor(self):
-        x = random.uniform([1, 224, 224, 3])
+        x = keras.random.uniform([1, 224, 224, 3])
 
         # Test availiable_feature_keys
         self.assertContainsSubset(
@@ -461,11 +454,11 @@ MODEL_CONFIGS = [
 class ModelsTest(testing.TestCase, parameterized.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.original_image_data_format = backend.image_data_format()
+        cls.original_image_data_format = keras.backend.image_data_format()
 
     @classmethod
     def tearDownClass(cls):
-        backend.set_image_data_format(cls.original_image_data_format)
+        keras.backend.set_image_data_format(cls.original_image_data_format)
 
     @parameterized.named_parameters(MODEL_CONFIGS)
     def test_predict(
@@ -483,13 +476,15 @@ class ModelsTest(testing.TestCase, parameterized.TestCase):
             "elephant.png",
             "https://github.com/james77777778/keras-image-models/releases/download/0.1.0/elephant.png",
         )
-        image = utils.load_img(image_path, target_size=(image_size, image_size))
+        image = keras.utils.load_img(
+            image_path, target_size=(image_size, image_size)
+        )
 
         # Test channels_last and feature_extractor=True
-        backend.set_image_data_format("channels_last")
+        keras.backend.set_image_data_format("channels_last")
         model = model_class(weights=weights, feature_extractor=True)
-        x = utils.img_to_array(image, data_format="channels_last")
-        x = ops.expand_dims(ops.convert_to_tensor(x), axis=0)
+        x = keras.utils.img_to_array(image, data_format="channels_last")
+        x = keras.ops.expand_dims(keras.ops.convert_to_tensor(x), axis=0)
 
         y = model(x, training=False)
 
@@ -514,15 +509,15 @@ class ModelsTest(testing.TestCase, parameterized.TestCase):
         # Test channels_first
         if (
             len(tf.config.list_physical_devices("GPU")) == 0
-            and backend.backend() == "tensorflow"
+            and keras.backend.backend() == "tensorflow"
         ):
             # TensorFlow doesn't support channels_first using CPU
             return
 
-        backend.set_image_data_format("channels_first")
+        keras.backend.set_image_data_format("channels_first")
         model = model_class(weights=weights)
-        x = utils.img_to_array(image, data_format="channels_first")
-        x = ops.expand_dims(ops.convert_to_tensor(x), axis=0)
+        x = keras.utils.img_to_array(image, data_format="channels_first")
+        x = keras.ops.expand_dims(keras.ops.convert_to_tensor(x), axis=0)
 
         y = model(x, training=False)
 
@@ -551,7 +546,7 @@ class ModelsTest(testing.TestCase, parameterized.TestCase):
         model_class,
         image_size,
     ):
-        x = random.uniform([1, image_size, image_size, 3]) * 255.0
+        x = keras.random.uniform([1, image_size, image_size, 3]) * 255.0
         model = model_class()
         reparameterized_model = model.get_reparameterized_model()
 
@@ -569,8 +564,8 @@ class ModelsTest(testing.TestCase, parameterized.TestCase):
         features,
         weights="imagenet",
     ):
-        backend.set_image_data_format("channels_last")
-        x = random.uniform([1, image_size, image_size, 3]) * 255.0
+        keras.backend.set_image_data_format("channels_last")
+        x = keras.random.uniform([1, image_size, image_size, 3]) * 255.0
         temp_dir = self.get_temp_dir()
         model1 = model_class(weights=None)
         if hasattr(model1, "get_reparameterized_model"):
@@ -578,7 +573,7 @@ class ModelsTest(testing.TestCase, parameterized.TestCase):
 
         y1 = model1(x, training=False)
         model1.save(temp_dir + "/model.keras")
-        model2 = models.load_model(temp_dir + "/model.keras")
+        model2 = keras.models.load_model(temp_dir + "/model.keras")
         y2 = model2(x, training=False)
 
         self.assertAllClose(y1, y2)

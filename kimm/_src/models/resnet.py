@@ -5,6 +5,7 @@ from keras import backend
 from keras import layers
 
 from kimm._src.blocks.conv2d import apply_conv2d_block
+from kimm._src.kimm_export import kimm_export
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.model_registry import add_model_to_registry
 
@@ -241,6 +242,7 @@ class ResNetVariant(ResNet):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.resnet"])
 class ResNet18(ResNetVariant):
     available_weights = [
         (
@@ -255,6 +257,7 @@ class ResNet18(ResNetVariant):
     num_blocks = [2, 2, 2, 2]
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.resnet"])
 class ResNet34(ResNetVariant):
     available_weights = [
         (
@@ -269,6 +272,7 @@ class ResNet34(ResNetVariant):
     num_blocks = [3, 4, 6, 3]
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.resnet"])
 class ResNet50(ResNetVariant):
     available_weights = [
         (
@@ -283,6 +287,7 @@ class ResNet50(ResNetVariant):
     num_blocks = [3, 4, 6, 3]
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.resnet"])
 class ResNet101(ResNetVariant):
     available_weights = [
         (
@@ -297,6 +302,7 @@ class ResNet101(ResNetVariant):
     num_blocks = [3, 4, 23, 3]
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.resnet"])
 class ResNet152(ResNetVariant):
     available_weights = [
         (

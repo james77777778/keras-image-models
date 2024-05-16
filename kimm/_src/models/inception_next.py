@@ -8,6 +8,7 @@ from keras import layers
 from keras import ops
 
 from kimm._src.blocks.transformer import apply_mlp_block
+from kimm._src.kimm_export import kimm_export
 from kimm._src.layers.layer_scale import LayerScale
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.model_registry import add_model_to_registry
@@ -304,6 +305,7 @@ class InceptionNeXtVariant(InceptionNeXt):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.inception_next"])
 class InceptionNeXtTiny(InceptionNeXtVariant):
     available_weights = [
         (
@@ -320,6 +322,7 @@ class InceptionNeXtTiny(InceptionNeXtVariant):
     activation = "gelu"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.inception_next"])
 class InceptionNeXtSmall(InceptionNeXtVariant):
     available_weights = [
         (
@@ -336,6 +339,7 @@ class InceptionNeXtSmall(InceptionNeXtVariant):
     activation = "gelu"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.inception_next"])
 class InceptionNeXtBase(InceptionNeXtVariant):
     available_weights = [
         (

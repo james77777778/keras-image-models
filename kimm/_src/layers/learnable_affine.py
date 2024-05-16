@@ -5,7 +5,7 @@ from keras import ops
 from kimm._src.kimm_export import kimm_export
 
 
-@kimm_export(path=["kimm.layers.LearnableAffine"])
+@kimm_export(parent_path=["kimm.layers"])
 @keras.saving.register_keras_serializable(package="kimm")
 class LearnableAffine(layers.Layer):
     def __init__(self, scale_value=1.0, bias_value=0.0, **kwargs):

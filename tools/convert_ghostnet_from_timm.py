@@ -14,10 +14,10 @@ from kimm.models.ghostnet import GhostNet100
 from kimm.models.ghostnet import GhostNet100V2
 from kimm.models.ghostnet import GhostNet130V2
 from kimm.models.ghostnet import GhostNet160V2
-from kimm.utils.timm_utils import assign_weights
-from kimm.utils.timm_utils import is_same_weights
-from kimm.utils.timm_utils import separate_keras_weights
-from kimm.utils.timm_utils import separate_torch_state_dict
+from kimm.timm_utils import assign_weights
+from kimm.timm_utils import is_same_weights
+from kimm.timm_utils import separate_keras_weights
+from kimm.timm_utils import separate_torch_state_dict
 
 timm_model_names = [
     "ghostnet_100",

@@ -5,6 +5,7 @@ from keras import backend
 from keras import layers
 
 from kimm._src.blocks.conv2d import apply_conv2d_block
+from kimm._src.kimm_export import kimm_export
 from kimm._src.layers.learnable_affine import LearnableAffine
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.model_registry import add_model_to_registry
@@ -594,6 +595,7 @@ class HGNetVariant(HGNet):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.hgnet"])
 class HGNetTiny(HGNetVariant):
     available_weights = [
         (
@@ -607,6 +609,7 @@ class HGNetTiny(HGNetVariant):
     config = "v1_tiny"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.hgnet"])
 class HGNetSmall(HGNetVariant):
     available_weights = [
         (
@@ -620,6 +623,7 @@ class HGNetSmall(HGNetVariant):
     config = "v1_small"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.hgnet"])
 class HGNetBase(HGNetVariant):
     available_weights = [
         (
@@ -633,6 +637,7 @@ class HGNetBase(HGNetVariant):
     config = "v1_base"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.hgnet"])
 class HGNetV2B0(HGNetVariant):
     available_weights = [
         (
@@ -646,6 +651,7 @@ class HGNetV2B0(HGNetVariant):
     config = "v2_b0"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.hgnet"])
 class HGNetV2B1(HGNetVariant):
     available_weights = [
         (
@@ -659,6 +665,7 @@ class HGNetV2B1(HGNetVariant):
     config = "v2_b1"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.hgnet"])
 class HGNetV2B2(HGNetVariant):
     available_weights = [
         (
@@ -672,6 +679,7 @@ class HGNetV2B2(HGNetVariant):
     config = "v2_b2"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.hgnet"])
 class HGNetV2B3(HGNetVariant):
     available_weights = [
         (
@@ -685,6 +693,7 @@ class HGNetV2B3(HGNetVariant):
     config = "v2_b3"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.hgnet"])
 class HGNetV2B4(HGNetVariant):
     available_weights = [
         (
@@ -698,6 +707,7 @@ class HGNetV2B4(HGNetVariant):
     config = "v2_b4"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.hgnet"])
 class HGNetV2B5(HGNetVariant):
     available_weights = [
         (
@@ -711,6 +721,7 @@ class HGNetV2B5(HGNetVariant):
     config = "v2_b5"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.hgnet"])
 class HGNetV2B6(HGNetVariant):
     available_weights = [
         (

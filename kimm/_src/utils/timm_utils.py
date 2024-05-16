@@ -20,7 +20,7 @@ def _is_non_trainable_weights(name: str):
         return False
 
 
-@kimm_export(path=["kimm.timm_utils.separate_torch_state_dict"])
+@kimm_export(parent_path=["kimm.timm_utils"])
 def separate_torch_state_dict(state_dict: typing.OrderedDict):
     trainable_state_dict = state_dict.copy()
     non_trainable_state_dict = state_dict.copy()
@@ -42,7 +42,7 @@ def separate_torch_state_dict(state_dict: typing.OrderedDict):
     return trainable_state_dict, non_trainable_state_dict
 
 
-@kimm_export(path=["kimm.timm_utils.separate_keras_weights"])
+@kimm_export(parent_path=["kimm.timm_utils"])
 def separate_keras_weights(keras_model: keras.Model):
     trainable_weights = []
     non_trainable_weights = []
@@ -71,7 +71,7 @@ def separate_keras_weights(keras_model: keras.Model):
     return trainable_weights, non_trainable_weights
 
 
-@kimm_export(path=["kimm.timm_utils.assign_weights"])
+@kimm_export(parent_path=["kimm.timm_utils"])
 def assign_weights(
     keras_name: str, keras_weight: keras.Variable, torch_weight: np.ndarray
 ):
@@ -112,7 +112,7 @@ def assign_weights(
         )
 
 
-@kimm_export(path=["kimm.timm_utils.is_same_weights"])
+@kimm_export(parent_path=["kimm.timm_utils"])
 def is_same_weights(
     keras_name: str,
     keras_weights: keras.Variable,

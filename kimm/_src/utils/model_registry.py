@@ -34,7 +34,7 @@ def clear_registry():
     MODEL_REGISTRY.clear()
 
 
-@kimm_export(path=["kimm.utils.add_model_to_registry"])
+@kimm_export(parent_path=["kimm.utils"])
 def add_model_to_registry(model_cls, weights: typing.Optional[str] = None):
     from kimm._src.models.base_model import BaseModel
 
@@ -74,7 +74,7 @@ def add_model_to_registry(model_cls, weights: typing.Optional[str] = None):
     )
 
 
-@kimm_export(path=["kimm.list_models", "kimm.utils.list_models"])
+@kimm_export(parent_path=["kimm", "kimm.utils"])
 def list_models(
     name: typing.Optional[str] = None,
     feature_extractor: typing.Optional[bool] = None,

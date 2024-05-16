@@ -7,5 +7,9 @@ since your modifications would be overwritten.
 from kimm import blocks
 from kimm import export
 from kimm import layers
+from kimm import models
+from kimm import timm_utils
+from kimm import utils
+from kimm._src.utils.model_registry import list_models
 from kimm._src.version import __version__
 from kimm._src.version import version

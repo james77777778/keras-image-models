@@ -3,6 +3,7 @@ import typing
 import keras
 from keras import backend
 
+from kimm._src.kimm_export import kimm_export
 from kimm._src.layers.rep_conv2d import RepConv2D
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.model_registry import add_model_to_registry
@@ -190,6 +191,7 @@ class RepVGGVariant(RepVGG):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.repvgg"])
 class RepVGGA0(RepVGGVariant):
     available_weights = [
         (
@@ -205,6 +207,7 @@ class RepVGGA0(RepVGGVariant):
     stem_channels = 48
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.repvgg"])
 class RepVGGA1(RepVGGVariant):
     available_weights = [
         (
@@ -220,6 +223,7 @@ class RepVGGA1(RepVGGVariant):
     stem_channels = 64
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.repvgg"])
 class RepVGGA2(RepVGGVariant):
     available_weights = [
         (
@@ -235,6 +239,7 @@ class RepVGGA2(RepVGGVariant):
     stem_channels = 64
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.repvgg"])
 class RepVGGB0(RepVGGVariant):
     available_weights = [
         (
@@ -250,6 +255,7 @@ class RepVGGB0(RepVGGVariant):
     stem_channels = 64
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.repvgg"])
 class RepVGGB1(RepVGGVariant):
     available_weights = [
         (
@@ -265,6 +271,7 @@ class RepVGGB1(RepVGGVariant):
     stem_channels = 64
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.repvgg"])
 class RepVGGB2(RepVGGVariant):
     available_weights = [
         (
@@ -280,6 +287,7 @@ class RepVGGB2(RepVGGVariant):
     stem_channels = 64
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.repvgg"])
 class RepVGGB3(RepVGG):
     available_weights = [
         (

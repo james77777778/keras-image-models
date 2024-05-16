@@ -8,6 +8,7 @@ from kimm._src.blocks.depthwise_separation import (
     apply_depthwise_separation_block,
 )
 from kimm._src.blocks.inverted_residual import apply_inverted_residual_block
+from kimm._src.kimm_export import kimm_export
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.make_divisble import make_divisible
 from kimm._src.utils.model_registry import add_model_to_registry
@@ -196,6 +197,7 @@ class MobileNetV2Variant(MobileNetV2):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v2"])
 class MobileNetV2W050(MobileNetV2Variant):
     available_weights = [
         (
@@ -212,6 +214,7 @@ class MobileNetV2W050(MobileNetV2Variant):
     config = "default"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v2"])
 class MobileNetV2W100(MobileNetV2Variant):
     available_weights = [
         (
@@ -228,6 +231,7 @@ class MobileNetV2W100(MobileNetV2Variant):
     config = "default"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v2"])
 class MobileNetV2W110(MobileNetV2Variant):
     available_weights = [
         (
@@ -244,6 +248,7 @@ class MobileNetV2W110(MobileNetV2Variant):
     config = "default"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v2"])
 class MobileNetV2W120(MobileNetV2Variant):
     available_weights = [
         (
@@ -260,6 +265,7 @@ class MobileNetV2W120(MobileNetV2Variant):
     config = "default"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v2"])
 class MobileNetV2W140(MobileNetV2Variant):
     available_weights = [
         (

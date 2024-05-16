@@ -11,7 +11,7 @@ from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.module_utils import torch
 
 
-@kimm_export(path=["kimm.export.export_onnx"])
+@kimm_export(parent_path=["kimm.export"])
 def export_onnx(
     model: BaseModel,
     input_shape: typing.Union[int, typing.Sequence[int]],

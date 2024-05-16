@@ -4,6 +4,7 @@ import keras
 from keras import backend
 from keras import layers
 
+from kimm._src.kimm_export import kimm_export
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.model_registry import add_model_to_registry
 
@@ -245,6 +246,7 @@ class VGGVariant(VGG):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.vgg"])
 class VGG11(VGGVariant):
     available_weights = [
         (
@@ -258,6 +260,7 @@ class VGG11(VGGVariant):
     config = "vgg11"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.vgg"])
 class VGG13(VGGVariant):
     available_weights = [
         (
@@ -271,6 +274,7 @@ class VGG13(VGGVariant):
     config = "vgg13"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.vgg"])
 class VGG16(VGGVariant):
     available_weights = [
         (
@@ -284,6 +288,7 @@ class VGG16(VGGVariant):
     config = "vgg16"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.vgg"])
 class VGG19(VGGVariant):
     available_weights = [
         (

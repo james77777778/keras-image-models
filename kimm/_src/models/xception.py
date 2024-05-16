@@ -4,6 +4,7 @@ import keras
 from keras import backend
 from keras import layers
 
+from kimm._src.kimm_export import kimm_export
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.model_registry import add_model_to_registry
 
@@ -157,6 +158,7 @@ class XceptionBase(BaseModel):
 # Model Definition
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.xception"])
 class Xception(XceptionBase):
     available_weights = [
         (

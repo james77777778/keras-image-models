@@ -7,6 +7,7 @@ from keras import layers
 from keras import ops
 
 from kimm._src.blocks.transformer import apply_transformer_block
+from kimm._src.kimm_export import kimm_export
 from kimm._src.layers.position_embedding import PositionEmbedding
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.model_registry import add_model_to_registry
@@ -205,6 +206,7 @@ class VisionTransformerVariant(VisionTransformer):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.vision_transformer"])
 class VisionTransformerTiny16(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
@@ -229,6 +231,7 @@ class VisionTransformerTiny16(VisionTransformerVariant):
     pos_dropout_rate = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.vision_transformer"])
 class VisionTransformerTiny32(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
@@ -247,6 +250,7 @@ class VisionTransformerTiny32(VisionTransformerVariant):
     pos_dropout_rate = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.vision_transformer"])
 class VisionTransformerSmall16(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
@@ -271,6 +275,7 @@ class VisionTransformerSmall16(VisionTransformerVariant):
     pos_dropout_rate = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.vision_transformer"])
 class VisionTransformerSmall32(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
@@ -295,6 +300,7 @@ class VisionTransformerSmall32(VisionTransformerVariant):
     pos_dropout_rate = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.vision_transformer"])
 class VisionTransformerBase16(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
@@ -319,6 +325,7 @@ class VisionTransformerBase16(VisionTransformerVariant):
     pos_dropout_rate = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.vision_transformer"])
 class VisionTransformerBase32(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
@@ -343,6 +350,7 @@ class VisionTransformerBase32(VisionTransformerVariant):
     pos_dropout_rate = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.vision_transformer"])
 class VisionTransformerLarge16(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",
@@ -361,6 +369,7 @@ class VisionTransformerLarge16(VisionTransformerVariant):
     pos_dropout_rate = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.vision_transformer"])
 class VisionTransformerLarge32(VisionTransformerVariant):
     available_feature_keys = [
         "EMBEDDING",

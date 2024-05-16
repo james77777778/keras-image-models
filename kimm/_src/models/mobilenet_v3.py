@@ -10,6 +10,7 @@ from kimm._src.blocks.depthwise_separation import (
     apply_depthwise_separation_block,
 )
 from kimm._src.blocks.inverted_residual import apply_inverted_residual_block
+from kimm._src.kimm_export import kimm_export
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.make_divisble import make_divisible
 from kimm._src.utils.model_registry import add_model_to_registry
@@ -362,6 +363,7 @@ class MobileNetV3Variant(MobileNetV3):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v3"])
 class MobileNetV3W050Small(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
@@ -382,6 +384,7 @@ class MobileNetV3W050Small(MobileNetV3Variant):
     config = "small"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v3"])
 class MobileNetV3W075Small(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
@@ -402,6 +405,7 @@ class MobileNetV3W075Small(MobileNetV3Variant):
     config = "small"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v3"])
 class MobileNetV3W100Small(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
@@ -422,6 +426,7 @@ class MobileNetV3W100Small(MobileNetV3Variant):
     config = "small"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v3"])
 class MobileNetV3W100SmallMinimal(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
@@ -448,6 +453,7 @@ class MobileNetV3W100SmallMinimal(MobileNetV3Variant):
     padding = "same"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v3"])
 class MobileNetV3W100Large(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
@@ -484,6 +490,7 @@ class MobileNetV3W100Large(MobileNetV3Variant):
             return super().build_preprocessing(inputs, mode)
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v3"])
 class MobileNetV3W100LargeMinimal(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
@@ -513,6 +520,7 @@ class MobileNetV3W100LargeMinimal(MobileNetV3Variant):
     padding = "same"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v3"])
 class LCNet035(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
@@ -527,6 +535,7 @@ class LCNet035(MobileNetV3Variant):
     config = "lcnet"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v3"])
 class LCNet050(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
@@ -547,6 +556,7 @@ class LCNet050(MobileNetV3Variant):
     config = "lcnet"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v3"])
 class LCNet075(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
@@ -567,6 +577,7 @@ class LCNet075(MobileNetV3Variant):
     config = "lcnet"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v3"])
 class LCNet100(MobileNetV3Variant):
     available_feature_keys = [
         "STEM_S2",
@@ -587,6 +598,7 @@ class LCNet100(MobileNetV3Variant):
     config = "lcnet"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilenet_v3"])
 class LCNet150(MobileNetV3):
     available_feature_keys = [
         "STEM_S2",

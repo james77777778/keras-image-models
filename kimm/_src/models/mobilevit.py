@@ -10,6 +10,7 @@ from kimm._src.blocks.conv2d import apply_conv2d_block
 from kimm._src.blocks.inverted_residual import apply_inverted_residual_block
 from kimm._src.blocks.transformer import apply_mlp_block
 from kimm._src.blocks.transformer import apply_transformer_block
+from kimm._src.kimm_export import kimm_export
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.make_divisble import make_divisible
 from kimm._src.utils.model_registry import add_model_to_registry
@@ -679,6 +680,7 @@ class MobileViTVariant(MobileViT):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilevit"])
 class MobileViTXXS(MobileViTVariant):
     available_weights = [
         (
@@ -695,6 +697,7 @@ class MobileViTXXS(MobileViTVariant):
     config = "v1_xxs"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilevit"])
 class MobileViTXS(MobileViTVariant):
     available_weights = [
         (
@@ -711,6 +714,7 @@ class MobileViTXS(MobileViTVariant):
     config = "v1_xs"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilevit"])
 class MobileViTS(MobileViTVariant):
     available_weights = [
         (
@@ -771,6 +775,7 @@ class MobileViTV2Variant(MobileViTV2):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilevit"])
 class MobileViTV2W050(MobileViTV2Variant):
     available_weights = [
         (
@@ -786,6 +791,7 @@ class MobileViTV2W050(MobileViTV2Variant):
     config = "v2"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilevit"])
 class MobileViTV2W075(MobileViTV2Variant):
     available_weights = [
         (
@@ -801,6 +807,7 @@ class MobileViTV2W075(MobileViTV2Variant):
     config = "v2"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilevit"])
 class MobileViTV2W100(MobileViTV2Variant):
     available_weights = [
         (
@@ -816,6 +823,7 @@ class MobileViTV2W100(MobileViTV2Variant):
     config = "v2"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilevit"])
 class MobileViTV2W125(MobileViTV2Variant):
     available_weights = [
         (
@@ -831,6 +839,7 @@ class MobileViTV2W125(MobileViTV2Variant):
     config = "v2"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilevit"])
 class MobileViTV2W150(MobileViTV2Variant):
     available_weights = [
         (
@@ -846,6 +855,7 @@ class MobileViTV2W150(MobileViTV2Variant):
     config = "v2"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilevit"])
 class MobileViTV2W175(MobileViTV2Variant):
     available_weights = [
         (
@@ -861,6 +871,7 @@ class MobileViTV2W175(MobileViTV2Variant):
     config = "v2"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobilevit"])
 class MobileViTV2W200(MobileViTV2Variant):
     available_weights = [
         (

@@ -3,6 +3,7 @@ import typing
 import keras
 from keras import backend
 
+from kimm._src.kimm_export import kimm_export
 from kimm._src.layers.mobile_one_conv2d import MobileOneConv2D
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.model_registry import add_model_to_registry
@@ -215,6 +216,7 @@ class MobileOneVariant(MobileOne):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobileone"])
 class MobileOneS0(MobileOneVariant):
     available_weights = [
         (
@@ -231,6 +233,7 @@ class MobileOneS0(MobileOneVariant):
     branch_size = 4
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobileone"])
 class MobileOneS1(MobileOneVariant):
     available_weights = [
         (
@@ -247,6 +250,7 @@ class MobileOneS1(MobileOneVariant):
     branch_size = 1
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobileone"])
 class MobileOneS2(MobileOneVariant):
     available_weights = [
         (
@@ -263,6 +267,7 @@ class MobileOneS2(MobileOneVariant):
     branch_size = 1
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.mobileone"])
 class MobileOneS3(MobileOneVariant):
     available_weights = [
         (

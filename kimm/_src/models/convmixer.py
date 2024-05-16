@@ -186,7 +186,7 @@ class ConvMixerVariant(ConvMixer):
         )
 
 
-@kimm_export(path=["kimm.models.ConvMixer736D32"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.convmixer"])
 class ConvMixer736D32(ConvMixerVariant):
     available_feature_keys = ["STEM", *[f"BLOCK{i}" for i in range(32)]]
     available_weights = [
@@ -205,7 +205,7 @@ class ConvMixer736D32(ConvMixerVariant):
     activation = "relu"
 
 
-@kimm_export(path=["kimm.models.ConvMixer1024D20"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.convmixer"])
 class ConvMixer1024D20(ConvMixerVariant):
     available_feature_keys = ["STEM", *[f"BLOCK{i}" for i in range(20)]]
     available_weights = [
@@ -224,7 +224,7 @@ class ConvMixer1024D20(ConvMixerVariant):
     activation = "gelu"
 
 
-@kimm_export(path=["kimm.models.ConvMixer1536D20"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.convmixer"])
 class ConvMixer1536D20(ConvMixerVariant):
     available_feature_keys = ["STEM", *[f"BLOCK{i}" for i in range(20)]]
     available_weights = [

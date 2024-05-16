@@ -8,6 +8,7 @@ from keras import ops
 
 from kimm._src.blocks.conv2d import apply_conv2d_block
 from kimm._src.blocks.squeeze_and_excitation import apply_se_block
+from kimm._src.kimm_export import kimm_export
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.make_divisble import make_divisible
 from kimm._src.utils.model_registry import add_model_to_registry
@@ -433,6 +434,7 @@ class GhostNetVariant(GhostNet):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.ghostnet"])
 class GhostNet050(GhostNetVariant):
     available_weights = []
 
@@ -442,6 +444,7 @@ class GhostNet050(GhostNetVariant):
     version = "v1"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.ghostnet"])
 class GhostNet100(GhostNetVariant):
     available_weights = [
         (
@@ -457,6 +460,7 @@ class GhostNet100(GhostNetVariant):
     version = "v1"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.ghostnet"])
 class GhostNet130(GhostNetVariant):
     available_weights = []
 
@@ -466,6 +470,7 @@ class GhostNet130(GhostNetVariant):
     version = "v1"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.ghostnet"])
 class GhostNet100V2(GhostNetVariant):
     available_weights = [
         (
@@ -481,6 +486,7 @@ class GhostNet100V2(GhostNetVariant):
     version = "v2"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.ghostnet"])
 class GhostNet130V2(GhostNetVariant):
     available_weights = [
         (
@@ -496,6 +502,7 @@ class GhostNet130V2(GhostNetVariant):
     version = "v2"
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.ghostnet"])
 class GhostNet160V2(GhostNetVariant):
     available_weights = [
         (

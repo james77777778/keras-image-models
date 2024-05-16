@@ -2,7 +2,7 @@ from kimm._src.kimm_export import kimm_export
 from kimm._src.models.base_model import BaseModel
 
 
-@kimm_export(path=["kimm.utils.get_reparameterized_model"])
+@kimm_export(parent_path=["kimm.utils"])
 def get_reparameterized_model(model: BaseModel):
     if not hasattr(model, "get_reparameterized_model"):
         raise ValueError(

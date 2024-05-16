@@ -12,7 +12,7 @@ from keras.src.utils.argument_validation import standardize_tuple
 from kimm._src.kimm_export import kimm_export
 
 
-@kimm_export(path=["kimm.layers.MobileOneConv2D"])
+@kimm_export(parent_path=["kimm.layers"])
 @keras.saving.register_keras_serializable(package="kimm")
 class MobileOneConv2D(Layer):
     def __init__(

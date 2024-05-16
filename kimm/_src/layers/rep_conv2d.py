@@ -10,7 +10,7 @@ from keras.src.utils.argument_validation import standardize_tuple
 from kimm._src.kimm_export import kimm_export
 
 
-@kimm_export(path=["kimm.layers.RepConv2D"])
+@kimm_export(parent_path=["kimm.layers"])
 @keras.saving.register_keras_serializable(package="kimm")
 class RepConv2D(Layer):
     def __init__(

@@ -7,6 +7,7 @@ from keras import layers
 
 from kimm._src.blocks.conv2d import apply_conv2d_block
 from kimm._src.blocks.squeeze_and_excitation import apply_se_block
+from kimm._src.kimm_export import kimm_export
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.model_registry import add_model_to_registry
 
@@ -285,6 +286,7 @@ class RegNetVariant(RegNet):
         )
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetX002(RegNetVariant):
     available_weights = [
         (
@@ -303,6 +305,7 @@ class RegNetX002(RegNetVariant):
     se_ratio = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetY002(RegNetVariant):
     available_weights = [
         (
@@ -321,6 +324,7 @@ class RegNetY002(RegNetVariant):
     se_ratio = 0.25
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetX004(RegNetVariant):
     available_weights = [
         (
@@ -339,6 +343,7 @@ class RegNetX004(RegNetVariant):
     se_ratio = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetY004(RegNetVariant):
     available_weights = [
         (
@@ -357,6 +362,7 @@ class RegNetY004(RegNetVariant):
     se_ratio = 0.25
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetX006(RegNetVariant):
     available_weights = [
         (
@@ -375,6 +381,7 @@ class RegNetX006(RegNetVariant):
     se_ratio = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetY006(RegNetVariant):
     available_weights = [
         (
@@ -393,6 +400,7 @@ class RegNetY006(RegNetVariant):
     se_ratio = 0.25
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetX008(RegNetVariant):
     available_weights = [
         (
@@ -411,6 +419,7 @@ class RegNetX008(RegNetVariant):
     se_ratio = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetY008(RegNetVariant):
     available_weights = [
         (
@@ -429,6 +438,7 @@ class RegNetY008(RegNetVariant):
     se_ratio = 0.25
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetX016(RegNetVariant):
     available_weights = [
         (
@@ -447,6 +457,7 @@ class RegNetX016(RegNetVariant):
     se_ratio = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetY016(RegNetVariant):
     available_weights = [
         (
@@ -465,6 +476,7 @@ class RegNetY016(RegNetVariant):
     se_ratio = 0.25
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetX032(RegNetVariant):
     available_weights = [
         (
@@ -483,6 +495,7 @@ class RegNetX032(RegNetVariant):
     se_ratio = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetY032(RegNetVariant):
     available_weights = [
         (
@@ -501,6 +514,7 @@ class RegNetY032(RegNetVariant):
     se_ratio = 0.25
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetX040(RegNetVariant):
     available_weights = [
         (
@@ -519,6 +533,7 @@ class RegNetX040(RegNetVariant):
     se_ratio = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetY040(RegNetVariant):
     available_weights = [
         (
@@ -537,6 +552,7 @@ class RegNetY040(RegNetVariant):
     se_ratio = 0.25
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetX064(RegNetVariant):
     available_weights = [
         (
@@ -555,6 +571,7 @@ class RegNetX064(RegNetVariant):
     se_ratio = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetY064(RegNetVariant):
     available_weights = [
         (
@@ -573,6 +590,7 @@ class RegNetY064(RegNetVariant):
     se_ratio = 0.25
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetX080(RegNetVariant):
     available_weights = [
         (
@@ -591,6 +609,7 @@ class RegNetX080(RegNetVariant):
     se_ratio = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetY080(RegNetVariant):
     available_weights = [
         (
@@ -609,6 +628,7 @@ class RegNetY080(RegNetVariant):
     se_ratio = 0.25
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetX120(RegNetVariant):
     available_weights = [
         (
@@ -627,6 +647,7 @@ class RegNetX120(RegNetVariant):
     se_ratio = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetY120(RegNetVariant):
     available_weights = [
         (
@@ -645,6 +666,7 @@ class RegNetY120(RegNetVariant):
     se_ratio = 0.25
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetX160(RegNetVariant):
     available_weights = [
         (
@@ -663,6 +685,7 @@ class RegNetX160(RegNetVariant):
     se_ratio = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetY160(RegNetVariant):
     available_weights = [
         (
@@ -681,6 +704,7 @@ class RegNetY160(RegNetVariant):
     se_ratio = 0.25
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetX320(RegNetVariant):
     available_weights = [
         (
@@ -699,6 +723,7 @@ class RegNetX320(RegNetVariant):
     se_ratio = 0.0
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.regnet"])
 class RegNetY320(RegNetVariant):
     available_weights = [
         (

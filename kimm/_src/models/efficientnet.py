@@ -390,7 +390,7 @@ class EfficientNetVariant(EfficientNet):
         )
 
 
-@kimm_export(path=["kimm.models.EfficientNetB0"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetB0(EfficientNetVariant):
     available_weights = [
         (
@@ -414,7 +414,7 @@ class EfficientNetB0(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetB1"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetB1(EfficientNetVariant):
     available_weights = [
         (
@@ -438,7 +438,7 @@ class EfficientNetB1(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetB2"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetB2(EfficientNetVariant):
     available_weights = [
         (
@@ -462,7 +462,7 @@ class EfficientNetB2(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetB3"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetB3(EfficientNetVariant):
     available_weights = [
         (
@@ -486,7 +486,7 @@ class EfficientNetB3(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetB4"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetB4(EfficientNetVariant):
     available_weights = [
         (
@@ -510,7 +510,7 @@ class EfficientNetB4(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetB5"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetB5(EfficientNetVariant):
     available_weights = [
         (
@@ -534,7 +534,7 @@ class EfficientNetB5(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetB6"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetB6(EfficientNetVariant):
     available_weights = [
         (
@@ -558,7 +558,7 @@ class EfficientNetB6(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetB7"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetB7(EfficientNetVariant):
     available_weights = [
         (
@@ -582,7 +582,7 @@ class EfficientNetB7(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetLiteB0"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetLiteB0(EfficientNetVariant):
     available_weights = [
         (
@@ -606,7 +606,7 @@ class EfficientNetLiteB0(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetLiteB1"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetLiteB1(EfficientNetVariant):
     available_weights = [
         (
@@ -630,7 +630,7 @@ class EfficientNetLiteB1(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetLiteB2"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetLiteB2(EfficientNetVariant):
     available_weights = [
         (
@@ -654,7 +654,7 @@ class EfficientNetLiteB2(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetLiteB3"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetLiteB3(EfficientNetVariant):
     available_weights = [
         (
@@ -678,7 +678,7 @@ class EfficientNetLiteB3(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetLiteB4"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetLiteB4(EfficientNetVariant):
     available_weights = [
         (
@@ -702,7 +702,7 @@ class EfficientNetLiteB4(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetV2S"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetV2S(EfficientNetVariant):
     available_feature_keys = [
         "STEM_S2",
@@ -730,7 +730,7 @@ class EfficientNetV2S(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetV2M"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetV2M(EfficientNetVariant):
     available_weights = [
         (
@@ -754,7 +754,7 @@ class EfficientNetV2M(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetV2L"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetV2L(EfficientNetVariant):
     available_weights = [
         (
@@ -778,7 +778,7 @@ class EfficientNetV2L(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetV2XL"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetV2XL(EfficientNetVariant):
     available_weights = [
         (
@@ -802,7 +802,7 @@ class EfficientNetV2XL(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetV2B0"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetV2B0(EfficientNetVariant):
     available_feature_keys = [
         "STEM_S2",
@@ -830,7 +830,7 @@ class EfficientNetV2B0(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetV2B1"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetV2B1(EfficientNetVariant):
     available_feature_keys = [
         "STEM_S2",
@@ -858,7 +858,7 @@ class EfficientNetV2B1(EfficientNetVariant):
     padding = "same"
 
 
-@kimm_export(path=["kimm.models.EfficientNetV2B2"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetV2B2(EfficientNetVariant):
     available_feature_keys = [
         "STEM_S2",
@@ -887,7 +887,7 @@ class EfficientNetV2B2(EfficientNetVariant):
     round_limit = 0.0  # fix
 
 
-@kimm_export(path=["kimm.models.EfficientNetV2B3"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class EfficientNetV2B3(EfficientNetVariant):
     available_feature_keys = [
         "STEM_S2",
@@ -916,7 +916,7 @@ class EfficientNetV2B3(EfficientNetVariant):
     round_limit = 0.0  # fix
 
 
-@kimm_export(path=["kimm.models.TinyNetA"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class TinyNetA(EfficientNetVariant):
     available_weights = [
         (
@@ -939,7 +939,7 @@ class TinyNetA(EfficientNetVariant):
     round_fn = round  # tinynet config
 
 
-@kimm_export(path=["kimm.models.TinyNetB"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class TinyNetB(EfficientNetVariant):
     available_weights = [
         (
@@ -962,7 +962,7 @@ class TinyNetB(EfficientNetVariant):
     round_fn = round  # tinynet config
 
 
-@kimm_export(path=["kimm.models.TinyNetC"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class TinyNetC(EfficientNetVariant):
     available_weights = [
         (
@@ -985,7 +985,7 @@ class TinyNetC(EfficientNetVariant):
     round_fn = round  # tinynet config
 
 
-@kimm_export(path=["kimm.models.TinyNetD"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class TinyNetD(EfficientNetVariant):
     available_weights = [
         (
@@ -1008,7 +1008,7 @@ class TinyNetD(EfficientNetVariant):
     round_fn = round  # tinynet config
 
 
-@kimm_export(path=["kimm.models.TinyNetE"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.efficientnet"])
 class TinyNetE(EfficientNetVariant):
     available_weights = [
         (

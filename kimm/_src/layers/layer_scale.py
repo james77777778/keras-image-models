@@ -6,7 +6,7 @@ from keras import ops
 from kimm._src.kimm_export import kimm_export
 
 
-@kimm_export(path=["kimm.layers.LayerScale"])
+@kimm_export(parent_path=["kimm.layers"])
 @keras.saving.register_keras_serializable(package="kimm")
 class LayerScale(layers.Layer):
     def __init__(

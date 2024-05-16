@@ -217,7 +217,7 @@ class DenseNetVariant(DenseNet):
         )
 
 
-@kimm_export(path=["kimm.models.DenseNet121"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.densenet"])
 class DenseNet121(DenseNetVariant):
     available_weights = [
         (
@@ -233,7 +233,7 @@ class DenseNet121(DenseNetVariant):
     default_size = 288
 
 
-@kimm_export(path=["kimm.models.DenseNet161"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.densenet"])
 class DenseNet161(DenseNetVariant):
     available_weights = [
         (
@@ -249,7 +249,7 @@ class DenseNet161(DenseNetVariant):
     default_size = 224
 
 
-@kimm_export(path=["kimm.models.DenseNet169"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.densenet"])
 class DenseNet169(DenseNetVariant):
     available_weights = [
         (
@@ -265,7 +265,7 @@ class DenseNet169(DenseNetVariant):
     default_size = 224
 
 
-@kimm_export(path=["kimm.models.DenseNet201"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.densenet"])
 class DenseNet201(DenseNetVariant):
     available_weights = [
         (

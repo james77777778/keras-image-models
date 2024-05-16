@@ -11,10 +11,10 @@ import timm
 import torch
 
 from kimm.models import vision_transformer
-from kimm.utils.timm_utils import assign_weights
-from kimm.utils.timm_utils import is_same_weights
-from kimm.utils.timm_utils import separate_keras_weights
-from kimm.utils.timm_utils import separate_torch_state_dict
+from kimm.timm_utils import assign_weights
+from kimm.timm_utils import is_same_weights
+from kimm.timm_utils import separate_keras_weights
+from kimm.timm_utils import separate_torch_state_dict
 
 timm_model_names = [
     "vit_tiny_patch16_384",

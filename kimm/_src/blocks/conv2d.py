@@ -6,7 +6,7 @@ from keras import layers
 from kimm._src.kimm_export import kimm_export
 
 
-@kimm_export(path=["kimm.blocks.apply_conv2d_block"])
+@kimm_export(parent_path=["kimm.blocks"])
 def apply_conv2d_block(
     inputs,
     filters: typing.Optional[int] = None,

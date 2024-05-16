@@ -6,6 +6,7 @@ from keras import backend
 from keras import layers
 
 from kimm._src.blocks.conv2d import apply_conv2d_block
+from kimm._src.kimm_export import kimm_export
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.model_registry import add_model_to_registry
 
@@ -312,6 +313,7 @@ class InceptionV3Base(BaseModel):
 # Model Definition
 
 
+@kimm_export(parent_path=["kimm.models", "kimm.models.inception_v3"])
 class InceptionV3(InceptionV3Base):
     available_weights = [
         (

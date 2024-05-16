@@ -11,7 +11,7 @@ from kimm._src.kimm_export import kimm_export
 from kimm._src.models.base_model import BaseModel
 
 
-@kimm_export(path=["kimm.export.export_tflite"])
+@kimm_export(parent_path=["kimm.export"])
 def export_tflite(
     model: BaseModel,
     input_shape: typing.Union[int, typing.Sequence[int]],

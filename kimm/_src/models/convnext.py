@@ -304,7 +304,7 @@ class ConvNeXtVariant(ConvNeXt):
         )
 
 
-@kimm_export(path=["kimm.models.ConvNeXtAtto"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.convnext"])
 class ConvNeXtAtto(ConvNeXtVariant):
     available_weights = [
         (
@@ -323,7 +323,7 @@ class ConvNeXtAtto(ConvNeXtVariant):
     use_conv_mlp = True
 
 
-@kimm_export(path=["kimm.models.ConvNeXtFemto"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.convnext"])
 class ConvNeXtFemto(ConvNeXtVariant):
     available_weights = [
         (
@@ -342,7 +342,7 @@ class ConvNeXtFemto(ConvNeXtVariant):
     use_conv_mlp = True
 
 
-@kimm_export(path=["kimm.models.ConvNeXtPico"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.convnext"])
 class ConvNeXtPico(ConvNeXtVariant):
     available_weights = [
         (
@@ -361,7 +361,7 @@ class ConvNeXtPico(ConvNeXtVariant):
     use_conv_mlp = True
 
 
-@kimm_export(path=["kimm.models.ConvNeXtNano"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.convnext"])
 class ConvNeXtNano(ConvNeXtVariant):
     available_weights = [
         (
@@ -380,7 +380,7 @@ class ConvNeXtNano(ConvNeXtVariant):
     use_conv_mlp = True
 
 
-@kimm_export(path=["kimm.models.ConvNeXtTiny"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.convnext"])
 class ConvNeXtTiny(ConvNeXtVariant):
     available_weights = [
         (
@@ -399,7 +399,7 @@ class ConvNeXtTiny(ConvNeXtVariant):
     use_conv_mlp = False
 
 
-@kimm_export(path=["kimm.models.ConvNeXtSmall"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.convnext"])
 class ConvNeXtSmall(ConvNeXtVariant):
     available_weights = [
         (
@@ -418,7 +418,7 @@ class ConvNeXtSmall(ConvNeXtVariant):
     use_conv_mlp = False
 
 
-@kimm_export(path=["kimm.models.ConvNeXtBase"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.convnext"])
 class ConvNeXtBase(ConvNeXtVariant):
     available_weights = [
         (
@@ -437,7 +437,7 @@ class ConvNeXtBase(ConvNeXtVariant):
     use_conv_mlp = False
 
 
-@kimm_export(path=["kimm.models.ConvNeXtLarge"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.convnext"])
 class ConvNeXtLarge(ConvNeXtVariant):
     available_weights = [
         (
@@ -456,7 +456,7 @@ class ConvNeXtLarge(ConvNeXtVariant):
     use_conv_mlp = False
 
 
-@kimm_export(path=["kimm.models.ConvNeXtXLarge"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.convnext"])
 class ConvNeXtXLarge(ConvNeXtVariant):
     available_weights = []
 

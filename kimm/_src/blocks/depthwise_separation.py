@@ -8,7 +8,7 @@ from kimm._src.blocks.squeeze_and_excitation import apply_se_block
 from kimm._src.kimm_export import kimm_export
 
 
-@kimm_export(path=["kimm.blocks.apply_depthwise_separation_block"])
+@kimm_export(parent_path=["kimm.blocks"])
 def apply_depthwise_separation_block(
     inputs,
     output_channels: int,

@@ -7,7 +7,7 @@ from kimm._src.kimm_export import kimm_export
 from kimm._src.layers.attention import Attention
 
 
-@kimm_export(path=["kimm.blocks.apply_mlp_block"])
+@kimm_export(parent_path=["kimm.blocks"])
 def apply_mlp_block(
     inputs,
     hidden_dim: int,
@@ -44,7 +44,7 @@ def apply_mlp_block(
     return x
 
 
-@kimm_export(path=["kimm.blocks.apply_transformer_block"])
+@kimm_export(parent_path=["kimm.blocks"])
 def apply_transformer_block(
     inputs,
     dim: int,

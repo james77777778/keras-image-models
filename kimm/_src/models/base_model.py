@@ -12,7 +12,7 @@ from keras.src.applications import imagenet_utils
 from kimm._src.kimm_export import kimm_export
 
 
-@kimm_export(path=["kimm.models.BaseModel"])
+@kimm_export(parent_path=["kimm.models", "kimm.models.base_model"])
 class BaseModel(models.Model):
     default_origin = (
         "https://github.com/james77777778/kimm/releases/download/0.1.0/"

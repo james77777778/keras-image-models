@@ -9,7 +9,7 @@ from kimm._src.kimm_export import kimm_export
 from kimm._src.utils.make_divisble import make_divisible
 
 
-@kimm_export(path=["kimm.blocks.apply_inverted_residual_block"])
+@kimm_export(parent_path=["kimm.blocks"])
 def apply_inverted_residual_block(
     inputs,
     output_channels: int,

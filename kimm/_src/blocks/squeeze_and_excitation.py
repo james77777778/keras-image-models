@@ -7,7 +7,7 @@ from kimm._src.kimm_export import kimm_export
 from kimm._src.utils.make_divisble import make_divisible
 
 
-@kimm_export(path=["kimm.blocks.apply_se_block"])
+@kimm_export(parent_path=["kimm.blocks"])
 def apply_se_block(
     inputs,
     se_ratio: float = 0.25,

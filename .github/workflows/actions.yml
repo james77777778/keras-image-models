@@ -21,31 +21,53 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
-      - uses: pre-commit/action@v3.0.1
-
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.9]
-        backend: [tensorflow, jax, torch, numpy]
-    name: Run tests
-    runs-on: ubuntu-latest
-    env:
-      PYTHON: ${{ matrix.python-version }}
-      KERAS_BACKEND: ${{ matrix.backend }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+      - name: Lint
+        uses: pre-commit/action@v3.0.1
       - name: Get pip cache dir
         id: pip-cache
         run: |
           python -m pip install --upgrade pip setuptools
           echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
-      - name: Pip cache
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt --progress-bar off --upgrade
+          pip install -e ".[tests]" --progress-bar off --upgrade
+      - name: Check for API changes
+        run: |
+          bash shell/api_gen.sh
+          git status
+          clean=$(git status | grep "nothing to commit")
+          if [ -z "$clean" ]; then
+            echo "Please run shell/api_gen.sh to generate API."
+            exit 1
+          fi
+
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        backend: [tensorflow, jax, torch, numpy]
+    name: Run tests
+    runs-on: ubuntu-latest
+    env:
+      KERAS_BACKEND: ${{ matrix.backend }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      - name: Get pip cache dir
+        id: pip-cache
+        run: |
+          python -m pip install --upgrade pip setuptools
+          echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
+      - name: Cache pip
         uses: actions/cache@v4
         with:
           path: ${{ steps.pip-cache.outputs.dir }}

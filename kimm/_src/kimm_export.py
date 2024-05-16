@@ -81,7 +81,7 @@ else:
             if isinstance(self.parent_path, list):
                 path = [p + f".{symbol.__name__}" for p in self.parent_path]
             elif isinstance(self.parent_path, str):
-                path = path + f".{symbol.__name__}"
+                path = self.parent_path + f".{symbol.__name__}"
 
-            register_internal_serializable(self.path, symbol)
+            register_internal_serializable(path, symbol)
             return symbol

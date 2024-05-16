@@ -34,11 +34,10 @@ def clear_registry():
     MODEL_REGISTRY.clear()
 
 
-@kimm_export(parent_path=["kimm.utils"])
 def add_model_to_registry(model_cls, weights: typing.Optional[str] = None):
     from kimm._src.models.base_model import BaseModel
 
-    # deal with __all__
+    # Deal with __all__
     mod = sys.modules[model_cls.__module__]
     model_name = model_cls.__name__
     if hasattr(mod, "__all__"):
@@ -46,7 +45,7 @@ def add_model_to_registry(model_cls, weights: typing.Optional[str] = None):
     else:
         mod.__all__ = [model_name]
 
-    # add model information
+    # Add model information
     feature_extractor = False
     feature_keys = []
     if issubclass(model_cls, BaseModel):
@@ -79,18 +78,18 @@ def list_models(
     name: typing.Optional[str] = None,
     feature_extractor: typing.Optional[bool] = None,
     weights: typing.Optional[typing.Union[bool, str]] = None,
-):
+) -> typing.List[str]:
     result_names: typing.Set = set()
     for info in MODEL_REGISTRY:
-        # add by default
+        # Add by default
         result_names.add(info["name"])
         need_remove = False
 
-        # match string (simple implementation)
+        # Match string (simple implementation)
         if name is not None:
             need_remove = not _match_string(name, info["name"])
 
-        # filter by feature_extractor and weights
+        # Filter by feature_extractor and weights
         if (
             feature_extractor is not None
             and info["feature_extractor"] is not feature_extractor
@@ -104,7 +103,6 @@ def list_models(
             elif isinstance(weights, str):
                 if weights.lower() != info["weights"]:
                     need_remove = True
-
         if need_remove:
             result_names.remove(info["name"])
     return sorted(result_names)

@@ -60,6 +60,7 @@ tests = [
     "coverage",
     # tool
     "pre-commit",
+    "namex",
 ]
 examples = ["opencv-python", "matplotlib"]
 
@@ -86,7 +87,6 @@ exclude = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"./examples/**/*" = ["E402"]
 "**/__init__.py" = ["F401"]
 
 [tool.isort]
@@ -96,7 +96,7 @@ known_first_party = ["kimm"]
 line_length = 80
 
 [tool.pytest.ini_options]
-addopts = "--durations 10 --cov --cov-report html --cov-report term:skip-covered --cov-report xml"
+addopts = "-vv --durations 10 --cov --cov-report html --cov-report term:skip-covered --cov-report xml"
 testpaths = ["kimm"]
 filterwarnings = [
     "error",

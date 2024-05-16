@@ -2,7 +2,6 @@ import keras
 from keras import initializers
 from keras import layers
 from keras import ops
-from keras.initializers import Initializer
 
 
 @keras.saving.register_keras_serializable(package="kimm")
@@ -10,7 +9,7 @@ class LayerScale(layers.Layer):
     def __init__(
         self,
         axis: int = -1,
-        initializer: Initializer = initializers.Constant(1e-5),
+        initializer: initializers.Initializer = initializers.Constant(1e-5),
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -29,8 +28,6 @@ class LayerScale(layers.Layer):
         self.built = True
 
     def call(self, inputs, training=None, mask=None):
-        inputs = ops.cast(inputs, self.compute_dtype)
-
         # Broadcasting only necessary for norm when the axis is not just
         # the last dimension
         input_shape = inputs.shape
@@ -40,7 +37,6 @@ class LayerScale(layers.Layer):
             broadcast_shape[dim] = input_shape[dim]
         gamma = ops.reshape(self.gamma, broadcast_shape)
         gamma = ops.cast(gamma, self.compute_dtype)
-
         return ops.multiply(inputs, gamma)
 
     def get_config(self):

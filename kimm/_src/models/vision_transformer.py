@@ -15,6 +15,9 @@ from kimm._src.utils.model_registry import add_model_to_registry
 
 @keras.saving.register_keras_serializable(package="kimm")
 class VisionTransformer(BaseModel):
+    # Updated weights: resizable position embedding
+    default_origin = "https://github.com/james77777778/keras-image-models/releases/download/0.1.2/"
+
     def __init__(
         self,
         patch_size: int,
@@ -23,13 +26,10 @@ class VisionTransformer(BaseModel):
         num_heads: int,
         mlp_ratio: float = 4.0,
         use_qkv_bias: bool = True,
-        use_qk_norm: bool = False,
         pos_dropout_rate: float = 0.0,
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs, 384)
         if self._pooling is not None:
             raise ValueError(
@@ -62,9 +62,12 @@ class VisionTransformer(BaseModel):
         # TODO: natively support channels_first
         if backend.image_data_format() == "channels_first":
             x = ops.transpose(x, [0, 2, 3, 1])
+        height, width = x.shape[-3], x.shape[-2]
 
         x = layers.Reshape((-1, embed_dim))(x)
-        x = PositionEmbedding(name="postition_embedding")(x)
+        x = PositionEmbedding(
+            height=height, width=width, name="postition_embedding"
+        )(x)
         features["EMBEDDING"] = x
         x = layers.Dropout(pos_dropout_rate, name="pos_dropout")(x)
 
@@ -75,7 +78,6 @@ class VisionTransformer(BaseModel):
                 num_heads,
                 mlp_ratio,
                 use_qkv_bias,
-                use_qk_norm,
                 activation="gelu",
                 name=f"blocks_{i}",
             )
@@ -100,7 +102,6 @@ class VisionTransformer(BaseModel):
         self.num_heads = num_heads
         self.mlp_ratio = mlp_ratio
         self.use_qkv_bias = use_qkv_bias
-        self.use_qk_norm = use_qk_norm
         self.pos_dropout_rate = pos_dropout_rate
 
     def build_top(self, inputs, classes, classifier_activation, dropout_rate):
@@ -121,7 +122,6 @@ class VisionTransformer(BaseModel):
                 "num_heads": self.num_heads,
                 "mlp_ratio": self.mlp_ratio,
                 "use_qkv_bias": self.use_qkv_bias,
-                "use_qk_norm": self.use_qk_norm,
                 "pos_dropout_rate": self.pos_dropout_rate,
             }
         )
@@ -135,7 +135,7 @@ class VisionTransformer(BaseModel):
             "num_heads",
             "mlp_ratio",
             "use_qkv_bias",
-            "use_qk_norm",
+            "use_qk_norm",  # Deprecated
             "pos_dropout_rate",
         ]
         for k in unused_kwargs:
@@ -154,7 +154,6 @@ class VisionTransformerVariant(VisionTransformer):
     num_heads = None
     mlp_ratio = None
     use_qkv_bias = None
-    use_qk_norm = None
     pos_dropout_rate = None
 
     def __init__(
@@ -190,7 +189,6 @@ class VisionTransformerVariant(VisionTransformer):
             num_heads=self.num_heads,
             mlp_ratio=self.mlp_ratio,
             use_qkv_bias=self.use_qkv_bias,
-            use_qk_norm=self.use_qk_norm,
             pos_dropout_rate=self.pos_dropout_rate,
             input_tensor=input_tensor,
             input_shape=input_shape,
@@ -227,7 +225,6 @@ class VisionTransformerTiny16(VisionTransformerVariant):
     num_heads = 3
     mlp_ratio = 4.0
     use_qkv_bias = True
-    use_qk_norm = False
     pos_dropout_rate = 0.0
 
 
@@ -246,7 +243,6 @@ class VisionTransformerTiny32(VisionTransformerVariant):
     num_heads = 3
     mlp_ratio = 4.0
     use_qkv_bias = True
-    use_qk_norm = False
     pos_dropout_rate = 0.0
 
 
@@ -271,7 +267,6 @@ class VisionTransformerSmall16(VisionTransformerVariant):
     num_heads = 6
     mlp_ratio = 4.0
     use_qkv_bias = True
-    use_qk_norm = False
     pos_dropout_rate = 0.0
 
 
@@ -296,7 +291,6 @@ class VisionTransformerSmall32(VisionTransformerVariant):
     num_heads = 6
     mlp_ratio = 4.0
     use_qkv_bias = True
-    use_qk_norm = False
     pos_dropout_rate = 0.0
 
 
@@ -321,7 +315,6 @@ class VisionTransformerBase16(VisionTransformerVariant):
     num_heads = 12
     mlp_ratio = 4.0
     use_qkv_bias = True
-    use_qk_norm = False
     pos_dropout_rate = 0.0
 
 
@@ -346,7 +339,6 @@ class VisionTransformerBase32(VisionTransformerVariant):
     num_heads = 12
     mlp_ratio = 4.0
     use_qkv_bias = True
-    use_qk_norm = False
     pos_dropout_rate = 0.0
 
 
@@ -356,7 +348,13 @@ class VisionTransformerLarge16(VisionTransformerVariant):
         "EMBEDDING",
         *[f"BLOCK{i}" for i in range(24)],
     ]
-    available_weights = []
+    available_weights = [
+        (
+            "imagenet",
+            VisionTransformer.default_origin,
+            "visiontransformerlarge16_vit_large_patch16_384.keras",
+        )
+    ]
 
     # Parameters
     patch_size = 16
@@ -365,7 +363,6 @@ class VisionTransformerLarge16(VisionTransformerVariant):
     num_heads = 16
     mlp_ratio = 4.0
     use_qkv_bias = True
-    use_qk_norm = False
     pos_dropout_rate = 0.0
 
 
@@ -375,7 +372,13 @@ class VisionTransformerLarge32(VisionTransformerVariant):
         "EMBEDDING",
         *[f"BLOCK{i}" for i in range(24)],
     ]
-    available_weights = []
+    available_weights = [
+        (
+            "imagenet",
+            VisionTransformer.default_origin,
+            "visiontransformerlarge32_vit_large_patch32_384.keras",
+        )
+    ]
 
     # Parameters
     patch_size = 32
@@ -384,7 +387,6 @@ class VisionTransformerLarge32(VisionTransformerVariant):
     num_heads = 16
     mlp_ratio = 4.0
     use_qkv_bias = True
-    use_qk_norm = False
     pos_dropout_rate = 0.0
 
 
@@ -394,5 +396,5 @@ add_model_to_registry(VisionTransformerSmall16, "imagenet")
 add_model_to_registry(VisionTransformerSmall32, "imagenet")
 add_model_to_registry(VisionTransformerBase16, "imagenet")
 add_model_to_registry(VisionTransformerBase32, "imagenet")
-add_model_to_registry(VisionTransformerLarge16)
-add_model_to_registry(VisionTransformerLarge32)
+add_model_to_registry(VisionTransformerLarge16, "imagenet")
+add_model_to_registry(VisionTransformerLarge32, "imagenet")

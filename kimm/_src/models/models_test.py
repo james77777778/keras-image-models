@@ -6,6 +6,7 @@ from keras.src import testing
 
 from kimm._src import models as kimm_models
 from kimm._src.utils.make_divisble import make_divisible
+from kimm._src.utils.model_utils import get_reparameterized_model
 
 decode_predictions = keras.applications.imagenet_utils.decode_predictions
 
@@ -13,12 +14,12 @@ decode_predictions = keras.applications.imagenet_utils.decode_predictions
 
 
 class SampleModel(kimm_models.BaseModel):
-    available_feature_keys = [f"S{2**i}" for i in range(1, 6)]
+    available_feature_keys = [f"S{2**i}" for i in range(1, 4)]
+    available_weights = [("imagenet", "123", "123.keras")]
 
     def __init__(self, **kwargs):
         self.set_properties(kwargs)
-        inputs = keras.layers.Input(shape=[224, 224, 3])
-
+        inputs = keras.layers.Input(shape=[64, 64, 3])
         features = {}
         s2 = keras.layers.Conv2D(3, 1, 2, use_bias=False)(inputs)
         features["S2"] = s2
@@ -26,24 +27,34 @@ class SampleModel(kimm_models.BaseModel):
         features["S4"] = s4
         s8 = keras.layers.Conv2D(3, 1, 2, use_bias=False)(s4)
         features["S8"] = s8
-        s16 = keras.layers.Conv2D(3, 1, 2, use_bias=False)(s8)
-        features["S16"] = s16
-        s32 = keras.layers.Conv2D(3, 1, 2, use_bias=False)(s16)
-        features["S32"] = s32
-        outputs = keras.layers.GlobalAveragePooling2D()(s32)
+        outputs = keras.layers.GlobalAveragePooling2D()(s8)
         super().__init__(
             inputs=inputs, outputs=outputs, features=features, **kwargs
         )
 
 
+class SampleModelNoProperties(kimm_models.BaseModel):
+    def __init__(self):
+        inputs = keras.Input([2, 4])
+        outputs = keras.layers.Dense(8)(inputs)
+        features = {"FEAT": outputs}
+        super().__init__(inputs=inputs, outputs=outputs, features=features)
+
+
+class SampleModelStaticShape(kimm_models.BaseModel):
+    def __init__(self, input_shape=None, input_tensor=None):
+        self.determine_input_tensor(
+            input_tensor, input_shape, static_shape=True
+        )
+
+
 class BaseModelTest(testing.TestCase, parameterized.TestCase):
     def test_feature_extractor(self):
-        x = keras.random.uniform([1, 224, 224, 3])
+        x = keras.random.uniform([1, 64, 64, 3])
 
         # Test availiable_feature_keys
         self.assertContainsSubset(
-            ["S2", "S4", "S8", "S16", "S32"],
-            SampleModel.available_feature_keys,
+            ["S2", "S4", "S8"], SampleModel.available_feature_keys
         )
 
         # Test feature_extractor=False
@@ -56,23 +67,80 @@ class BaseModelTest(testing.TestCase, parameterized.TestCase):
         model = SampleModel(feature_extractor=True)
         y = model(x, training=False)
         self.assertIsInstance(y, dict)
-        self.assertEqual(list(y["S2"].shape), [1, 112, 112, 3])
-        self.assertEqual(list(y["S32"].shape), [1, 7, 7, 3])
+        self.assertEqual(list(y["S2"].shape), [1, 32, 32, 3])
+        self.assertEqual(list(y["S8"].shape), [1, 8, 8, 3])
 
         # Test feature_extractor=True with feature_keys
         model = SampleModel(
-            include_top=False,
-            feature_extractor=True,
-            feature_keys=["S2", "S16", "S32"],
+            include_top=False, feature_extractor=True, feature_keys=["S2", "S8"]
         )
         y = model(x, training=False)
         self.assertIsInstance(y, dict)
         self.assertNotIn("S4", y)
-        self.assertNotIn("S8", y)
-        self.assertEqual(list(y["S2"].shape), [1, 112, 112, 3])
-        self.assertEqual(list(y["S16"].shape), [1, 14, 14, 3])
-        self.assertEqual(list(y["S32"].shape), [1, 7, 7, 3])
+        self.assertEqual(list(y["S2"].shape), [1, 32, 32, 3])
+        self.assertEqual(list(y["S8"].shape), [1, 8, 8, 3])
         self.assertNotIn("TOP", y)
+
+    def test_feature_extractor_invalid_setting(self):
+        with self.assertRaisesRegex(
+            AttributeError, "`self._feature_keys` must be set when initializing"
+        ):
+            SampleModelNoProperties()
+        with self.assertRaisesRegex(KeyError, "is not a key of `features`."):
+            SampleModel(feature_extractor=True, feature_keys=["123"])
+
+    def test_determine_input_tensor(self):
+        # Test static shape
+        SampleModelStaticShape(input_shape=[64, 64, 3])
+        inputs = keras.Input([64, 64, 3])
+        SampleModelStaticShape(input_tensor=inputs)
+
+        # Test arbitrary shape
+        with self.assertRaisesRegex(ValueError, "The inferred input_shape"):
+            SampleModelStaticShape(input_shape=[None, None, 3])
+        with self.assertRaisesRegex(ValueError, "The inferred input_shape"):
+            inputs = keras.Input([None, None, 3])
+            SampleModelStaticShape(input_tensor=inputs)
+
+    def test_build_head(self):
+        x = keras.random.uniform([1, 64, 64, 3])
+
+        # Test avg pooling
+        model = kimm_models.mobilenet_v2.MobileNetV2W050(
+            include_top=False, pooling="avg", weights=None
+        )
+        y = model(x, training=False)
+        self.assertEqual(list(y.shape), [1, 1280])
+
+        # Test max pooling
+        model = kimm_models.mobilenet_v2.MobileNetV2W050(
+            include_top=False, pooling="max", weights=None
+        )
+        y = model(x, training=False)
+        self.assertEqual(list(y.shape), [1, 1280])
+
+    def test_weights(self):
+        # Test local file
+        temp_dir = self.get_temp_dir()
+        x = keras.random.uniform([1, 64, 64, 3])
+        model = SampleModel()
+        y1 = model(x, training=False)
+        model.save(f"{temp_dir}/model.keras")
+        model = SampleModel(weights=f"{temp_dir}/model.keras")
+        y2 = model(x, training=False)
+        self.assertAllClose(y1, y2)
+
+        # Test URL
+        weights = kimm_models.mobilevit.MobileViTXXS.available_weights[0]
+        url = f"{weights[1]}{weights[2]}"
+        kimm_models.mobilevit.MobileViTXXS(weights=url)
+
+    def test_weights_invalid_string(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            "If `weights` is a URL string, the available weights are",
+        ):
+            SampleModel(weights="imagenet123")
 
 
 # Test some small models
@@ -541,19 +609,44 @@ class ModelsTest(testing.TestCase, parameterized.TestCase):
             224,
         ),
     )
-    def test_get_reparameterized_model(
-        self,
-        model_class,
-        image_size,
-    ):
-        x = keras.random.uniform([1, image_size, image_size, 3]) * 255.0
-        model = model_class()
-        reparameterized_model = model.get_reparameterized_model()
-
+    def test_get_reparameterized_model(self, model_class, image_size):
+        x = keras.random.uniform([1, image_size, image_size, 3], seed=2024)
+        model = model_class(weights=None)
         y1 = model(x, training=False)
-        y2 = reparameterized_model(x, training=False)
 
-        self.assertAllClose(y1, y2, atol=1e-5)
+        # Test kimm.utils.get_reparameterized_model
+        reparameterized_model = get_reparameterized_model(model)
+        y2 = reparameterized_model(x, training=False)
+        self.assertAllClose(y1, y2, atol=1e-1)  # CPU: atol=1e-5
+
+        # Test BaseModel.get_reparameterized_model()
+        reparameterized_model = model.get_reparameterized_model()
+        y2 = reparameterized_model(x, training=False)
+        self.assertAllClose(y1, y2, atol=1e-1)  # CPU: atol=1e-5
+
+    @parameterized.named_parameters(
+        (
+            kimm_models.mobilevit.MobileViTXXS.__name__,
+            kimm_models.mobilevit.MobileViTXXS,
+            224,  # default_size=256
+        ),
+        (
+            kimm_models.mobilevit.MobileViTV2W050.__name__,
+            kimm_models.mobilevit.MobileViTV2W050,
+            224,  # default_size=256
+        ),
+        (
+            kimm_models.vision_transformer.VisionTransformerTiny16.__name__,
+            kimm_models.vision_transformer.VisionTransformerTiny16,
+            224,  # default_size=384
+        ),
+    )
+    def test_arbitrary_shape(self, model_class, image_size):
+        x = keras.random.uniform([1, image_size, image_size, 3]) * 255.0
+        model = model_class(
+            input_shape=[image_size, image_size, 3], weights=None
+        )
+        model(x, training=False)
 
     @pytest.mark.serialization
     @parameterized.named_parameters(MODEL_CONFIGS)

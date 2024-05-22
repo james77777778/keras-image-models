@@ -159,13 +159,11 @@ class RegNet(BaseModel):
         group_size: int = 24,
         depth: int = 21,
         se_ratio: float = 0.0,
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
         per_stage_config = _generate_regnet(w0, wa, wm, group_size, depth)
 
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         inputs = self.determine_input_tensor(
             input_tensor,

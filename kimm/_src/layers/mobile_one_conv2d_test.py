@@ -73,7 +73,7 @@ TEST_CASES = [
 class MobileOneConv2DTest(testing.TestCase, parameterized.TestCase):
     @parameterized.parameters(TEST_CASES)
     @pytest.mark.requires_trainable_backend
-    def test_mobile_one_conv2d_basic(
+    def test_basic(
         self,
         filters,
         kernel_size,
@@ -113,7 +113,7 @@ class MobileOneConv2DTest(testing.TestCase, parameterized.TestCase):
         )
 
     @parameterized.parameters(TEST_CASES)
-    def test_mobile_one_conv2d_get_reparameterized_weights(
+    def test_get_reparameterized_weights(
         self,
         filters,
         kernel_size,

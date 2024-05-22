@@ -83,10 +83,9 @@ class DenseNet(BaseModel):
         self,
         growth_rate: float = 32,
         num_blocks: typing.Sequence[int] = [6, 12, 24, 16],
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         channels_axis = (
             -1 if backend.image_data_format() == "channels_last" else -3

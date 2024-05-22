@@ -151,11 +151,9 @@ class InceptionNeXt(BaseModel):
         hidden_channels: typing.Sequence[int] = [96, 192, 384, 768],
         mlp_ratios: typing.Sequence[float] = [4, 4, 4, 3],
         activation: str = "gelu",
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs, 224)
         channels_axis = (
             -1 if backend.image_data_format() == "channels_last" else -3

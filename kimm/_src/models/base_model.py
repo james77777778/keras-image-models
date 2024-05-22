@@ -14,9 +14,7 @@ from kimm._src.kimm_export import kimm_export
 
 @kimm_export(parent_path=["kimm.models", "kimm.models.base_model"])
 class BaseModel(models.Model):
-    default_origin = (
-        "https://github.com/james77777778/kimm/releases/download/0.1.0/"
-    )
+    default_origin = "https://github.com/james77777778/keras-image-models/releases/download/0.1.0/"
     available_feature_keys = []
     available_weights = []
 
@@ -27,44 +25,46 @@ class BaseModel(models.Model):
         features: typing.Optional[typing.Dict[str, KerasTensor]] = None,
         **kwargs,
     ):
+        self._check_feature_extractor_setting(features)
         _include_top = getattr(self, "_include_top", True)
-        if not hasattr(self, "_feature_extractor"):
+        if self._feature_extractor:
+            if self._feature_keys is None:
+                self._feature_keys = list(features.keys())
+            filtered_features = {}
+            for k in self._feature_keys:
+                filtered_features[k] = features[k]
+            # Add outputs
+            if _include_top and backend.is_keras_tensor(outputs):
+                filtered_features["TOP"] = outputs
+            super().__init__(inputs=inputs, outputs=filtered_features, **kwargs)
+        else:
             del features
             super().__init__(inputs=inputs, outputs=outputs, **kwargs)
-        else:
-            if not hasattr(self, "_feature_keys"):
-                raise AttributeError(
-                    "`self._feature_keys` must be set when initializing "
-                    "BaseModel"
-                )
-            if self._feature_extractor:
-                if features is None:
-                    raise ValueError(
-                        "`features` must be set when `feature_extractor=True`. "
-                        f"Received features={features}"
-                    )
-                if self._feature_keys is None:
-                    self._feature_keys = list(features.keys())
-                filtered_features = {}
-                for k in self._feature_keys:
-                    if k not in features:
-                        raise KeyError(
-                            f"'{k}' is not a key of `features`. Available keys "
-                            f"are: {list(features.keys())}"
-                        )
-                    filtered_features[k] = features[k]
-                # Add outputs
-                if _include_top and backend.is_keras_tensor(outputs):
-                    filtered_features["TOP"] = outputs
-                super().__init__(
-                    inputs=inputs, outputs=filtered_features, **kwargs
-                )
-            else:
-                del features
-                super().__init__(inputs=inputs, outputs=outputs, **kwargs)
 
-        if hasattr(self, "_weights_url"):
-            self.load_pretrained_weights(self._weights_url)
+        if hasattr(self, "_weights"):
+            self.load_pretrained_weights(self._weights)
+
+    def _check_feature_extractor_setting(self, features):
+        if not hasattr(self, "_feature_keys"):
+            raise AttributeError(
+                "`self._feature_keys` must be set when initializing "
+                "BaseModel"
+            )
+        if self._feature_extractor:
+            if features is None:
+                raise ValueError(
+                    "`features` must be set when `feature_extractor=True`. "
+                    f"Received features={features}"
+                )
+            _feature_keys = self._feature_keys
+            if _feature_keys is None:
+                _feature_keys = list(features.keys())
+            for k in _feature_keys:
+                if k not in features:
+                    raise KeyError(
+                        f"'{k}' is not a key of `features`. Available keys "
+                        f"are: {list(features.keys())}"
+                    )
 
     def set_properties(
         self, kwargs: typing.Dict[str, typing.Any], default_size: int = 224
@@ -79,9 +79,10 @@ class BaseModel(models.Model):
         - dropout_rate
         - classes
         - classifier_activation
-        - _weights
-        - weights_url
+        - weights
         - default_size
+        - feature_extractor
+        - feature_keys
         """
         self._input_shape = kwargs.pop("input_shape", None)
         self._include_preprocessing = kwargs.pop("include_preprocessing", True)
@@ -92,8 +93,7 @@ class BaseModel(models.Model):
         self._classifier_activation = kwargs.pop(
             "classifier_activation", "softmax"
         )
-        self._weights = kwargs.pop("weights", None)
-        self._weights_url = kwargs.pop("weights_url", None)
+        self._weights = self.parse_weights(kwargs.pop("weights", None))
         self._default_size = kwargs.pop("default_size", default_size)
         # feature extractor
         self._feature_extractor = kwargs.pop("feature_extractor", False)
@@ -109,22 +109,39 @@ class BaseModel(models.Model):
         static_shape: bool = False,
     ):
         """Determine the input tensor by the arguments."""
-        input_shape = imagenet_utils.obtain_input_shape(
-            input_shape,
-            default_size=default_size,
-            min_size=min_size,
-            data_format=backend.image_data_format(),
-            require_flatten=require_flatten or static_shape,
-            weights=None,
-        )
-
+        try:
+            input_shape = imagenet_utils.obtain_input_shape(
+                input_shape,
+                default_size=default_size,
+                min_size=min_size,
+                data_format=backend.image_data_format(),
+                require_flatten=require_flatten or static_shape,
+                weights=None,
+            )
+        except ValueError as e:
+            # Override the error msg from `obtain_input_shape`
+            if "If `include_top` is True" in str(e):
+                raise ValueError(
+                    f"The inferred input_shape={input_shape} must be "
+                    f"static for {self.__class__.__name__} "
+                    f"(require_flatten={require_flatten}, "
+                    f"static_shape={static_shape})."
+                ) from None
         if input_tensor is None:
             x = layers.Input(shape=input_shape)
         else:
             if not backend.is_keras_tensor(input_tensor):
                 x = layers.Input(tensor=input_tensor, shape=input_shape)
             else:
-                x = utils.get_source_inputs(input_tensor)
+                x = utils.get_source_inputs(input_tensor)[0]
+        if static_shape:
+            if None in x.shape[1:]:
+                raise ValueError(
+                    f"The inferred input_shape={x.shape} must be "
+                    f"static for {self.__class__.__name__} "
+                    f"(require_flatten={require_flatten}, "
+                    f"static_shape={static_shape})."
+                )
         return x
 
     def build_preprocessing(
@@ -132,6 +149,16 @@ class BaseModel(models.Model):
         inputs,
         mode: typing.Literal["imagenet", "0_1", "-1_1"] = "imagenet",
     ):
+        """Build the preprocessing pipeline.
+
+        Args:
+            inputs: A `KerasTensor` indicating the input.
+            mode: A `str` indicating the preprocessing mode. The available modes
+                are {"imagenet", "0_1", "-1_1"}. Defaults to "imagenet".
+
+        Returns:
+            A `KerasTensor`.
+        """
         if self._include_preprocessing is False:
             return inputs
         channels_axis = (
@@ -188,12 +215,27 @@ class BaseModel(models.Model):
                 x = layers.GlobalMaxPooling2D(name="max_pool")(x)
         return x
 
-    def load_pretrained_weights(self, weights_url: typing.Optional[str] = None):
-        if weights_url is not None:
-            result = urllib.parse.urlparse(weights_url)
+    def load_pretrained_weights(
+        self,
+        weights: typing.Union[pathlib.Path, str, None] = None,
+    ):
+        """Load the pretrained weights from `weights_url`.
+
+        This function prefers the following order:
+        1. Local file (a instance of pathlib.Path)
+        2. URL (a str starting with 'https://')
+        """
+        if weights is None:
+            return
+        # Check local files
+        if isinstance(weights, pathlib.Path):
+            self.load_weights(weights)
+        # Check URL
+        else:
+            result = urllib.parse.urlparse(weights)
             file_name = pathlib.Path(result.path).name
             weights_path = utils.get_file(
-                file_name, weights_url, cache_subdir="kimm_models"
+                file_name, weights, cache_subdir="kimm_models"
             )
             self.load_weights(weights_path)
 
@@ -213,7 +255,6 @@ class BaseModel(models.Model):
             "classes": self._classes,
             "classifier_activation": self._classifier_activation,
             "weights": self._weights,
-            "weights_url": self._weights_url,
             # feature extractor
             "feature_extractor": self._feature_extractor,
             "feature_keys": self._feature_keys,
@@ -223,19 +264,34 @@ class BaseModel(models.Model):
     def fix_config(self, config: typing.Dict):
         return config
 
-    def get_weights_url(self, weights):
+    def parse_weights(self, weights: typing.Union[str, None]):
+        """Parse the path/URL if weights is specified.
+
+        This function prefers the following order:
+        1. Local file (a instance of pathlib.Path)
+        2. URL (a str starting with 'https://')
+        3. Available weights (mostly 'imagenet')
+        """
         if weights is None:
             return None
-
-        for _weights, _origin, _file_name in self.available_weights:
-            if weights == _weights:
-                return f"{_origin}{_file_name}"
+        # Check local files
+        elif pathlib.Path(weights).exists():
+            return pathlib.Path(weights)
+        # Check URL
+        elif str(weights).startswith(("http://", "https://")):
+            return str(weights)
+        # Check avaiable weights (a plain string)
+        else:
+            # Parse the string for available weights
+            for _weights, _origin, _file_name in self.available_weights:
+                if weights == _weights:
+                    return f"{_origin}{_file_name}"
 
         # Failed to find the weights
         _available_weights_name = [
-            _weights for _weights, _ in self.available_weights
+            _weights for _weights, _, _ in self.available_weights
         ]
         raise ValueError(
-            f"Available weights are {_available_weights_name}. "
-            f"Received weights={weights}"
+            f"If `weights` is a URL string, the available weights are "
+            f"{_available_weights_name}. Received: weights={weights}"
         )

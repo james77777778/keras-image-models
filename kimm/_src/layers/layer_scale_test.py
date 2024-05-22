@@ -7,7 +7,7 @@ from kimm._src.layers.layer_scale import LayerScale
 
 class LayerScaleTest(testing.TestCase, parameterized.TestCase):
     @pytest.mark.requires_trainable_backend
-    def test_layer_scale_basic(self):
+    def test_basic(self):
         self.run_layer_test(
             LayerScale,
             init_kwargs={"axis": -1},

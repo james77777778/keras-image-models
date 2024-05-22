@@ -150,10 +150,9 @@ class EfficientNet(BaseModel):
         fix_first_and_last_blocks: bool = False,
         activation="swish",
         config: str = "v1",
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
         _available_configs = [
             "v1",
             "v1_lite",
@@ -190,7 +189,6 @@ class EfficientNet(BaseModel):
         # TinyNet config
         round_fn = kwargs.pop("round_fn", math.ceil)
 
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         channels_axis = (
             -1 if backend.image_data_format() == "channels_last" else -3

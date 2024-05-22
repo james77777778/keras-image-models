@@ -143,10 +143,9 @@ class ConvNeXt(BaseModel):
         kernel_size: int = 7,
         activation: str = "gelu",
         use_conv_mlp: bool = False,
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         channels_axis = (
             -1 if backend.image_data_format() == "channels_last" else -3
@@ -458,7 +457,13 @@ class ConvNeXtLarge(ConvNeXtVariant):
 
 @kimm_export(parent_path=["kimm.models", "kimm.models.convnext"])
 class ConvNeXtXLarge(ConvNeXtVariant):
-    available_weights = []
+    available_weights = [
+        (
+            "imagenet",
+            ConvNeXt.default_origin,
+            "convnextxlarge_convnext_xlarge.fb_in22k_ft_in1k.keras",
+        )
+    ]
 
     # Parameters
     depths = (3, 3, 27, 3)
@@ -477,4 +482,4 @@ add_model_to_registry(ConvNeXtTiny, "imagenet")
 add_model_to_registry(ConvNeXtSmall, "imagenet")
 add_model_to_registry(ConvNeXtBase, "imagenet")
 add_model_to_registry(ConvNeXtLarge, "imagenet")
-add_model_to_registry(ConvNeXtXLarge)
+add_model_to_registry(ConvNeXtXLarge, "imagenet")

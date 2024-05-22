@@ -393,10 +393,9 @@ class HGNet(BaseModel):
     def __init__(
         self,
         config: str = "v1_tiny",
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
         _available_configs = ["v1_tiny", "v1_small", "v1_base"]
         if config == "v1_tiny":
             _config = DEFAULT_V1_TINY_CONFIG
@@ -424,7 +423,6 @@ class HGNet(BaseModel):
                 f"Received: config={config}"
             )
 
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         inputs = self.determine_input_tensor(
             input_tensor,

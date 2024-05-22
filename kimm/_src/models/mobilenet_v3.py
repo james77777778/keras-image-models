@@ -92,10 +92,9 @@ class MobileNetV3(BaseModel):
         fix_stem_and_head_channels: bool = False,
         config: typing.Literal["small", "large", "lcnet"] = "large",
         minimal: bool = False,
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
         _available_configs = ["small", "large", "lcnet"]
         if config == "small":
             _config = DEFAULT_SMALL_CONFIG
@@ -123,7 +122,6 @@ class MobileNetV3(BaseModel):
         bn_epsilon = kwargs.pop("bn_epsilon", 1e-5)
         padding = kwargs.pop("padding", None)
 
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         inputs = self.determine_input_tensor(
             input_tensor,

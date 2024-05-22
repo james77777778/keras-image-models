@@ -110,14 +110,14 @@ class BaseModelTest(testing.TestCase, parameterized.TestCase):
             include_top=False, pooling="avg", weights=None
         )
         y = model(x, training=False)
-        self.assertEqual(y.shape, [1, 1280])
+        self.assertEqual(list(y.shape), [1, 1280])
 
         # Test max pooling
         model = kimm_models.mobilenet_v2.MobileNetV2W050(
             include_top=False, pooling="max", weights=None
         )
         y = model(x, training=False)
-        self.assertEqual(y.shape, [1, 1280])
+        self.assertEqual(list(y.shape), [1, 1280])
 
     def test_weights(self):
         # Test local file

@@ -289,7 +289,7 @@ class BaseModel(models.Model):
 
         # Failed to find the weights
         _available_weights_name = [
-            _weights for _weights, _ in self.available_weights
+            _weights for _weights, _, _ in self.available_weights
         ]
         raise ValueError(
             f"If `weights` is a URL string, the available weights are "

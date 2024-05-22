@@ -13,4 +13,4 @@ from kimm import utils
 from kimm._src.utils.model_registry import list_models
 from kimm._src.version import version
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"

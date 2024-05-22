@@ -54,10 +54,9 @@ class ConvMixer(BaseModel):
         patch_size: int = 7,
         kernel_size: int = 7,
         activation: str = "relu",
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         channels_axis = (
             -1 if backend.image_data_format() == "channels_last" else -3

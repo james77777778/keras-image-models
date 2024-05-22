@@ -41,10 +41,9 @@ class MobileNetV2(BaseModel):
         depth: float = 1.0,
         fix_stem_and_head_channels: bool = False,
         config: typing.Literal["default"] = "default",
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
         _available_configs = ["default"]
         if config == "default":
             _config = DEFAULT_CONFIG
@@ -54,7 +53,6 @@ class MobileNetV2(BaseModel):
                 f"Received: config={config}"
             )
 
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         inputs = self.determine_input_tensor(
             input_tensor,

@@ -138,9 +138,7 @@ def apply_ghost_block_v2(
         [x1, x2]
     )
 
-    residual = layers.AveragePooling2D(
-        2, 2, data_format=backend.image_data_format(), name=f"{name}_avg_pool"
-    )(residual)
+    residual = layers.AveragePooling2D(2, 2, name=f"{name}_avg_pool")(residual)
     residual = apply_conv2d_block(
         residual,
         output_channels,
@@ -264,10 +262,9 @@ class GhostNet(BaseModel):
         width: float = 1.0,
         config: typing.Union[str, typing.List] = "default",
         version: typing.Literal["v1", "v2"] = "v1",
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
         _available_configs = ["default"]
         if config == "default":
             _config = DEFAULT_CONFIG
@@ -282,7 +279,6 @@ class GhostNet(BaseModel):
                 f"Received version={version}"
             )
 
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         inputs = self.determine_input_tensor(
             input_tensor,

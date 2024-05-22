@@ -51,12 +51,12 @@ def apply_transformer_block(
     num_heads: int,
     mlp_ratio: float = 4.0,
     use_qkv_bias: bool = False,
-    use_qk_norm: bool = False,
     projection_dropout_rate: float = 0.0,
     attention_dropout_rate: float = 0.0,
     activation: str = "gelu",
     name: str = "transformer_block",
 ):
+    # data_format must be "channels_last"
     x = inputs
     residual_1 = x
 
@@ -65,7 +65,6 @@ def apply_transformer_block(
         dim,
         num_heads,
         use_qkv_bias,
-        use_qk_norm,
         attention_dropout_rate,
         projection_dropout_rate,
         name=f"{name}_attn",
@@ -79,7 +78,7 @@ def apply_transformer_block(
         int(dim * mlp_ratio),
         activation=activation,
         dropout_rate=projection_dropout_rate,
-        data_format="channels_last",  # TODO: let backend decides
+        data_format="channels_last",
         name=f"{name}_mlp",
     )
     x = layers.Add()([residual_2, x])

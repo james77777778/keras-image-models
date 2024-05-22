@@ -118,17 +118,15 @@ class ResNet(BaseModel):
         self,
         block_fn: typing.Literal["basic", "bottleneck"],
         num_blocks: typing.Sequence[int],
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
         if block_fn not in ("basic", "bottleneck"):
             raise ValueError(
                 "`block_fn` must be one of ('basic', 'bottelneck'). "
                 f"Received: block_fn={block_fn}"
             )
 
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         inputs = self.determine_input_tensor(
             input_tensor,

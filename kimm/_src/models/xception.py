@@ -75,10 +75,7 @@ class XceptionBase(BaseModel):
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(4), [4, 8, 16, 32])],
     ]
 
-    def __init__(self, **kwargs):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
-        input_tensor = kwargs.pop("input_tensor", None)
+    def __init__(self, input_tensor=None, **kwargs):
         self.set_properties(kwargs)
         channels_axis = (
             -1 if backend.image_data_format() == "channels_last" else -3

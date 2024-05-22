@@ -114,9 +114,12 @@ class VGG(BaseModel):
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(6), [1, 2, 4, 8, 16, 32])],
     ]
 
-    def __init__(self, config: typing.Union[str, typing.List], **kwargs):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
+    def __init__(
+        self,
+        config: typing.Union[str, typing.List],
+        input_tensor=None,
+        **kwargs,
+    ):
         _available_configs = ["vgg11", "vgg13", "vgg16", "vgg19"]
         if config == "vgg11":
             _config = DEFAULT_VGG11_CONFIG
@@ -132,7 +135,6 @@ class VGG(BaseModel):
                 f"Received: config={config}"
             )
 
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         channels_axis = (
             -1 if backend.image_data_format() == "channels_last" else -3

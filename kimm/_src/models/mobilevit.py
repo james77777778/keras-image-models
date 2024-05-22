@@ -48,7 +48,6 @@ DEFAULT_V2_CONFIG = [
 
 
 def unfold(inputs, patch_size):
-    # TODO: improve performance
     x = inputs
     h, w, c = x.shape[-3], x.shape[-2], x.shape[-1]
     new_h, new_w = (
@@ -58,25 +57,35 @@ def unfold(inputs, patch_size):
     num_patches_h = new_h // patch_size
     num_patches_w = new_w // patch_size
     num_patches = num_patches_h * num_patches_w
-    # [B, H, W, C] -> [B * P, N, C]
+
+    # Resize the feature map if needed
+    need_interpolation = False
+    if new_h != h or new_w != w:
+        x = ops.image.resize(
+            x, size=(new_h, new_w), data_format="channels_last"
+        )
+        need_interpolation = True
+
+    # [B, H, W, C] -> [B, P, N, C]
     x = ops.reshape(
         x, [-1, num_patches_h, patch_size, num_patches_w, patch_size, c]
     )
     x = ops.transpose(x, [0, 2, 4, 1, 3, 5])
-    x = ops.reshape(x, [-1, num_patches, c])
-    return x
+    x = ops.reshape(x, [-1, patch_size * patch_size, num_patches, c])
+    return x, need_interpolation
 
 
-def fold(inputs, h, w, c, patch_size):
-    # TODO: improve performance
+def fold(inputs, h, w, c, patch_size, need_interpolation=False):
     x = inputs
+
     new_h, new_w = (
         math.ceil(h / patch_size) * patch_size,
         math.ceil(w / patch_size) * patch_size,
     )
     num_patches_h = new_h // patch_size
     num_patches_w = new_w // patch_size
-    # [B * P, N, C] -> [B, P, N, C] -> [B, H, W, C]
+
+    # [B, P, N, C] -> [B, H, W, C]
     x = ops.reshape(
         x, [-1, patch_size, patch_size, num_patches_h, num_patches_w, c]
     )
@@ -84,6 +93,10 @@ def fold(inputs, h, w, c, patch_size):
     x = ops.reshape(
         x, [-1, num_patches_h * patch_size, num_patches_w * patch_size, c]
     )
+
+    # Resize the feature map if needed
+    if need_interpolation:
+        x = ops.image.resize(x, size=(h, w), data_format="channels_last")
     return x
 
 
@@ -130,7 +143,7 @@ def apply_mobilevit_block(
         x = ops.transpose(x, [0, 2, 3, 1])
 
     h, w, c = x.shape[-3], x.shape[-2], x.shape[-1]
-    x = unfold(x, patch_size)
+    x, need_interpolation = unfold(x, patch_size)
 
     # Global representations
     for i in range(transformer_depth):
@@ -140,14 +153,13 @@ def apply_mobilevit_block(
             num_heads,
             mlp_ratio,
             True,
-            False,
             activation=transformer_activation,
             name=f"{name}_transformer_{i}",
         )
     x = layers.LayerNormalization(axis=-1, epsilon=1e-6, name=f"{name}_norm")(x)
 
     # Fold (patch -> feature map)
-    x = fold(x, h, w, c, patch_size)
+    x = fold(x, h, w, c, patch_size, need_interpolation)
 
     # TODO: natively support channels_first
     if backend.image_data_format() == "channels_first":
@@ -191,6 +203,14 @@ def unfold_v2(inputs, patch_size):
     num_patches_w = new_w // patch_size
     num_patches = num_patches_h * num_patches_w
 
+    # Resize feature map if needed
+    need_interpolation = False
+    if new_h != h or new_w != w:
+        x = ops.image.resize(
+            x, size=(new_h, new_w), data_format=backend.image_data_format()
+        )
+        need_interpolation = True
+
     if backend.image_data_format() == "channels_last":
         # [B, H, W, C] -> [B, P, N, C]
         x = ops.reshape(
@@ -205,10 +225,10 @@ def unfold_v2(inputs, patch_size):
         )
         x = ops.transpose(x, [0, 1, 3, 5, 2, 4])
         x = ops.reshape(x, [-1, c, patch_size * patch_size, num_patches])
-    return x
+    return x, need_interpolation
 
 
-def fold_v2(inputs, h, w, c, patch_size):
+def fold_v2(inputs, h, w, c, patch_size, need_interpolation=False):
     x = inputs
 
     new_h, new_w = (
@@ -217,6 +237,7 @@ def fold_v2(inputs, h, w, c, patch_size):
     )
     num_patches_h = new_h // patch_size
     num_patches_w = new_w // patch_size
+
     if backend.image_data_format() == "channels_last":
         # [B, P, N, C] -> [B, H, W, C]
         x = ops.reshape(
@@ -235,6 +256,10 @@ def fold_v2(inputs, h, w, c, patch_size):
         x = ops.reshape(
             x, [-1, c, num_patches_h * patch_size, num_patches_w * patch_size]
         )
+
+    # Resize the feature map if needed
+    if need_interpolation:
+        x = ops.image.resize(x, size=(h, w), data_format="channels_last")
     return x
 
 
@@ -352,7 +377,7 @@ def apply_mobilevitv2_block(
         h, w, c = x.shape[-3], x.shape[-2], x.shape[-1]
     else:
         c, h, w = x.shape[-3], x.shape[-2], x.shape[-1]
-    x = unfold_v2(x, patch_size)
+    x, need_interpolation = unfold_v2(x, patch_size)
 
     # Global representations:
     for i in range(transformer_depth):
@@ -368,7 +393,7 @@ def apply_mobilevitv2_block(
     )(x)
 
     # Fold (patch -> feature map)
-    x = fold_v2(x, h, w, c, patch_size)
+    x = fold_v2(x, h, w, c, patch_size, need_interpolation)
 
     x = apply_conv2d_block(
         x,
@@ -394,10 +419,9 @@ class MobileViT(BaseModel):
         head_channels: int = 640,
         activation: str = "swish",
         config: str = "v1_s",
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
         _available_configs = ["v1_s", "v1_xs", "v1_xss"]
         if config == "v1_s":
             _config = DEFAULT_V1_S_CONFIG
@@ -411,7 +435,6 @@ class MobileViT(BaseModel):
                 f"Received: config={config}"
             )
 
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs, 256)
 
         inputs = self.determine_input_tensor(
@@ -523,10 +546,9 @@ class MobileViTV2(BaseModel):
         multiplier: float = 1.0,
         activation: str = "swish",
         config: str = "v2",
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
         _available_configs = ["v2"]
         if config == "v2":
             _config = DEFAULT_V2_CONFIG
@@ -536,7 +558,6 @@ class MobileViTV2(BaseModel):
                 f"Received: config={config}"
             )
 
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs, 256)
 
         inputs = self.determine_input_tensor(

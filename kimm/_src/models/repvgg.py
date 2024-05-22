@@ -22,10 +22,10 @@ class RepVGG(BaseModel):
         num_channels: typing.Sequence[int],
         stem_channels: int = 48,
         reparameterized: bool = False,
+        input_tensor=None,
         **kwargs,
     ):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-        if kwargs["weights_url"] is not None and reparameterized is True:
+        if kwargs["weights"] is not None and reparameterized is True:
             raise ValueError(
                 "Weights can only be loaded with `reparameterized=False`. "
                 "You can first initialize the model with "
@@ -35,7 +35,6 @@ class RepVGG(BaseModel):
                 f"reparameterized={reparameterized}"
             )
 
-        input_tensor = kwargs.pop("input_tensor", None)
         self.set_properties(kwargs)
         channels_axis = (
             -1 if backend.image_data_format() == "channels_last" else -3

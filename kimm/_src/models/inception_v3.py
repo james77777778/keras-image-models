@@ -238,10 +238,9 @@ class InceptionV3Base(BaseModel):
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(4), [4, 8, 16, 32])],
     ]
 
-    def __init__(self, has_aux_logits: bool = False, **kwargs):
-        kwargs["weights_url"] = self.get_weights_url(kwargs["weights"])
-
-        input_tensor = kwargs.pop("input_tensor", None)
+    def __init__(
+        self, has_aux_logits: bool = False, input_tensor=None, **kwargs
+    ):
         self.set_properties(kwargs, 299)
         inputs = self.determine_input_tensor(
             input_tensor,

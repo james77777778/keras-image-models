@@ -86,28 +86,36 @@ for timm_model_name, keras_model_class in zip(
         if "reparam_conv_conv2d" in keras_name:
             continue
         # repconv2d
+        torch_name = torch_name.replace("skip.gamma", "identity.gamma")
+        torch_name = torch_name.replace("skip.beta", "identity.beta")
         torch_name = torch_name.replace(
-            "conv.kxk.kernel", "conv_kxk.conv.kernel"
+            "conv.scale.kernel", "conv_1x1.conv.kernel"
         )
-        torch_name = torch_name.replace("conv.kxk.gamma", "conv_kxk.bn.gamma")
-        torch_name = torch_name.replace("conv.kxk.beta", "conv_kxk.bn.beta")
+        torch_name = torch_name.replace("conv.scale.gamma", "conv_1x1.bn.gamma")
+        torch_name = torch_name.replace("conv.scale.beta", "conv_1x1.bn.beta")
         torch_name = torch_name.replace(
-            "conv.1x1.kernel", "conv_1x1.conv.kernel"
+            "conv.kxk.0.kernel", "conv_kxk.conv.kernel"
         )
-        torch_name = torch_name.replace("conv.1x1.gamma", "conv_1x1.bn.gamma")
-        torch_name = torch_name.replace("conv.1x1.beta", "conv_1x1.bn.beta")
+        torch_name = torch_name.replace("conv.kxk.0.gamma", "conv_kxk.bn.gamma")
+        torch_name = torch_name.replace("conv.kxk.0.beta", "conv_kxk.bn.beta")
         # repconv2d bn
         torch_name = torch_name.replace(
-            "conv.kxk.moving.mean", "conv_kxk.bn.moving.mean"
+            "skip.moving.mean", "identity.moving.mean"
         )
         torch_name = torch_name.replace(
-            "conv.kxk.moving.variance", "conv_kxk.bn.moving.variance"
+            "skip.moving.variance", "identity.moving.variance"
         )
         torch_name = torch_name.replace(
-            "conv.1x1.moving.mean", "conv_1x1.bn.moving.mean"
+            "conv.scale.moving.mean", "conv_1x1.bn.moving.mean"
         )
         torch_name = torch_name.replace(
-            "conv.1x1.moving.variance", "conv_1x1.bn.moving.variance"
+            "conv.scale.moving.variance", "conv_1x1.bn.moving.variance"
+        )
+        torch_name = torch_name.replace(
+            "conv.kxk.0.moving.mean", "conv_kxk.bn.moving.mean"
+        )
+        torch_name = torch_name.replace(
+            "conv.kxk.0.moving.variance", "conv_kxk.bn.moving.variance"
         )
         # head
         torch_name = torch_name.replace("classifier", "head.fc")

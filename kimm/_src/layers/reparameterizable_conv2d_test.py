@@ -4,13 +4,14 @@ from keras import backend
 from keras import random
 from keras.src import testing
 
-from kimm._src.layers.mobile_one_conv2d import MobileOneConv2D
+from kimm._src.layers.reparameterizable_conv2d import ReparameterizableConv2D
 
 TEST_CASES = [
     {
         "filters": 16,
         "kernel_size": 3,
         "has_skip": True,
+        "has_scale": True,
         "use_depthwise": False,
         "branch_size": 2,
         "data_format": "channels_last",
@@ -23,6 +24,7 @@ TEST_CASES = [
         "filters": 16,
         "kernel_size": 3,
         "has_skip": True,
+        "has_scale": True,
         "use_depthwise": True,
         "branch_size": 3,
         "data_format": "channels_last",
@@ -35,6 +37,7 @@ TEST_CASES = [
         "filters": 16,
         "kernel_size": 3,
         "has_skip": False,
+        "has_scale": True,
         "use_depthwise": False,
         "branch_size": 2,
         "data_format": "channels_last",
@@ -47,6 +50,7 @@ TEST_CASES = [
         "filters": 16,
         "kernel_size": 5,
         "has_skip": True,
+        "has_scale": True,
         "use_depthwise": False,
         "branch_size": 2,
         "data_format": "channels_last",
@@ -59,6 +63,7 @@ TEST_CASES = [
         "filters": 16,
         "kernel_size": 3,
         "has_skip": True,
+        "has_scale": True,
         "use_depthwise": False,
         "branch_size": 2,
         "data_format": "channels_first",
@@ -67,10 +72,36 @@ TEST_CASES = [
         "num_trainable_weights": 11,
         "num_non_trainable_weights": 8,
     },
+    {
+        "filters": 16,
+        "kernel_size": 1,
+        "has_skip": True,
+        "has_scale": False,
+        "use_depthwise": False,
+        "branch_size": 2,
+        "data_format": "channels_last",
+        "input_shape": (1, 4, 4, 16),
+        "output_shape": (1, 4, 4, 16),
+        "num_trainable_weights": 8,
+        "num_non_trainable_weights": 6,
+    },
+    {
+        "filters": 16,
+        "kernel_size": 1,
+        "has_skip": False,
+        "has_scale": False,
+        "use_depthwise": True,
+        "branch_size": 3,
+        "data_format": "channels_last",
+        "input_shape": (1, 4, 4, 16),
+        "output_shape": (1, 4, 4, 16),
+        "num_trainable_weights": 9,
+        "num_non_trainable_weights": 6,
+    },
 ]
 
 
-class MobileOneConv2DTest(testing.TestCase, parameterized.TestCase):
+class ReparameterizableConv2DTest(testing.TestCase, parameterized.TestCase):
     @parameterized.parameters(TEST_CASES)
     @pytest.mark.requires_trainable_backend
     def test_basic(
@@ -78,6 +109,7 @@ class MobileOneConv2DTest(testing.TestCase, parameterized.TestCase):
         filters,
         kernel_size,
         has_skip,
+        has_scale,
         use_depthwise,
         branch_size,
         data_format,
@@ -95,11 +127,12 @@ class MobileOneConv2DTest(testing.TestCase, parameterized.TestCase):
                 "to be supported"
             )
         self.run_layer_test(
-            MobileOneConv2D,
+            ReparameterizableConv2D,
             init_kwargs={
                 "filters": filters,
                 "kernel_size": kernel_size,
                 "has_skip": has_skip,
+                "has_scale": has_scale,
                 "use_depthwise": use_depthwise,
                 "branch_size": branch_size,
                 "data_format": data_format,
@@ -118,6 +151,7 @@ class MobileOneConv2DTest(testing.TestCase, parameterized.TestCase):
         filters,
         kernel_size,
         has_skip,
+        has_scale,
         use_depthwise,
         branch_size,
         data_format,
@@ -134,19 +168,21 @@ class MobileOneConv2DTest(testing.TestCase, parameterized.TestCase):
                 "Conv2D in tensorflow backend with 'channels_first' is limited "
                 "to be supported"
             )
-        layer = MobileOneConv2D(
+        layer = ReparameterizableConv2D(
             filters=filters,
             kernel_size=kernel_size,
             has_skip=has_skip,
+            has_scale=has_scale,
             use_depthwise=use_depthwise,
             branch_size=branch_size,
             data_format=data_format,
         )
         layer.build(input_shape)
-        reparameterized_layer = MobileOneConv2D(
+        reparameterized_layer = ReparameterizableConv2D(
             filters=filters,
             kernel_size=kernel_size,
             has_skip=has_skip,
+            has_scale=has_scale,
             use_depthwise=use_depthwise,
             branch_size=branch_size,
             reparameterized=True,
@@ -156,8 +192,8 @@ class MobileOneConv2DTest(testing.TestCase, parameterized.TestCase):
         x = random.uniform(input_shape)
 
         kernel, bias = layer.get_reparameterized_weights()
-        reparameterized_layer.rep_conv2d.kernel.assign(kernel)
-        reparameterized_layer.rep_conv2d.bias.assign(bias)
+        reparameterized_layer.reparameterized_conv2d.kernel.assign(kernel)
+        reparameterized_layer.reparameterized_conv2d.bias.assign(bias)
         y1 = layer(x, training=False)
         y2 = reparameterized_layer(x, training=False)
 

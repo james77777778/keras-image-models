@@ -7,6 +7,7 @@ from keras import layers
 from keras import ops
 from keras.src.backend import standardize_data_format
 from keras.src.layers import Layer
+from keras.src.ops.operation_utils import compute_conv_output_shape
 from keras.src.utils.argument_validation import standardize_tuple
 
 from kimm._src.kimm_export import kimm_export
@@ -14,7 +15,7 @@ from kimm._src.kimm_export import kimm_export
 
 @kimm_export(parent_path=["kimm.layers"])
 @keras.saving.register_keras_serializable(package="kimm")
-class MobileOneConv2D(Layer):
+class ReparameterizableConv2D(Layer):
     def __init__(
         self,
         filters,
@@ -22,117 +23,108 @@ class MobileOneConv2D(Layer):
         strides=(1, 1),
         padding=None,
         has_skip: bool = True,
+        has_scale: bool = True,
+        has_reparameterized_bn: bool = False,
         use_depthwise: bool = False,
         branch_size: int = 1,
         reparameterized: bool = False,
         data_format=None,
         activation=None,
+        name=None,
         **kwargs,
     ):
-        super().__init__(**kwargs)
+        super().__init__(name=name, **kwargs)
         self.filters = filters
         self.kernel_size = standardize_tuple(kernel_size, 2, "kernel_size")
         self.strides = standardize_tuple(strides, 2, "strides")
         self.padding = padding
         self.has_skip = has_skip
+        self.has_scale = has_scale
+        self.has_reparameterized_bn = has_reparameterized_bn
         self.use_depthwise = use_depthwise
         self.branch_size = branch_size
-        self._reparameterized = reparameterized
+        self.reparameterized = reparameterized
         self.data_format = standardize_data_format(data_format)
         self.activation = activation
 
         if self.kernel_size[0] != self.kernel_size[1]:
             raise ValueError(
-                "The value of kernel_size must be the same. "
+                "The values of `kernel_size` must be the same. "
                 f"Received: kernel_size={kernel_size}"
             )
         if self.strides[0] != self.strides[1]:
             raise ValueError(
-                "The value of strides must be the same. "
+                "The values of `strides` must be the same. "
                 f"Received: strides={strides}"
             )
-        if has_skip is True and (self.strides[0] != 1 or self.strides[1] != 1):
+        if has_skip is True and self.strides[0] != 1:
             raise ValueError(
-                "strides must be `1` when `has_skip=True`. "
+                "When `has_skip=True`, `strides` must be `1`. "
                 f"Received: has_skip={has_skip}, strides={strides}"
             )
 
-        self.zero_padding = layers.Identity(dtype=self.dtype_policy)
-        if padding is None:
-            padding = "same"
-            if self.strides[0] > 1:
-                padding = "valid"
+        # Configure zero padding
+        self.zero_padding: typing.Optional[layers.ZeroPadding2D] = None
+        if self.padding is None:
+            if self.strides[0] > 1 and self.kernel_size[0] > 1:
+                self.padding = "valid"
                 self.zero_padding = layers.ZeroPadding2D(
-                    (self.kernel_size[0] // 2, self.kernel_size[1] // 2),
+                    self.kernel_size[0] // 2,
                     data_format=self.data_format,
                     dtype=self.dtype_policy,
                     name=f"{self.name}_pad",
                 )
-            self.padding = padding
-        else:
-            self.padding = padding
+            else:
+                self.padding = "same"
 
-        channel_axis = -1 if self.data_format == "channels_last" else -3
+        # Configure filters_axis
+        self.filters_axis = -1 if self.data_format == "channels_last" else -3
 
-        # Build layers (rep_conv2d, identity, conv_kxk, conv_scale)
-        self.rep_conv2d: typing.Optional[layers.Conv2D] = None
-        self.identity: typing.Optional[layers.BatchNormalization] = None
-        self.conv_kxk: typing.Optional[typing.List[Sequential]] = None
+        # Build layers
+        bn_momentum, bn_epsilon = 0.9, 1e-5  # Defaults to torch's default
+
+        self.reparameterized_conv2d: typing.Optional[layers.Conv2D] = None
+        self.reparameterized_bn: typing.Optional[layers.BatchNormalization] = (
+            None
+        )
+        self.skip: typing.Optional[layers.BatchNormalization] = None
         self.conv_scale: typing.Optional[Sequential] = None
-        if self._reparameterized:
-            self.rep_conv2d = self._get_conv2d(
-                use_depthwise,
+        self.conv_kxk: typing.List[Sequential] = []
+        self.act: typing.Optional[layers.Activation] = None
+
+        if self.reparameterized:
+            self.reparameterized_conv2d = self._get_conv2d_layer(
+                self.use_depthwise,
                 self.filters,
                 self.kernel_size,
                 self.strides,
                 self.padding,
-                use_bias=True,
+                use_bias=True if self.has_reparameterized_bn is False else True,
                 name=f"{self.name}_reparam_conv",
             )
-        else:
-            # Skip connection
-            if self.has_skip:
-                self.identity = layers.BatchNormalization(
-                    axis=channel_axis,
-                    momentum=0.9,
-                    epsilon=1e-5,
+            if self.has_reparameterized_bn:
+                self.reparameterized_bn = layers.BatchNormalization(
+                    axis=self.filters_axis,
+                    momentum=bn_momentum,
+                    epsilon=bn_epsilon,
                     dtype=self.dtype_policy,
-                    name=f"{self.name}_identity",
+                    name=f"{self.name}_reparam_bn",
                 )
-            else:
-                self.identity = None
-
-            # Convoluation branches
-            self.conv_kxk = []
-            for i in range(self.branch_size):
-                self.conv_kxk.append(
-                    Sequential(
-                        [
-                            self._get_conv2d(
-                                self.use_depthwise,
-                                self.filters,
-                                self.kernel_size,
-                                self.strides,
-                                self.padding,
-                                use_bias=False,
-                            ),
-                            layers.BatchNormalization(
-                                axis=channel_axis,
-                                momentum=0.9,
-                                epsilon=1e-5,
-                                dtype=self.dtype_policy,
-                            ),
-                        ],
-                        name=f"{self.name}_conv_kxk_{i}",
-                    )
+        else:
+            # Skip branch
+            if self.has_skip:
+                self.skip = layers.BatchNormalization(
+                    axis=self.filters_axis,
+                    momentum=bn_momentum,
+                    epsilon=bn_epsilon,
+                    dtype=self.dtype_policy,
+                    name=f"{self.name}_skip",
                 )
-
             # Scale branch
-            self.conv_scale = None
-            if self.kernel_size[0] > 1:
+            if self.has_scale:
                 self.conv_scale = Sequential(
                     [
-                        self._get_conv2d(
+                        self._get_conv2d_layer(
                             self.use_depthwise,
                             self.filters,
                             1,
@@ -141,37 +133,62 @@ class MobileOneConv2D(Layer):
                             use_bias=False,
                         ),
                         layers.BatchNormalization(
-                            axis=channel_axis,
-                            momentum=0.9,
-                            epsilon=1e-5,
+                            axis=self.filters_axis,
+                            momentum=bn_momentum,
+                            epsilon=bn_epsilon,
                             dtype=self.dtype_policy,
                         ),
                     ],
                     name=f"{self.name}_conv_scale",
                 )
-
-        if activation is None:
-            self.act = layers.Identity(dtype=self.dtype_policy)
-        else:
+            # Overparameterized branch
+            for i in range(self.branch_size):
+                self.conv_kxk.append(
+                    Sequential(
+                        [
+                            self._get_conv2d_layer(
+                                self.use_depthwise,
+                                self.filters,
+                                self.kernel_size,
+                                self.strides,
+                                self.padding,
+                                use_bias=False,
+                            ),
+                            layers.BatchNormalization(
+                                axis=self.filters_axis,
+                                momentum=bn_momentum,
+                                epsilon=bn_epsilon,
+                                dtype=self.dtype_policy,
+                            ),
+                        ],
+                        name=f"{self.name}_conv_kxk_{i}",
+                    )
+                )
+        if activation is not None:
             self.act = layers.Activation(activation, dtype=self.dtype_policy)
 
-        # Internal parameters for `_get_reparameterized_weights_from_layer`
-        self._input_channels = None
-        self._rep_kernel_shape = None
+    @property
+    def _sublayers(self):
+        """An internal api for weights exporting.
 
-        # Attach extra layers
-        self.extra_layers = []
-        if self.rep_conv2d is not None:
-            self.extra_layers.append(self.rep_conv2d)
-        if self.identity is not None:
-            self.extra_layers.append(self.identity)
-        if self.conv_kxk is not None:
-            self.extra_layers.extend(self.conv_kxk)
+        Generally, you don't need this.
+        """
+        sublayers = []
+        if self.reparameterized_conv2d is not None:
+            sublayers.append(self.reparameterized_conv2d)
+        if self.reparameterized_bn is not None:
+            sublayers.append(self.reparameterized_bn)
+        if self.skip is not None:
+            sublayers.append(self.skip)
         if self.conv_scale is not None:
-            self.extra_layers.append(self.conv_scale)
-        self.extra_layers.append(self.act)
+            sublayers.append(self.conv_scale)
+        if self.conv_kxk is not None:
+            sublayers.extend(self.conv_kxk)
+        if self.act is not None:
+            sublayers.append(self.act)
+        return sublayers
 
-    def _get_conv2d(
+    def _get_conv2d_layer(
         self,
         use_depthwise,
         filters,
@@ -204,63 +221,74 @@ class MobileOneConv2D(Layer):
             )
 
     def build(self, input_shape):
-        channel_axis = -1 if self.data_format == "channels_last" else -3
-
         if isinstance(self.zero_padding, layers.ZeroPadding2D):
-            padded_shape = self.zero_padding.compute_output_shape(input_shape)
-        else:
-            padded_shape = input_shape
+            input_shape = self.zero_padding.compute_output_shape(input_shape)
 
-        if self.rep_conv2d is not None:
-            self.rep_conv2d.build(padded_shape)
-        if self.identity is not None:
-            self.identity.build(input_shape)
-        if self.conv_kxk is not None:
-            for layer in self.conv_kxk:
-                layer.build(padded_shape)
+        if self.reparameterized_conv2d is not None:
+            self.reparameterized_conv2d.build(input_shape)
+
+        if self.skip is not None:
+            self.skip.build(input_shape)
         if self.conv_scale is not None:
             self.conv_scale.build(input_shape)
+        for layer in self.conv_kxk:
+            layer.build(input_shape)
 
         # Update internal parameters
-        self._input_channels = input_shape[channel_axis]
-        if self.conv_kxk is not None:
-            self._rep_kernel_shape = self.conv_kxk[0].layers[0].kernel.shape
+        self.input_filters = input_shape[self.filters_axis]
 
         self.built = True
 
-    def call(self, inputs, **kwargs):
-        x = ops.cast(inputs, self.compute_dtype)
-        padded_x = self.zero_padding(x)
+    def compute_output_shape(self, input_shape):
+        return compute_conv_output_shape(
+            input_shape,
+            self.filters,
+            self.kernel_size,
+            strides=self.strides,
+            padding=self.padding,
+            data_format=self.data_format,
+            dilation_rate=1,
+        )
 
-        # Shortcut for reparameterized mode
-        if self._reparameterized:
-            return self.act(self.rep_conv2d(padded_x, **kwargs))
+    def call(self, inputs, training=None, **kwargs):
+        x = inputs
+        padded_x = x
 
-        # Skip connection
-        identity_outputs = None
-        if self.identity is not None:
-            identity_outputs = self.identity(x, **kwargs)
+        if self.zero_padding is not None:
+            padded_x = self.zero_padding(x)
 
+        # Shortcut for reparameterized=True
+        if self.reparameterized:
+            y = self.reparameterized_conv2d(padded_x)
+            if self.reparameterized_bn is not None:
+                y = self.reparameterized_bn(y, training=training)
+            if self.act is not None:
+                y = self.act(y)
+            return y
+
+        # Skip branch
+        y = None
+        if self.skip is not None:
+            y = self.skip(x, training=training)
         # Scale branch
-        scale_outputs = None
         if self.conv_scale is not None:
-            scale_outputs = self.conv_scale(x, **kwargs)
-
-        # Conv branch
-        conv_outputs = scale_outputs
+            scale_y = self.conv_scale(x, training=training)
+            y = (
+                layers.Add(dtype=self.dtype_policy)([y, scale_y])
+                if y is not None
+                else scale_y
+            )
+        # Overparameterized bracnh
         for layer in self.conv_kxk:
-            if conv_outputs is None:
-                conv_outputs = layer(padded_x, **kwargs)
-            else:
-                conv_outputs = layers.Add()(
-                    [conv_outputs, layer(padded_x, **kwargs)]
-                )
-
-        if identity_outputs is not None:
-            outputs = layers.Add()([conv_outputs, identity_outputs])
-        else:
-            outputs = conv_outputs
-        return self.act(outputs)
+            over_y = layer(padded_x, training=training)
+            y = (
+                layers.Add(dtype=self.dtype_policy)([y, over_y])
+                if y is not None
+                else over_y
+            )
+        if self.act is not None:
+            y = self.act(y)
+        return y
 
     def get_config(self):
         config = super().get_config()
@@ -271,9 +299,11 @@ class MobileOneConv2D(Layer):
                 "strides": self.strides,
                 "padding": self.padding,
                 "has_skip": self.has_skip,
+                "has_scale": self.has_scale,
+                "has_reparameterized_bn": self.has_reparameterized_bn,
                 "use_depthwise": self.use_depthwise,
                 "branch_size": self.branch_size,
-                "reparameterized": self._reparameterized,
+                "reparameterized": self.reparameterized,
                 "data_format": self.data_format,
                 "activation": self.activation,
                 "name": self.name,
@@ -283,6 +313,7 @@ class MobileOneConv2D(Layer):
 
     def _get_reparameterized_weights_from_layer(self, layer):
         if isinstance(layer, Sequential):
+            # Check
             if not isinstance(
                 layer.layers[0], (layers.Conv2D, layers.DepthwiseConv2D)
             ):
@@ -298,32 +329,21 @@ class MobileOneConv2D(Layer):
             running_var = ops.convert_to_numpy(layer.layers[1].moving_variance)
             eps = layer.layers[1].epsilon
         elif isinstance(layer, layers.BatchNormalization):
-            if self._rep_kernel_shape is None:
-                raise ValueError(
-                    "Remember to build the layer before performing"
-                    "reparameterization. Failed to get valid "
-                    "`self._rep_kernel_shape`."
-                )
-            # Calculate identity tensor
-            kernel_value = ops.convert_to_numpy(
-                ops.zeros(self._rep_kernel_shape)
+            k = self.kernel_size[0]
+            input_filters = 1 if self.use_depthwise else self.input_filters
+            kernel = ops.convert_to_numpy(
+                ops.zeros([k, k, input_filters, self.filters])
             )
-            kernel = kernel_value.copy()
-            if self.use_depthwise:
-                kernel = np.swapaxes(kernel, -2, -1)
-            for i in range(self._input_channels):
+            for i in range(self.input_filters):
                 group_i = 0 if self.use_depthwise else i
-                kernel[
-                    self.kernel_size[0] // 2,
-                    self.kernel_size[1] // 2,
-                    group_i,
-                    i,
-                ] = 1
+                kernel[k // 2, k // 2, group_i, i] = 1
             gamma = ops.convert_to_numpy(layer.gamma)
             beta = ops.convert_to_numpy(layer.beta)
             running_mean = ops.convert_to_numpy(layer.moving_mean)
             running_var = ops.convert_to_numpy(layer.moving_variance)
             eps = layer.epsilon
+        else:
+            raise NotImplementedError
 
         # use float64 for better precision
         kernel = kernel.astype("float64")
@@ -341,6 +361,15 @@ class MobileOneConv2D(Layer):
         return kernel_final, beta - running_mean * gamma / std
 
     def get_reparameterized_weights(self):
+        # Get kernels and bias from skip branch
+        kernel_identity = 0.0
+        bias_identity = 0.0
+        if self.skip is not None:
+            (
+                kernel_identity,
+                bias_identity,
+            ) = self._get_reparameterized_weights_from_layer(self.skip)
+
         # Get kernels and bias from scale branch
         kernel_scale = 0.0
         bias_scale = 0.0
@@ -354,16 +383,7 @@ class MobileOneConv2D(Layer):
                 kernel_scale, [[pad, pad], [pad, pad], [0, 0], [0, 0]]
             )
 
-        # Get kernels and bias from skip branch
-        kernel_identity = 0.0
-        bias_identity = 0.0
-        if self.identity is not None:
-            (
-                kernel_identity,
-                bias_identity,
-            ) = self._get_reparameterized_weights_from_layer(self.identity)
-
-        # Get kernels and bias from conv branch
+        # Get kernels and bias from overparameterized branch
         kernel_conv = 0.0
         bias_conv = 0.0
         for i in range(self.branch_size):

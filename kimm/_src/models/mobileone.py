@@ -4,13 +4,15 @@ import keras
 from keras import backend
 
 from kimm._src.kimm_export import kimm_export
-from kimm._src.layers.mobile_one_conv2d import MobileOneConv2D
+from kimm._src.layers.reparameterizable_conv2d import ReparameterizableConv2D
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.model_registry import add_model_to_registry
 
 
 @keras.saving.register_keras_serializable(package="kimm")
 class MobileOne(BaseModel):
+    # Updated weights: use ReparameterizableConv2D
+    default_origin = "https://github.com/james77777778/keras-image-models/releases/download/0.1.2/"
     available_feature_keys = [
         "STEM_S2",
         *[f"BLOCK{i}_S{j}" for i, j in zip(range(4), [4, 8, 16, 32])],
@@ -53,11 +55,12 @@ class MobileOne(BaseModel):
         features = {}
 
         # stem
-        x = MobileOneConv2D(
+        x = ReparameterizableConv2D(
             stem_channels,
             3,
             2,
             has_skip=False,
+            branch_size=1,
             reparameterized=reparameterized,
             activation="relu",
             name="stem",
@@ -81,7 +84,7 @@ class MobileOne(BaseModel):
                 name1 = f"stages_{current_stage_idx}_{current_block_idx}"
                 name2 = f"stages_{current_stage_idx}_{current_block_idx+1}"
                 # Depthwise
-                x = MobileOneConv2D(
+                x = ReparameterizableConv2D(
                     input_channels,
                     3,
                     strides,
@@ -93,11 +96,12 @@ class MobileOne(BaseModel):
                     name=name1,
                 )(x)
                 # Pointwise
-                x = MobileOneConv2D(
+                x = ReparameterizableConv2D(
                     c,
                     1,
                     1,
                     has_skip=has_skip2,
+                    has_scale=False,
                     use_depthwise=False,
                     branch_size=branch_size,
                     reparameterized=reparameterized,
@@ -150,14 +154,14 @@ class MobileOne(BaseModel):
         config["reparameterized"] = True
         config["weights"] = None
         model = MobileOne(**config)
-        for layer, reparameterized_layer in zip(self.layers, model.layers):
+        for layer, rep_layer in zip(self.layers, model.layers):
             if hasattr(layer, "get_reparameterized_weights"):
                 kernel, bias = layer.get_reparameterized_weights()
-                reparameterized_layer.rep_conv2d.kernel.assign(kernel)
-                reparameterized_layer.rep_conv2d.bias.assign(bias)
+                rep_layer.reparameterized_conv2d.kernel.assign(kernel)
+                rep_layer.reparameterized_conv2d.bias.assign(bias)
             else:
                 for weight, target_weight in zip(
-                    layer.weights, reparameterized_layer.weights
+                    layer.weights, rep_layer.weights
                 ):
                     target_weight.assign(weight)
         return model

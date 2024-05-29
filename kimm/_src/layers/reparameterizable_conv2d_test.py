@@ -198,3 +198,16 @@ class ReparameterizableConv2DTest(testing.TestCase, parameterized.TestCase):
         y2 = reparameterized_layer(x, training=False)
 
         self.assertAllClose(y1, y2, atol=1e-3)
+
+    def test_invalid_args(self):
+        layer = ReparameterizableConv2D(
+            filters=4,
+            kernel_size=3,
+            has_skip=False,
+            has_scale=False,
+            use_depthwise=True,
+            branch_size=1,
+            data_format="channels_last",
+        )
+        with self.assertRaisesRegex(ValueError, "must be the same as"):
+            layer.build([1, 4, 4, 8])

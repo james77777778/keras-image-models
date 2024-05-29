@@ -81,9 +81,6 @@ class ReparameterizableConv2D(Layer):
         bn_momentum, bn_epsilon = 0.9, 1e-5  # Defaults to torch's default
 
         self.reparameterized_conv2d: typing.Optional[layers.Conv2D] = None
-        self.reparameterized_bn: typing.Optional[layers.BatchNormalization] = (
-            None
-        )
         self.skip: typing.Optional[layers.BatchNormalization] = None
         self.conv_scale: typing.Optional[Sequential] = None
         self.conv_kxk: typing.List[Sequential] = []
@@ -165,8 +162,6 @@ class ReparameterizableConv2D(Layer):
         sublayers = []
         if self.reparameterized_conv2d is not None:
             sublayers.append(self.reparameterized_conv2d)
-        if self.reparameterized_bn is not None:
-            sublayers.append(self.reparameterized_bn)
         if self.skip is not None:
             sublayers.append(self.skip)
         if self.conv_scale is not None:
@@ -210,6 +205,14 @@ class ReparameterizableConv2D(Layer):
             )
 
     def build(self, input_shape):
+        input_filters = input_shape[self.filters_axis]
+        if self.use_depthwise and input_filters != self.filters:
+            raise ValueError(
+                "When `use_depthwise=True`, `filters` must be the same as "
+                f"input filters. Received: input_shape={input_shape}, "
+                f"filters={self.filters}"
+            )
+
         if isinstance(self.zero_padding, layers.ZeroPadding2D):
             input_shape = self.zero_padding.compute_output_shape(input_shape)
 
@@ -224,7 +227,7 @@ class ReparameterizableConv2D(Layer):
             layer.build(input_shape)
 
         # Update internal parameters
-        self.input_filters = input_shape[self.filters_axis]
+        self.input_filters = input_filters
 
         self.built = True
 
@@ -238,8 +241,6 @@ class ReparameterizableConv2D(Layer):
         # Shortcut for reparameterized=True
         if self.reparameterized:
             y = self.reparameterized_conv2d(padded_x)
-            if self.reparameterized_bn is not None:
-                y = self.reparameterized_bn(y, training=training)
             if self.act is not None:
                 y = self.act(y)
             return y

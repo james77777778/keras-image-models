@@ -165,7 +165,10 @@ def apply_ghost_block_v3(
         )
         residual = layers.Activation("sigmoid")(residual)
         residual = ops.image.resize(
-            residual, size=(h, w), interpolation="nearest"
+            residual,
+            size=(h, w),
+            interpolation="nearest",
+            data_format=backend.image_data_format(),
         )
         out = layers.Multiply()([out, residual])
 

@@ -306,8 +306,8 @@ class ReparameterizableConv2D(Layer):
         elif isinstance(layer, layers.BatchNormalization):
             k = self.kernel_size[0]
             input_filters = 1 if self.use_depthwise else self.input_filters
-            kernel = ops.convert_to_numpy(
-                ops.zeros([k, k, input_filters, self.filters])
+            kernel = np.zeros(
+                shape=[k, k, input_filters, self.filters], dtype="float64"
             )
             for i in range(self.input_filters):
                 group_i = 0 if self.use_depthwise else i

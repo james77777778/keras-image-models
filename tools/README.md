@@ -18,8 +18,9 @@ Setup `gh`
 Upload the converted file
 
 ```bash
-gh release upload <tag> <files>... [flags]
+# --clobber means overwrite the existing file
+gh release upload <tag> <files>... --clobber
 
 # For example:
-gh release upload 0.1.0 exported/visiontransformertiny16_vit_tiny_patch16_384.keras
+gh release upload 0.1.0 exported/*  --clobber
 ```

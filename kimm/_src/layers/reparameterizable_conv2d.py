@@ -7,7 +7,6 @@ from keras import layers
 from keras import ops
 from keras.src.backend import standardize_data_format
 from keras.src.layers import Layer
-from keras.src.ops.operation_utils import compute_conv_output_shape
 from keras.src.utils.argument_validation import standardize_tuple
 
 from kimm._src.kimm_export import kimm_export
@@ -24,7 +23,6 @@ class ReparameterizableConv2D(Layer):
         padding=None,
         has_skip: bool = True,
         has_scale: bool = True,
-        has_reparameterized_bn: bool = False,
         use_depthwise: bool = False,
         branch_size: int = 1,
         reparameterized: bool = False,
@@ -40,7 +38,6 @@ class ReparameterizableConv2D(Layer):
         self.padding = padding
         self.has_skip = has_skip
         self.has_scale = has_scale
-        self.has_reparameterized_bn = has_reparameterized_bn
         self.use_depthwise = use_depthwise
         self.branch_size = branch_size
         self.reparameterized = reparameterized
@@ -99,17 +96,9 @@ class ReparameterizableConv2D(Layer):
                 self.kernel_size,
                 self.strides,
                 self.padding,
-                use_bias=True if self.has_reparameterized_bn is False else True,
+                use_bias=True,
                 name=f"{self.name}_reparam_conv",
             )
-            if self.has_reparameterized_bn:
-                self.reparameterized_bn = layers.BatchNormalization(
-                    axis=self.filters_axis,
-                    momentum=bn_momentum,
-                    epsilon=bn_epsilon,
-                    dtype=self.dtype_policy,
-                    name=f"{self.name}_reparam_bn",
-                )
         else:
             # Skip branch
             if self.has_skip:
@@ -239,17 +228,6 @@ class ReparameterizableConv2D(Layer):
 
         self.built = True
 
-    def compute_output_shape(self, input_shape):
-        return compute_conv_output_shape(
-            input_shape,
-            self.filters,
-            self.kernel_size,
-            strides=self.strides,
-            padding=self.padding,
-            data_format=self.data_format,
-            dilation_rate=1,
-        )
-
     def call(self, inputs, training=None, **kwargs):
         x = inputs
         padded_x = x
@@ -273,19 +251,17 @@ class ReparameterizableConv2D(Layer):
         # Scale branch
         if self.conv_scale is not None:
             scale_y = self.conv_scale(x, training=training)
-            y = (
-                layers.Add(dtype=self.dtype_policy)([y, scale_y])
-                if y is not None
-                else scale_y
-            )
+            if y is None:
+                y = scale_y
+            else:
+                y = layers.Add(dtype=self.dtype_policy)([y, scale_y])
         # Overparameterized bracnh
-        for layer in self.conv_kxk:
-            over_y = layer(padded_x, training=training)
-            y = (
-                layers.Add(dtype=self.dtype_policy)([y, over_y])
-                if y is not None
-                else over_y
-            )
+        for idx in range(self.branch_size):
+            over_y = self.conv_kxk[idx](padded_x, training=training)
+            if y is None:
+                y = over_y
+            else:
+                y = layers.Add(dtype=self.dtype_policy)([y, over_y])
         if self.act is not None:
             y = self.act(y)
         return y
@@ -300,7 +276,6 @@ class ReparameterizableConv2D(Layer):
                 "padding": self.padding,
                 "has_skip": self.has_skip,
                 "has_scale": self.has_scale,
-                "has_reparameterized_bn": self.has_reparameterized_bn,
                 "use_depthwise": self.use_depthwise,
                 "branch_size": self.branch_size,
                 "reparameterized": self.reparameterized,

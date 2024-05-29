@@ -3,6 +3,7 @@ from kimm._src.models import convnext
 from kimm._src.models import densenet
 from kimm._src.models import efficientnet
 from kimm._src.models import ghostnet
+from kimm._src.models import ghostnet_v3
 from kimm._src.models import hgnet
 from kimm._src.models import inception_next
 from kimm._src.models import inception_v3

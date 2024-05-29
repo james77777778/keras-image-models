@@ -247,8 +247,8 @@ MODEL_CONFIGS = [
     ),
     # ghostnet
     (
-        kimm_models.ghostnet.GhostNet100.__name__,
-        kimm_models.ghostnet.GhostNet100,
+        kimm_models.ghostnet.GhostNetW100.__name__,
+        kimm_models.ghostnet.GhostNetV2W100,
         224,
         [
             ("STEM_S2", [1, 112, 112, 16]),
@@ -259,8 +259,20 @@ MODEL_CONFIGS = [
         ],
     ),
     (
-        kimm_models.ghostnet.GhostNet100V2.__name__,
-        kimm_models.ghostnet.GhostNet100V2,
+        kimm_models.ghostnet.GhostNetV2W100.__name__,
+        kimm_models.ghostnet.GhostNetV2W100,
+        224,
+        [
+            ("STEM_S2", [1, 112, 112, 16]),
+            ("BLOCK1_S4", [1, 56, 56, 24]),
+            ("BLOCK3_S8", [1, 28, 28, 40]),
+            ("BLOCK5_S16", [1, 14, 14, 80]),
+            ("BLOCK7_S32", [1, 7, 7, 160]),
+        ],
+    ),
+    (
+        kimm_models.ghostnet_v3.GhostNetV3W100.__name__,
+        kimm_models.ghostnet_v3.GhostNetV3W100,
         224,
         [
             ("STEM_S2", [1, 112, 112, 16]),
@@ -598,6 +610,11 @@ class ModelsTest(testing.TestCase, parameterized.TestCase):
             self.assertEqual(list(y.shape), [1, 1000])
 
     @parameterized.named_parameters(
+        (
+            kimm_models.ghostnet_v3.GhostNetV3W050.__name__,
+            kimm_models.ghostnet_v3.GhostNetV3W050,
+            224,
+        ),
         (
             kimm_models.repvgg.RepVGGA0.__name__,
             kimm_models.repvgg.RepVGGA0,

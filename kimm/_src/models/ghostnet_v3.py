@@ -9,6 +9,7 @@ from keras import ops
 from kimm._src.blocks.conv2d import apply_conv2d_block
 from kimm._src.blocks.squeeze_and_excitation import apply_se_block
 from kimm._src.kimm_export import kimm_export
+from kimm._src.layers.reparameterizable_conv2d import ReparameterizableConv2D
 from kimm._src.models.base_model import BaseModel
 from kimm._src.utils.make_divisble import make_divisible
 from kimm._src.utils.model_registry import add_model_to_registry
@@ -57,125 +58,124 @@ DEFAULT_CONFIG = [
 ]
 
 
-def apply_ghost_block(
+def apply_short_block(
     inputs,
     output_channels: int,
-    expand_ratio: float = 2.0,
     kernel_size: int = 1,
-    depthwise_kernel_size: int = 3,
     strides: int = 1,
-    activation="relu",
-    name="ghost_block",
+    name="short_block",
 ):
-    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
-    hidden_channels_1 = int(ops.ceil(output_channels / expand_ratio))
-    hidden_channels_2 = int(hidden_channels_1 * (expand_ratio - 1.0))
-
     x = inputs
-    x1 = apply_conv2d_block(
+    x = apply_conv2d_block(
         x,
-        hidden_channels_1,
-        kernel_size,
-        strides,
-        activation=activation,
-        name=f"{name}_primary_conv",
-    )
-    x2 = apply_conv2d_block(
-        x1,
-        hidden_channels_2,
-        depthwise_kernel_size,
-        1,
-        activation=activation,
-        use_depthwise=True,
-        name=f"{name}_cheap_operation",
-    )
-    out = layers.Concatenate(axis=channels_axis, name=f"{name}")([x1, x2])
-    if channels_axis == -1:
-        return out[..., :output_channels]
-    else:
-        return out[:, :output_channels, ...]
-
-
-def apply_ghost_block_v2(
-    inputs,
-    output_channels: int,
-    expand_ratio: float = 2.0,
-    kernel_size: int = 1,
-    depthwise_kernel_size: int = 3,
-    strides: int = 1,
-    activation="relu",
-    name="ghost_block_v2",
-):
-    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
-    if backend.image_data_format() == "channels_last":
-        output_axis = (-3, -2)
-    else:
-        output_axis = (-2, -1)
-
-    hidden_channels_1 = int(ops.ceil(output_channels / expand_ratio))
-    hidden_channels_2 = int(hidden_channels_1 * (expand_ratio - 1.0))
-
-    x = inputs
-    residual = inputs
-    x1 = apply_conv2d_block(
-        x,
-        hidden_channels_1,
-        kernel_size,
-        strides,
-        activation=activation,
-        name=f"{name}_primary_conv",
-    )
-    x2 = apply_conv2d_block(
-        x1,
-        hidden_channels_2,
-        depthwise_kernel_size,
-        1,
-        activation=activation,
-        use_depthwise=True,
-        name=f"{name}_cheap_operation",
-    )
-    out = layers.Concatenate(axis=channels_axis, name=f"{name}_concat")(
-        [x1, x2]
-    )
-
-    residual = layers.AveragePooling2D(2, 2, name=f"{name}_avg_pool")(residual)
-    residual = apply_conv2d_block(
-        residual,
         output_channels,
         kernel_size,
         strides,
-        name=f"{name}_short_conv1",
+        activation=None,
+        name=f"{name}_0",
     )
-    residual = apply_conv2d_block(
-        residual,
+    x = apply_conv2d_block(
+        x,
         output_channels,
         (1, 5),
         1,
+        activation=None,
         use_depthwise=True,
-        name=f"{name}_short_conv2",
+        padding="same",
+        name=f"{name}_1",
     )
-    residual = apply_conv2d_block(
-        residual,
+    x = apply_conv2d_block(
+        x,
         output_channels,
         (5, 1),
         1,
+        activation=None,
         use_depthwise=True,
-        name=f"{name}_short_conv3",
+        padding="same",
+        name=f"{name}_2",
     )
-    residual = layers.Activation("sigmoid", name=f"{name}_gate")(residual)
-    # TODO: support dynamic shape
-    residual = layers.Resizing(
-        out.shape[output_axis[0]], out.shape[output_axis[1]], "nearest"
-    )(residual)
-    if channels_axis == -1:
-        out = out[..., :output_channels]
-    else:
-        out = out[:, :output_channels, ...]
-    out = layers.Multiply(name=name)([out, residual])
+    return x
+
+
+def apply_ghost_block_v3(
+    inputs,
+    output_channels: int,
+    expand_ratio: float = 2.0,
+    kernel_size: int = 1,
+    depthwise_kernel_size: int = 3,
+    strides: int = 1,
+    activation="relu",
+    mode="ori",
+    reparameterized: bool = False,
+    name="ghost_block_v3",
+):
+    assert mode in ("ori", "ori_shortcut_mul_conv15")
+
+    channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
+    hidden_channels_1 = int(ops.ceil(output_channels / expand_ratio))
+    hidden_channels_2 = int(hidden_channels_1 * (expand_ratio - 1.0))
+    input_channels = inputs.shape[channels_axis]
+    has_skip1 = input_channels == hidden_channels_1 and strides == 1
+    has_skip2 = hidden_channels_1 == hidden_channels_2
+    has_scale1 = kernel_size > 1
+    has_scale2 = depthwise_kernel_size > 1
+
+    x = inputs
+    residual = inputs
+
+    x1 = ReparameterizableConv2D(
+        hidden_channels_1,
+        kernel_size,
+        strides,
+        has_skip=has_skip1,
+        has_scale=has_scale1,
+        branch_size=3,
+        reparameterized=reparameterized,
+        activation=activation,
+        name=f"{name}_primary_conv",
+    )(x)
+    x2 = ReparameterizableConv2D(
+        hidden_channels_2,
+        depthwise_kernel_size,
+        1,
+        has_skip=has_skip2,
+        has_scale=has_scale2,
+        use_depthwise=True,
+        branch_size=3,
+        reparameterized=reparameterized,
+        activation=activation,
+        name=f"{name}_cheap_operation",
+    )(x1)
+    out = layers.Concatenate(axis=channels_axis)([x1, x2])
+
+    if mode == "ori_shortcut_mul_conv15":
+        if channels_axis == -1:
+            out = out[..., :output_channels]
+            h, w = out.shape[-3], out.shape[-2]
+        else:
+            out = out[:, :output_channels, ...]
+            h, w = out.shape[-2], out.shape[-1]
+        residual = layers.AveragePooling2D(2, 2)(x)
+        residual = apply_short_block(
+            residual,
+            output_channels,
+            kernel_size,
+            strides,
+            name=f"{name}_short_conv",
+        )
+        residual = layers.Activation("sigmoid")(residual)
+        residual = ops.image.resize(
+            residual,
+            size=(h, w),
+            interpolation="nearest",
+            data_format=backend.image_data_format(),
+        )
+        out = layers.Multiply()([out, residual])
+
     return out
 
 
-def apply_ghost_bottleneck(
+def apply_ghost_bottleneck_v3(
     inputs,
     hidden_channels: int,
     output_channels: int,
@@ -183,35 +183,45 @@ def apply_ghost_bottleneck(
     strides: int = 1,
     se_ratio: float = 0.0,
     activation="relu",
-    use_attention=False,  # GhostNetV2
+    pw_ghost_mode="ori",
+    reparameterized: bool = False,
     name="ghost_bottlenect",
 ):
     channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
     input_channels = inputs.shape[channels_axis]
+    has_skip = strides == 1
+    has_scale = depthwise_kernel_size > 1
     has_se = se_ratio is not None and se_ratio > 0.0
 
     x = inputs
     shortcut = inputs
-    # point-wise
-    if use_attention:
-        x = apply_ghost_block_v2(
-            x, hidden_channels, activation=activation, name=f"{name}_ghost1"
-        )
-    else:
-        x = apply_ghost_block(
-            x, hidden_channels, activation=activation, name=f"{name}_ghost1"
-        )
-    # depthwise
+
+    # Point-wise expansion
+    x = apply_ghost_block_v3(
+        x,
+        hidden_channels,
+        activation=activation,
+        mode=pw_ghost_mode,
+        reparameterized=reparameterized,
+        name=f"{name}_ghost1",
+    )
+
+    # Depth-wise
     if strides > 1:
-        x = apply_conv2d_block(
-            x,
+        x = ReparameterizableConv2D(
             hidden_channels,
             depthwise_kernel_size,
-            strides,
+            strides=strides,
+            has_skip=has_skip,
+            has_scale=has_scale,
             use_depthwise=True,
+            branch_size=3,
+            reparameterized=reparameterized,
+            activation=None,
             name=f"{name}_conv_dw",
-        )
-    # squeeze-and-excitation
+        )(x)
+
+    # Squeeze-and-excitation
     if has_se:
         x = apply_se_block(
             x,
@@ -220,11 +230,18 @@ def apply_ghost_bottleneck(
             make_divisible_number=4,
             name=f"{name}_se",
         )
-    # point-wise
-    x = apply_ghost_block(
-        x, output_channels, activation=None, name=f"{name}_ghost2"
+
+    # Point-wise
+    x = apply_ghost_block_v3(
+        x,
+        output_channels,
+        activation=None,
+        mode="ori",
+        reparameterized=reparameterized,
+        name=f"{name}_ghost2",
     )
-    # shortcut
+
+    # Shortcut
     if input_channels != output_channels or strides > 1:
         shortcut = apply_conv2d_block(
             shortcut,
@@ -241,14 +258,18 @@ def apply_ghost_bottleneck(
             1,
             1,
             activation=None,
+            padding="valid",
             name=f"{name}_shortcut2",
         )
+
     out = layers.Add(name=name)([x, shortcut])
     return out
 
 
 @keras.saving.register_keras_serializable(package="kimm")
-class GhostNet(BaseModel):
+class GhostNetV3(BaseModel):
+    # Updated weights: use ReparameterizableConv2D
+    default_origin = "https://github.com/james77777778/keras-image-models/releases/download/0.1.2/"
     available_feature_keys = [
         "STEM_S2",
         *[
@@ -261,7 +282,7 @@ class GhostNet(BaseModel):
         self,
         width: float = 1.0,
         config: typing.Union[str, typing.List] = "default",
-        version: typing.Literal["v1", "v2"] = "v1",
+        reparameterized: bool = False,
         input_tensor=None,
         **kwargs,
     ):
@@ -273,11 +294,6 @@ class GhostNet(BaseModel):
                 f"config must be one of {_available_configs} using string. "
                 f"Received: config={config}"
             )
-        if version not in ("v1", "v2"):
-            raise ValueError(
-                "`version` must be one of ('v1', 'v2'). "
-                f"Received version={version}"
-            )
 
         self.set_properties(kwargs)
         inputs = self.determine_input_tensor(
@@ -285,7 +301,7 @@ class GhostNet(BaseModel):
             self._input_shape,
             self._default_size,
             require_flatten=self._include_top,
-            static_shape=True if version == "v2" else False,
+            static_shape=True,
         )
         x = inputs
 
@@ -294,38 +310,40 @@ class GhostNet(BaseModel):
         # Prepare feature extraction
         features = {}
 
-        # stem
+        # Stem
         stem_channels = make_divisible(16 * width, 4)
         x = apply_conv2d_block(
             x, stem_channels, 3, 2, activation="relu", name="conv_stem"
         )
         features["STEM_S2"] = x
 
-        # blocks
+        # Blocks
         total_layer_idx = 0
         current_stride = 2
         for current_block_idx, cfg in enumerate(_config):
             for current_layer_idx, (k, e, c, se, s) in enumerate(cfg):
                 output_channels = make_divisible(c * width, 4)
                 hidden_channels = make_divisible(e * width, 4)
-                use_attention = False
-                if version == "v2" and total_layer_idx > 1:
-                    use_attention = True
+                pw_ghost_mode = (
+                    "ori" if total_layer_idx <= 1 else "ori_shortcut_mul_conv15"
+                )
                 name = f"blocks_{current_block_idx}_{current_layer_idx}"
-                x = apply_ghost_bottleneck(
+                x = apply_ghost_bottleneck_v3(
                     x,
                     hidden_channels,
                     output_channels,
                     k,
                     s,
                     se_ratio=se,
-                    use_attention=use_attention,
+                    pw_ghost_mode=pw_ghost_mode,
+                    reparameterized=reparameterized,
                     name=name,
                 )
                 total_layer_idx += 1
             current_stride *= s
             features[f"BLOCK{current_block_idx}_S{current_stride}"] = x
-        # post stages conv block
+
+        # Last block
         output_channels = make_divisible(e * width, 4)
         x = apply_conv2d_block(
             x,
@@ -343,7 +361,7 @@ class GhostNet(BaseModel):
         # All references to `self` below this line
         self.width = width
         self.config = config
-        self.version = version
+        self.reparameterized = reparameterized
 
     def build_top(self, inputs, classes, classifier_activation, dropout_rate):
         x = layers.GlobalAveragePooling2D(name="avg_pool", keepdims=True)(
@@ -365,42 +383,59 @@ class GhostNet(BaseModel):
             {
                 "width": self.width,
                 "config": self.config,
-                "version": self.version,
+                "reparameterized": self.reparameterized,
             }
         )
         return config
 
     def fix_config(self, config):
-        unused_kwargs = ["width", "config", "version"]
+        unused_kwargs = ["width", "config"]
         for k in unused_kwargs:
             config.pop(k, None)
         return config
+
+    def get_reparameterized_model(self):
+        config = self.get_config()
+        config["reparameterized"] = True
+        config["weights"] = None
+        model = GhostNetV3(**config)
+        for layer, rep_layer in zip(self.layers, model.layers):
+            if hasattr(layer, "get_reparameterized_weights"):
+                kernel, bias = layer.get_reparameterized_weights()
+                rep_layer.reparameterized_conv2d.kernel.assign(kernel)
+                rep_layer.reparameterized_conv2d.bias.assign(bias)
+            else:
+                for weight, target_weight in zip(
+                    layer.weights, rep_layer.weights
+                ):
+                    target_weight.assign(weight)
+        return model
 
 
 # Model Definition
 
 
-class GhostNetVariant(GhostNet):
+class GhostNetV3Variant(GhostNetV3):
     # Parameters
     width = None
     config = None
-    version = None
 
     def __init__(
         self,
+        reparameterized: bool = False,
         input_tensor: keras.KerasTensor = None,
         input_shape: typing.Optional[typing.Sequence[int]] = None,
         include_preprocessing: bool = True,
         include_top: bool = True,
         pooling: typing.Optional[str] = None,
-        dropout_rate: float = 0.2,
+        dropout_rate: float = 0.0,  # Defaults to 0.0
         classes: int = 1000,
         classifier_activation: str = "softmax",
         weights: typing.Optional[str] = "imagenet",
         name: typing.Optional[str] = None,
         **kwargs,
     ):
-        if type(self) is GhostNetVariant:
+        if type(self) is GhostNetV3Variant:
             raise NotImplementedError(
                 f"Cannot instantiate base class: {self.__class__.__name__}. "
                 "You should use its subclasses."
@@ -415,7 +450,7 @@ class GhostNetVariant(GhostNet):
         super().__init__(
             width=self.width,
             config=self.config,
-            version=self.version,
+            reparameterized=reparameterized,
             input_tensor=input_tensor,
             input_shape=input_shape,
             include_preprocessing=include_preprocessing,
@@ -431,92 +466,48 @@ class GhostNetVariant(GhostNet):
 
 
 @kimm_export(parent_path=["kimm.models", "kimm.models.ghostnet"])
-class GhostNetW050(GhostNetVariant):
+class GhostNetV3W050(GhostNetV3Variant):
     available_weights = []
 
     # Parameters
     width = 0.5
     config = "default"
-    version = "v1"
 
 
 @kimm_export(parent_path=["kimm.models", "kimm.models.ghostnet"])
-class GhostNetW100(GhostNetVariant):
+class GhostNetV3W100(GhostNetV3Variant):
     available_weights = [
         (
             "imagenet",
-            GhostNet.default_origin,
-            "ghostnet100_ghostnet_100.keras",
+            GhostNetV3.default_origin,
+            "ghostnetv3w100_ghostnetv3-1.0.keras",
         )
     ]
 
     # Parameters
     width = 1.0
     config = "default"
-    version = "v1"
 
 
 @kimm_export(parent_path=["kimm.models", "kimm.models.ghostnet"])
-class GhostNetW130(GhostNetVariant):
+class GhostNetV3W130(GhostNetV3Variant):
     available_weights = []
 
     # Parameters
     width = 1.3
     config = "default"
-    version = "v1"
 
 
 @kimm_export(parent_path=["kimm.models", "kimm.models.ghostnet"])
-class GhostNetV2W100(GhostNetVariant):
-    available_weights = [
-        (
-            "imagenet",
-            GhostNet.default_origin,
-            "ghostnet100v2_ghostnetv2_100.keras",
-        )
-    ]
-
-    # Parameters
-    width = 1.0
-    config = "default"
-    version = "v2"
-
-
-@kimm_export(parent_path=["kimm.models", "kimm.models.ghostnet"])
-class GhostNetV2W130(GhostNetVariant):
-    available_weights = [
-        (
-            "imagenet",
-            GhostNet.default_origin,
-            "ghostnet130v2_ghostnetv2_130.keras",
-        )
-    ]
-
-    # Parameters
-    width = 1.3
-    config = "default"
-    version = "v2"
-
-
-@kimm_export(parent_path=["kimm.models", "kimm.models.ghostnet"])
-class GhostNetV2W160(GhostNetVariant):
-    available_weights = [
-        (
-            "imagenet",
-            GhostNet.default_origin,
-            "ghostnet160v2_ghostnetv2_160.keras",
-        )
-    ]
+class GhostNetV3W160(GhostNetV3Variant):
+    available_weights = []
 
     # Parameters
     width = 1.6
     config = "default"
-    version = "v2"
 
 
-add_model_to_registry(GhostNetW050)
-add_model_to_registry(GhostNetW100, "imagenet")
-add_model_to_registry(GhostNetW130)
-add_model_to_registry(GhostNetV2W100, "imagenet")
-add_model_to_registry(GhostNetV2W130, "imagenet")
-add_model_to_registry(GhostNetV2W160, "imagenet")
+add_model_to_registry(GhostNetV3W050)
+add_model_to_registry(GhostNetV3W100, "imagenet")
+add_model_to_registry(GhostNetV3W130)
+add_model_to_registry(GhostNetV3W160)

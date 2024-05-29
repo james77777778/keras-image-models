@@ -13,6 +13,7 @@
 
 # Keras Image Models
 
+- [Latest Updates](#latest-updates)
 - [Introduction](#introduction)
 - [Usage](#usage)
 - [Installation](#installation)
@@ -23,6 +24,13 @@
 - [Model Zoo](#model-zoo)
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
+
+## Latest Updates
+
+2024/05/29:
+
+- Merge reparameterizable layers into 1 `ReparameterizableConv2D`
+- Add `GhostNetV3*` from [huawei-noah/Efficient-AI-Backbones](https://github.com/huawei-noah/Efficient-AI-Backbones)
 
 ## Introduction
 
@@ -154,6 +162,7 @@ Reference: [Grad-CAM class activation visualization (keras.io)](https://keras.io
 |EfficientNetV2|[ICML 2021](https://arxiv.org/abs/2104.00298)|`timm`|`kimm.models.EfficientNetV2*`|
 |GhostNet|[CVPR 2020](https://arxiv.org/abs/1911.11907)|`timm`|`kimm.models.GhostNet*`|
 |GhostNetV2|[NeurIPS 2022](https://arxiv.org/abs/2211.12905)|`timm`|`kimm.models.GhostNetV2*`|
+|GhostNetV3|[arXiv 2024](https://arxiv.org/abs/2404.11202)|`github`|`kimm.models.GhostNetV3*`|
 |HGNet||`timm`|`kimm.models.HGNet*`|
 |HGNetV2||`timm`|`kimm.models.HGNetV2*`|
 |InceptionNeXt|[arXiv 2023](https://arxiv.org/abs/2303.16900)|`timm`|`kimm.models.InceptionNeXt*`|

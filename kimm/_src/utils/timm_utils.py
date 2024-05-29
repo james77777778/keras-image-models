@@ -47,8 +47,8 @@ def separate_keras_weights(keras_model: keras.Model):
     trainable_weights = []
     non_trainable_weights = []
     for layer in keras_model.layers:
-        if hasattr(layer, "extra_layers"):
-            for sub_layer in layer.extra_layers:
+        if hasattr(layer, "_sublayers"):
+            for sub_layer in layer._sublayers:
                 sub_layer: keras.Layer
                 for weight in sub_layer.trainable_weights:
                     trainable_weights.append(

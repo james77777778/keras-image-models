@@ -17,16 +17,12 @@ def get_reparameterized_model(model: BaseModel):
     config["reparameterized"] = True
     config["weights"] = None
     reparameterized_model = type(model).from_config(config)
-    for layer, reparameterized_layer in zip(
-        model.layers, reparameterized_model.layers
-    ):
+    for layer, rep_layer in zip(model.layers, reparameterized_model.layers):
         if hasattr(layer, "get_reparameterized_weights"):
             kernel, bias = layer.get_reparameterized_weights()
-            reparameterized_layer.rep_conv2d.kernel.assign(kernel)
-            reparameterized_layer.rep_conv2d.bias.assign(bias)
+            rep_layer.reparameterized_conv2d.kernel.assign(kernel)
+            rep_layer.reparameterized_conv2d.bias.assign(bias)
         else:
-            for weight, target_weight in zip(
-                layer.weights, reparameterized_layer.weights
-            ):
+            for weight, target_weight in zip(layer.weights, rep_layer.weights):
                 target_weight.assign(weight)
     return reparameterized_model

@@ -82,6 +82,15 @@ for timm_model_name, keras_model_class in zip(
         if "reparam_conv_conv2d" in keras_name:
             continue
         # mobile_one_conv2d
+        torch_name = torch_name.replace("skip.gamma", "identity.gamma")
+        torch_name = torch_name.replace("skip.beta", "identity.beta")
+        torch_name = torch_name.replace(
+            "conv.scale.kernel", "conv_scale.conv.kernel"
+        )
+        torch_name = torch_name.replace(
+            "conv.scale.gamma", "conv_scale.bn.gamma"
+        )
+        torch_name = torch_name.replace("conv.scale.beta", "conv_scale.bn.beta")
         if "conv.kxk" in torch_name and "kernel" in torch_name:
             torch_name = torch_name.replace("conv.kxk", "conv_kxk")
             torch_name = torch_name.replace("kernel", "conv.kernel")
@@ -91,14 +100,19 @@ for timm_model_name, keras_model_class in zip(
         if "conv.kxk" in torch_name and "beta" in torch_name:
             torch_name = torch_name.replace("conv.kxk", "conv_kxk")
             torch_name = torch_name.replace("beta", "bn.beta")
-        torch_name = torch_name.replace(
-            "conv.scale.kernel", "conv_scale.conv.kernel"
-        )
-        torch_name = torch_name.replace(
-            "conv.scale.gamma", "conv_scale.bn.gamma"
-        )
-        torch_name = torch_name.replace("conv.scale.beta", "conv_scale.bn.beta")
         # mobile_one_conv2d bn
+        torch_name = torch_name.replace(
+            "skip.moving.mean", "identity.moving.mean"
+        )
+        torch_name = torch_name.replace(
+            "skip.moving.variance", "identity.moving.variance"
+        )
+        torch_name = torch_name.replace(
+            "conv.scale.moving.mean", "conv_scale.bn.moving.mean"
+        )
+        torch_name = torch_name.replace(
+            "conv.scale.moving.variance", "conv_scale.bn.moving.variance"
+        )
         if "conv.kxk" in torch_name and "moving.mean" in torch_name:
             torch_name = torch_name.replace("conv.kxk", "conv_kxk")
             torch_name = torch_name.replace("moving.mean", "bn.moving.mean")
@@ -107,12 +121,6 @@ for timm_model_name, keras_model_class in zip(
             torch_name = torch_name.replace(
                 "moving.variance", "bn.moving.variance"
             )
-        torch_name = torch_name.replace(
-            "conv.scale.moving.mean", "conv_scale.bn.moving.mean"
-        )
-        torch_name = torch_name.replace(
-            "conv.scale.moving.variance", "conv_scale.bn.moving.variance"
-        )
         # head
         torch_name = torch_name.replace("classifier", "head.fc")
 

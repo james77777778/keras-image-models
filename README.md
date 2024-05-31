@@ -49,15 +49,11 @@
 - `kimm.models.*.available_feature_keys`
 - `kimm.models.*(...)`
 - `kimm.models.*(..., feature_extractor=True, feature_keys=[...])`
-- `kimm.utils.get_reparameterized_model`
-- `kimm.export.export_tflite`
-- `kimm.export.export_onnx`
 
 ```python
 import keras
 import kimm
 import numpy as np
-
 
 # List available models
 print(kimm.list_models("mobileone", weights="imagenet"))
@@ -70,18 +66,11 @@ y = model.predict(x)
 print(y.shape)
 # (1, 1000)
 
-# Get reparameterized model by kimm.utils.get_reparameterized_model
-reparameterized_model = kimm.utils.get_reparameterized_model(model)
-y2 = reparameterized_model.predict(x)
-np.testing.assert_allclose(
-    keras.ops.convert_to_numpy(y), keras.ops.convert_to_numpy(y2), atol=1e-5
-)
-
-# Export model to tflite format
-kimm.export.export_tflite(reparameterized_model, 224, "model.tflite")
-
-# Export model to onnx format (note: must be "channels_first" format)
-# kimm.export.export_onnx(reparameterized_model, 224, "model.onnx")
+# Show some basic information about the model
+print(model)
+# <MobileOneS0 name=MobileOneS0, input_shape=(None, None, None, 3),
+# default_size=224, preprocessing_mode="imagenet", feature_extractor=False,
+# feature_keys=None>
 
 # List available feature keys of the model class
 print(kimm.models.MobileOneS0.available_feature_keys)
@@ -89,16 +78,55 @@ print(kimm.models.MobileOneS0.available_feature_keys)
 
 # Enable feature extraction by setting `feature_extractor=True`
 # `feature_keys` can be optionally specified
-model = kimm.models.MobileOneS0(
+feature_extractor = kimm.models.MobileOneS0(
     feature_extractor=True, feature_keys=["BLOCK2_S16", "BLOCK3_S32"]
 )
-features = model.predict(x)
+features = feature_extractor.predict(x)
 for feature_name, feature in features.items():
     print(feature_name, feature.shape)
-# BLOCK2_S16 (1, 14, 14, 256)
-# BLOCK3_S32 (1, 7, 7, 1024)
-# TOP (1, 1000)
+# BLOCK2_S16 (1, 14, 14, 256), BLOCK3_S32 (1, 7, 7, 1024), ...
+```
 
+> [!NOTE]  
+> Some models, especially those including attention-related layers, require a static shape.
+
+`default_size` indicates the size of the inputs for the pretrained model.
+
+`preprocessing_mode` can be:
+
+- `False`: No preprocessing.
+- `"imagenet"`: Scale the value range from [0, 255] to [0, 1], then normalize with the mean `(0.485, 0.456, 0.406)` and variance `(0.229, 0.224, 0.225)`.
+- `"0_1"`: Scale the value range from [0, 255] to [0, 1].
+- `"-1_1"`: Scale the value range from [0, 255] to [-1, 1].
+
+## Advanced Usage
+
+- `kimm.utils.get_reparameterized_model`
+- `kimm.export.export_tflite`
+- `kimm.export.export_onnx`
+
+```python
+import keras
+import kimm
+import numpy as np
+
+# Initialize a reparameterizable model
+x = keras.random.uniform([1, 224, 224, 3])
+model = kimm.models.MobileOneS0()
+y = model.predict(x)
+
+# Get reparameterized model by kimm.utils.get_reparameterized_model
+reparameterized_model = kimm.utils.get_reparameterized_model(model)
+y2 = reparameterized_model.predict(x)
+np.testing.assert_allclose(
+    keras.ops.convert_to_numpy(y), keras.ops.convert_to_numpy(y2), atol=1e-3
+)
+
+# Export model to tflite format
+kimm.export.export_tflite(reparameterized_model, 224, "model.tflite")
+
+# Export model to onnx format (note: must be "channels_first" format)
+# kimm.export.export_onnx(reparameterized_model, 224, "model.onnx")
 ```
 
 ## Installation
@@ -106,6 +134,9 @@ for feature_name, feature in features.items():
 ```bash
 pip install keras kimm -U
 ```
+
+> [!IMPORTANT]  
+> Make sure you have installed a supported backend for Keras.
 
 ## Quickstart
 

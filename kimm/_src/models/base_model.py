@@ -18,6 +18,10 @@ class BaseModel(models.Model):
     available_feature_keys = []
     available_weights = []
 
+    def __new__(cls, *args, **kwargs):
+        # Fix type hint
+        return typing.cast(BaseModel, super().__new__(cls, *args, **kwargs))
+
     def __init__(
         self,
         inputs,
@@ -42,29 +46,7 @@ class BaseModel(models.Model):
             super().__init__(inputs=inputs, outputs=outputs, **kwargs)
 
         if hasattr(self, "_weights"):
-            self.load_pretrained_weights(self._weights)
-
-    def _check_feature_extractor_setting(self, features):
-        if not hasattr(self, "_feature_keys"):
-            raise AttributeError(
-                "`self._feature_keys` must be set when initializing "
-                "BaseModel"
-            )
-        if self._feature_extractor:
-            if features is None:
-                raise ValueError(
-                    "`features` must be set when `feature_extractor=True`. "
-                    f"Received features={features}"
-                )
-            _feature_keys = self._feature_keys
-            if _feature_keys is None:
-                _feature_keys = list(features.keys())
-            for k in _feature_keys:
-                if k not in features:
-                    raise KeyError(
-                        f"'{k}' is not a key of `features`. Available keys "
-                        f"are: {list(features.keys())}"
-                    )
+            self._load_pretrained_weights(self._weights)
 
     def set_properties(
         self, kwargs: typing.Dict[str, typing.Any], default_size: int = 224
@@ -84,6 +66,7 @@ class BaseModel(models.Model):
         - feature_extractor
         - feature_keys
         """
+        # Common properties
         self._input_shape = kwargs.pop("input_shape", None)
         self._include_preprocessing = kwargs.pop("include_preprocessing", True)
         self._include_top = kwargs.pop("include_top", True)
@@ -93,11 +76,57 @@ class BaseModel(models.Model):
         self._classifier_activation = kwargs.pop(
             "classifier_activation", "softmax"
         )
-        self._weights = self.parse_weights(kwargs.pop("weights", None))
-        self._default_size = kwargs.pop("default_size", default_size)
-        # feature extractor
-        self._feature_extractor = kwargs.pop("feature_extractor", False)
+        self._weights = self._parse_weights(kwargs.pop("weights", None))
+        self._default_size = int(kwargs.pop("default_size", default_size))
+        # For feature extractor
+        self._feature_extractor = bool(kwargs.pop("feature_extractor", False))
         self._feature_keys = kwargs.pop("feature_keys", None)
+        # Internal parameters
+        self._preprocessing_mode = False
+
+    @property
+    def input_shape(self):
+        """The input shape of the model.
+
+        `None` means that the dimension can be of arbitrary size.
+
+        Note: Some models, especially those including attention-related layers,
+        require a static shape.
+        """
+        return tuple(super().input_shape)
+
+    @property
+    def default_size(self):
+        """The default size of the model.
+
+        `default_size` indicates the size of the inputs for the pretrained
+        model. For example, when loading "imagenet" weights, you should get
+        good results by feeding the inputs with this size.
+        """
+        return self._default_size
+
+    @property
+    def preprocessing_mode(self):
+        """The mode of the preprocessing of the model.
+
+        - `False`: No preprocessing.
+        - `"imagenet"`: Scale the value range from [0, 255] to [0, 1], then
+            normalize with the mean `(0.485, 0.456, 0.406)` and variance
+            `(0.229, 0.224, 0.225)`.
+        - `"0_1"`: Scale the value range from [0, 255] to [0, 1].
+        - `"-1_1"`: Scale the value range from [0, 255] to [-1, 1].
+        """
+        return self._preprocessing_mode
+
+    @property
+    def feature_extractor(self):
+        """Whether this model is a feature extractor."""
+        return self._feature_extractor
+
+    @property
+    def feature_keys(self):
+        """The keys of the features if the model is a feature extractor."""
+        return self._feature_keys
 
     def determine_input_tensor(
         self,
@@ -173,7 +202,7 @@ class BaseModel(models.Model):
                 variance=[0.229, 0.224, 0.225],
             )(x)
         elif mode == "0_1":
-            # [0, 255] to [-1, 1]
+            # [0, 255] to [0, 1]
             x = layers.Rescaling(scale=1.0 / 255.0)(inputs)
         elif mode == "-1_1":
             # [0, 255] to [-1, 1]
@@ -183,6 +212,7 @@ class BaseModel(models.Model):
                 "`mode` must be one of ('imagenet', '0_1', '-1_1'). "
                 f"Received: mode={mode}"
             )
+        self._preprocessing_mode = mode
         return x
 
     def build_top(
@@ -215,30 +245,6 @@ class BaseModel(models.Model):
                 x = layers.GlobalMaxPooling2D(name="max_pool")(x)
         return x
 
-    def load_pretrained_weights(
-        self,
-        weights: typing.Union[pathlib.Path, str, None] = None,
-    ):
-        """Load the pretrained weights from `weights_url`.
-
-        This function prefers the following order:
-        1. Local file (a instance of pathlib.Path)
-        2. URL (a str starting with 'https://')
-        """
-        if weights is None:
-            return
-        # Check local files
-        if isinstance(weights, pathlib.Path):
-            self.load_weights(weights)
-        # Check URL
-        else:
-            result = urllib.parse.urlparse(weights)
-            file_name = pathlib.Path(result.path).name
-            weights_path = utils.get_file(
-                file_name, weights, cache_subdir="kimm_models"
-            )
-            self.load_weights(weights_path)
-
     def get_config(self):
         # Don't chain to super here. The default `get_config()` for functional
         # models is nested and cannot be passed to BaseModel.
@@ -264,7 +270,45 @@ class BaseModel(models.Model):
     def fix_config(self, config: typing.Dict):
         return config
 
-    def parse_weights(self, weights: typing.Union[str, None]):
+    def __repr__(self):
+        repr_str = (
+            f"<{self.__class__.__name__} "
+            f"name={self.name}, "
+            f"input_shape={self.input_shape}, "
+            f"default_size={self._default_size}, "
+        )
+        preprocessing_mode = self._preprocessing_mode
+        if preprocessing_mode is not False:
+            preprocessing_mode = f'"{self._preprocessing_mode}"'
+        repr_str += f"preprocessing_mode={preprocessing_mode}, "
+        repr_str += f"feature_extractor={self._feature_extractor}, "
+        repr_str += f"feature_keys={self._feature_keys}"
+        repr_str += ">"
+        return repr_str
+
+    def _check_feature_extractor_setting(self, features):
+        if not hasattr(self, "_feature_keys"):
+            raise AttributeError(
+                "`self._feature_keys` must be set when initializing "
+                "BaseModel"
+            )
+        if self._feature_extractor:
+            if features is None:
+                raise ValueError(
+                    "`features` must be set when `feature_extractor=True`. "
+                    f"Received features={features}"
+                )
+            _feature_keys = self._feature_keys
+            if _feature_keys is None:
+                _feature_keys = list(features.keys())
+            for k in _feature_keys:
+                if k not in features:
+                    raise KeyError(
+                        f"'{k}' is not a key of `features`. Available keys "
+                        f"are: {list(features.keys())}"
+                    )
+
+    def _parse_weights(self, weights: typing.Union[str, None]):
         """Parse the path/URL if weights is specified.
 
         This function prefers the following order:
@@ -295,3 +339,27 @@ class BaseModel(models.Model):
             f"If `weights` is a URL string, the available weights are "
             f"{_available_weights_name}. Received: weights={weights}"
         )
+
+    def _load_pretrained_weights(
+        self,
+        weights: typing.Union[pathlib.Path, str, None] = None,
+    ):
+        """Load the pretrained weights from `weights_url`.
+
+        This function prefers the following order:
+        1. Local file (a instance of pathlib.Path)
+        2. URL (a str starting with 'https://')
+        """
+        if weights is None:
+            return
+        # Check local files
+        if isinstance(weights, pathlib.Path):
+            self.load_weights(weights)
+        # Check URL
+        else:
+            result = urllib.parse.urlparse(weights)
+            file_name = pathlib.Path(result.path).name
+            weights_path = utils.get_file(
+                file_name, weights, cache_subdir="kimm_models"
+            )
+            self.load_weights(weights_path)

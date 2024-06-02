@@ -78,8 +78,23 @@ def list_models(
     name: typing.Optional[str] = None,
     feature_extractor: typing.Optional[bool] = None,
     weights: typing.Optional[typing.Union[bool, str]] = None,
-) -> typing.List[str]:
-    result_names: typing.Set = set()
+):
+    """List the models with the given arguments.
+
+    Args:
+        name: An optional `str` specifying the substring of the name of the
+            model to seatch for. If not specified, all models will be included.
+        feature_extractor: Whether to include models that support
+            feature extraction. Defaults to `None`, which means this
+            argument is not considered.
+        weights: An optional boolean or `str` specifying the name of the
+            pretrained weights. The available values are (`"imagenet"`).
+            Defaults to `None`, which means this argument is not considered.
+
+    Returns:
+        A list of model names.
+    """
+    result_names: typing.Set[str] = set()
     for info in MODEL_REGISTRY:
         # Add by default
         result_names.add(info["name"])

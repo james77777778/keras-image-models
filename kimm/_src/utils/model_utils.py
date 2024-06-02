@@ -4,6 +4,17 @@ from kimm._src.models.base_model import BaseModel
 
 @kimm_export(parent_path=["kimm.utils"])
 def get_reparameterized_model(model: BaseModel):
+    """Get the reparameterized model.
+
+    Internally, this function calls `get_reparameterized_model` from the
+    provided `model`.
+
+    Args:
+        model: A `BaseModel` to convert to its reparameterized form.
+
+    Returns:
+        An instance of the same class as `model` in its reparameterized form.
+    """
     if not hasattr(model, "get_reparameterized_model"):
         raise ValueError(
             "There is no 'get_reparameterized_model' method in the model. "

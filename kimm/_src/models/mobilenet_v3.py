@@ -4,6 +4,7 @@ import typing
 import warnings
 
 import keras
+from keras import backend
 from keras import layers
 
 from kimm._src.blocks.conv2d import apply_conv2d_block
@@ -124,6 +125,10 @@ class MobileNetV3(BaseModel):
         padding = kwargs.pop("padding", None)
 
         self.set_properties(kwargs)
+        channels_axis = (
+            -1 if backend.image_data_format() == "channels_last" else -3
+        )
+
         inputs = self.determine_input_tensor(
             input_tensor,
             self._input_shape,
@@ -181,6 +186,10 @@ class MobileNetV3(BaseModel):
                         ),
                     }
                     if block_type in ("ds", "dsa"):
+                        if block_type == "dsa":
+                            has_skip = False
+                        else:
+                            has_skip = x.shape[channels_axis] == c and s == 1
                         x = apply_depthwise_separation_block(
                             x,
                             c,
@@ -193,7 +202,7 @@ class MobileNetV3(BaseModel):
                             se_gate_activation="hard_sigmoid",
                             se_make_divisible_number=8,
                             pw_activation=act if block_type == "dsa" else None,
-                            skip=False if block_type == "dsa" else True,
+                            has_skip=has_skip,
                             **_kwargs,
                         )
                     elif block_type == "ir":

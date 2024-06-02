@@ -19,7 +19,7 @@ class ReparameterizableConv2D(Layer):
         self,
         filters,
         kernel_size,
-        strides=(1, 1),
+        strides=1,
         padding=None,
         has_skip: bool = True,
         has_scale: bool = True,

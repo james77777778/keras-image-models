@@ -30,9 +30,6 @@
 2024/06/02:
 
 - Add docstrings for all `kimm` models.
-
-2024/05/29:
-
 - Merge reparameterizable layers into 1 `ReparameterizableConv2D`
 - Add `GhostNetV3*` from [huawei-noah/Efficient-AI-Backbones](https://github.com/huawei-noah/Efficient-AI-Backbones)
 
@@ -57,7 +54,6 @@
 ```python
 import keras
 import kimm
-import numpy as np
 
 # List available models
 print(kimm.list_models("mobileone", weights="imagenet"))
@@ -72,11 +68,13 @@ y = model.predict(x)
 print(y.shape)
 # (1, 1000)
 
-# Show some basic information about the model
+# Print some basic information about the model
 print(model)
 # <MobileOneS0 name=MobileOneS0, input_shape=(None, None, None, 3),
 # default_size=224, preprocessing_mode="imagenet", feature_extractor=False,
 # feature_keys=None>
+# This information can also be accessed through properties
+print(model.input_shape, model.default_size, model.preprocessing_mode)
 
 # List available feature keys of the model class
 print(kimm.models.MobileOneS0.available_feature_keys)

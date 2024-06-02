@@ -18,8 +18,9 @@ class SampleModel(kimm_models.BaseModel):
     available_weights = [("imagenet", "123", "123.keras")]
 
     def __init__(self, **kwargs):
-        self.set_properties(kwargs)
+        self.set_properties(kwargs, default_size=123)
         inputs = keras.layers.Input(shape=[64, 64, 3])
+        inputs = self.build_preprocessing(inputs, "imagenet")
         features = {}
         s2 = keras.layers.Conv2D(3, 1, 2, use_bias=False)(inputs)
         features["S2"] = s2
@@ -49,6 +50,22 @@ class SampleModelStaticShape(kimm_models.BaseModel):
 
 
 class BaseModelTest(testing.TestCase, parameterized.TestCase):
+    def test_properties(self):
+        model = SampleModel()
+        self.assertEqual(model.input_shape, (None, 64, 64, 3))
+        self.assertEqual(model.default_size, 123)
+        self.assertEqual(model.preprocessing_mode, "imagenet")
+        self.assertEqual(model.feature_extractor, False)
+        self.assertEqual(model.feature_keys, None)
+
+        repr_string = repr(model)
+        self.assertTrue("input_shape" in repr_string)
+        self.assertTrue("default_size" in repr_string)
+        self.assertTrue("preprocessing_mode" in repr_string)
+        self.assertTrue("feature_extractor" in repr_string)
+        self.assertTrue("feature_keys" in repr_string)
+        self.assertEqual(repr_string, str(model))
+
     def test_feature_extractor(self):
         x = keras.random.uniform([1, 64, 64, 3])
 

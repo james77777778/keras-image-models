@@ -27,8 +27,9 @@
 
 ## Latest Updates
 
-2024/05/29:
+2024/06/02:
 
+- Add docstrings for all `kimm` models.
 - Merge reparameterizable layers into 1 `ReparameterizableConv2D`
 - Add `GhostNetV3*` from [huawei-noah/Efficient-AI-Backbones](https://github.com/huawei-noah/Efficient-AI-Backbones)
 
@@ -49,6 +50,53 @@
 - `kimm.models.*.available_feature_keys`
 - `kimm.models.*(...)`
 - `kimm.models.*(..., feature_extractor=True, feature_keys=[...])`
+
+```python
+import keras
+import kimm
+
+# List available models
+print(kimm.list_models("mobileone", weights="imagenet"))
+# ['MobileOneS0', 'MobileOneS1', 'MobileOneS2', 'MobileOneS3']
+
+# Initialize model with pretrained ImageNet weights
+# Note: all `kimm` models expect inputs in the value range of [0, 255] by
+# default if `incldue_preprocessing=True`
+x = keras.random.uniform([1, 224, 224, 3]) * 255.0
+model = kimm.models.MobileOneS0()
+y = model.predict(x)
+print(y.shape)
+# (1, 1000)
+
+# Print some basic information about the model
+print(model)
+# <MobileOneS0 name=MobileOneS0, input_shape=(None, None, None, 3),
+# default_size=224, preprocessing_mode="imagenet", feature_extractor=False,
+# feature_keys=None>
+# This information can also be accessed through properties
+print(model.input_shape, model.default_size, model.preprocessing_mode)
+
+# List available feature keys of the model class
+print(kimm.models.MobileOneS0.available_feature_keys)
+# ['STEM_S2', 'BLOCK0_S4', 'BLOCK1_S8', 'BLOCK2_S16', 'BLOCK3_S32']
+
+# Enable feature extraction by setting `feature_extractor=True`
+# `feature_keys` can be optionally specified
+feature_extractor = kimm.models.MobileOneS0(
+    feature_extractor=True, feature_keys=["BLOCK2_S16", "BLOCK3_S32"]
+)
+features = feature_extractor.predict(x)
+for feature_name, feature in features.items():
+    print(feature_name, feature.shape)
+# BLOCK2_S16 (1, 14, 14, 256), BLOCK3_S32 (1, 7, 7, 1024), ...
+```
+
+> [!NOTE]  
+> All models in `kimm` expect inputs in the value range of [0, 255] by default if `incldue_preprocessing=True`.
+> Some models only accept static inputs. You should explicitly specify the input shape for these models by `input_shape=[*, *, 3]`.
+
+## Advanced Usage
+
 - `kimm.utils.get_reparameterized_model`
 - `kimm.export.export_tflite`
 - `kimm.export.export_onnx`
@@ -58,47 +106,24 @@ import keras
 import kimm
 import numpy as np
 
-
-# List available models
-print(kimm.list_models("mobileone", weights="imagenet"))
-# ['MobileOneS0', 'MobileOneS1', 'MobileOneS2', 'MobileOneS3']
-
-# Initialize model with pretrained ImageNet weights
-x = keras.random.uniform([1, 224, 224, 3])
+# Initialize a reparameterizable model
+x = keras.random.uniform([1, 224, 224, 3]) * 255.0
 model = kimm.models.MobileOneS0()
 y = model.predict(x)
-print(y.shape)
-# (1, 1000)
 
 # Get reparameterized model by kimm.utils.get_reparameterized_model
 reparameterized_model = kimm.utils.get_reparameterized_model(model)
 y2 = reparameterized_model.predict(x)
 np.testing.assert_allclose(
-    keras.ops.convert_to_numpy(y), keras.ops.convert_to_numpy(y2), atol=1e-5
+    keras.ops.convert_to_numpy(y), keras.ops.convert_to_numpy(y2), atol=1e-3
 )
 
 # Export model to tflite format
 kimm.export.export_tflite(reparameterized_model, 224, "model.tflite")
 
-# Export model to onnx format (note: must be "channels_first" format)
+# Export model to onnx format
+# Note: must be "channels_first" format before the exporting
 # kimm.export.export_onnx(reparameterized_model, 224, "model.onnx")
-
-# List available feature keys of the model class
-print(kimm.models.MobileOneS0.available_feature_keys)
-# ['STEM_S2', 'BLOCK0_S4', 'BLOCK1_S8', 'BLOCK2_S16', 'BLOCK3_S32']
-
-# Enable feature extraction by setting `feature_extractor=True`
-# `feature_keys` can be optionally specified
-model = kimm.models.MobileOneS0(
-    feature_extractor=True, feature_keys=["BLOCK2_S16", "BLOCK3_S32"]
-)
-features = model.predict(x)
-for feature_name, feature in features.items():
-    print(feature_name, feature.shape)
-# BLOCK2_S16 (1, 14, 14, 256)
-# BLOCK3_S32 (1, 7, 7, 1024)
-# TOP (1, 1000)
-
 ```
 
 ## Installation
@@ -106,6 +131,9 @@ for feature_name, feature in features.items():
 ```bash
 pip install keras kimm -U
 ```
+
+> [!IMPORTANT]  
+> Make sure you have installed a supported backend for Keras.
 
 ## Quickstart
 
@@ -152,34 +180,34 @@ Reference: [Grad-CAM class activation visualization (keras.io)](https://keras.io
 
 ## Model Zoo
 
-|Model|Paper|Weights are ported from|API|
+|Model|Paper|Weights are ported from|API (`kimm.models.*`)|
 |-|-|-|-|
-|ConvMixer|[ICLR 2022 Submission](https://arxiv.org/abs/2201.09792)|`timm`|`kimm.models.ConvMixer*`|
-|ConvNeXt|[CVPR 2022](https://arxiv.org/abs/2201.03545)|`timm`|`kimm.models.ConvNeXt*`|
-|DenseNet|[CVPR 2017](https://arxiv.org/abs/1608.06993)|`timm`|`kimm.models.DenseNet*`|
-|EfficientNet|[ICML 2019](https://arxiv.org/abs/1905.11946)|`timm`|`kimm.models.EfficientNet*`|
-|EfficientNetLite|[ICML 2019](https://arxiv.org/abs/1905.11946)|`timm`|`kimm.models.EfficientNetLite*`|
-|EfficientNetV2|[ICML 2021](https://arxiv.org/abs/2104.00298)|`timm`|`kimm.models.EfficientNetV2*`|
-|GhostNet|[CVPR 2020](https://arxiv.org/abs/1911.11907)|`timm`|`kimm.models.GhostNet*`|
-|GhostNetV2|[NeurIPS 2022](https://arxiv.org/abs/2211.12905)|`timm`|`kimm.models.GhostNetV2*`|
-|GhostNetV3|[arXiv 2024](https://arxiv.org/abs/2404.11202)|`github`|`kimm.models.GhostNetV3*`|
-|HGNet||`timm`|`kimm.models.HGNet*`|
-|HGNetV2||`timm`|`kimm.models.HGNetV2*`|
-|InceptionNeXt|[arXiv 2023](https://arxiv.org/abs/2303.16900)|`timm`|`kimm.models.InceptionNeXt*`|
-|InceptionV3|[CVPR 2016](https://arxiv.org/abs/1512.00567)|`timm`|`kimm.models.InceptionV3`|
-|LCNet|[arXiv 2021](https://arxiv.org/abs/2109.15099)|`timm`|`kimm.models.LCNet*`|
-|MobileNetV2|[CVPR 2018](https://arxiv.org/abs/1801.04381)|`timm`|`kimm.models.MobileNetV2*`|
-|MobileNetV3|[ICCV 2019](https://arxiv.org/abs/1905.02244)|`timm`|`kimm.models.MobileNetV3*`|
-|MobileOne|[CVPR 2023](https://arxiv.org/abs/2206.04040)|`timm`|`kimm.models.MobileOne*`|
-|MobileViT|[ICLR 2022](https://arxiv.org/abs/2110.02178)|`timm`|`kimm.models.MobileViT*`|
-|MobileViTV2|[arXiv 2022](https://arxiv.org/abs/2206.02680)|`timm`|`kimm.models.MobileViTV2*`|
-|RegNet|[CVPR 2020](https://arxiv.org/abs/2003.13678)|`timm`|`kimm.models.RegNet*`|
-|RepVGG|[CVPR 2021](https://arxiv.org/abs/2101.03697)|`timm`|`kimm.models.RepVGG*`|
-|ResNet|[CVPR 2015](https://arxiv.org/abs/1512.03385)|`timm`|`kimm.models.ResNet*`|
-|TinyNet|[NeurIPS 2020](https://arxiv.org/abs/2010.14819)|`timm`|`kimm.models.TinyNet*`|
-|VGG|[ICLR 2015](https://arxiv.org/abs/1409.1556)|`timm`|`kimm.models.VGG*`|
-|ViT|[ICLR 2021](https://arxiv.org/abs/2010.11929)|`timm`|`kimm.models.VisionTransformer*`|
-|Xception|[CVPR 2017](https://arxiv.org/abs/1610.02357)|`keras`|`kimm.models.Xception`|
+|ConvMixer|[ICLR 2022 Submission](https://arxiv.org/abs/2201.09792)|`timm`|`ConvMixer*`|
+|ConvNeXt|[CVPR 2022](https://arxiv.org/abs/2201.03545)|`timm`|`ConvNeXt*`|
+|DenseNet|[CVPR 2017](https://arxiv.org/abs/1608.06993)|`timm`|`DenseNet*`|
+|EfficientNet|[ICML 2019](https://arxiv.org/abs/1905.11946)|`timm`|`EfficientNet*`|
+|EfficientNetLite|[ICML 2019](https://arxiv.org/abs/1905.11946)|`timm`|`EfficientNetLite*`|
+|EfficientNetV2|[ICML 2021](https://arxiv.org/abs/2104.00298)|`timm`|`EfficientNetV2*`|
+|GhostNet|[CVPR 2020](https://arxiv.org/abs/1911.11907)|`timm`|`GhostNet*`|
+|GhostNetV2|[NeurIPS 2022](https://arxiv.org/abs/2211.12905)|`timm`|`GhostNetV2*`|
+|GhostNetV3|[arXiv 2024](https://arxiv.org/abs/2404.11202)|`github`|`GhostNetV3*`|
+|HGNet||`timm`|`HGNet*`|
+|HGNetV2||`timm`|`HGNetV2*`|
+|InceptionNeXt|[CVPR 2024](https://arxiv.org/abs/2303.16900)|`timm`|`InceptionNeXt*`|
+|InceptionV3|[CVPR 2016](https://arxiv.org/abs/1512.00567)|`timm`|`InceptionV3`|
+|LCNet|[arXiv 2021](https://arxiv.org/abs/2109.15099)|`timm`|`LCNet*`|
+|MobileNetV2|[CVPR 2018](https://arxiv.org/abs/1801.04381)|`timm`|`MobileNetV2*`|
+|MobileNetV3|[ICCV 2019](https://arxiv.org/abs/1905.02244)|`timm`|`MobileNetV3*`|
+|MobileOne|[CVPR 2023](https://arxiv.org/abs/2206.04040)|`timm`|`MobileOne*`|
+|MobileViT|[ICLR 2022](https://arxiv.org/abs/2110.02178)|`timm`|`MobileViT*`|
+|MobileViTV2|[arXiv 2022](https://arxiv.org/abs/2206.02680)|`timm`|`MobileViTV2*`|
+|RegNet|[CVPR 2020](https://arxiv.org/abs/2003.13678)|`timm`|`RegNet*`|
+|RepVGG|[CVPR 2021](https://arxiv.org/abs/2101.03697)|`timm`|`RepVGG*`|
+|ResNet|[CVPR 2015](https://arxiv.org/abs/1512.03385)|`timm`|`ResNet*`|
+|TinyNet|[NeurIPS 2020](https://arxiv.org/abs/2010.14819)|`timm`|`TinyNet*`|
+|VGG|[ICLR 2015](https://arxiv.org/abs/1409.1556)|`timm`|`VGG*`|
+|ViT|[ICLR 2021](https://arxiv.org/abs/2010.11929)|`timm`|`VisionTransformer*`|
+|Xception|[CVPR 2017](https://arxiv.org/abs/1610.02357)|`keras`|`Xception`|
 
 The export scripts can be found in `tools/convert_*.py`.
 

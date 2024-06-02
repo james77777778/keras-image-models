@@ -1,3 +1,4 @@
+import pathlib
 import typing
 
 import keras
@@ -157,7 +158,7 @@ class RepVGGVariant(RepVGG):
     def __init__(
         self,
         reparameterized: bool = False,
-        input_tensor: keras.KerasTensor = None,
+        input_tensor: typing.Optional[keras.KerasTensor] = None,
         input_shape: typing.Optional[typing.Sequence[int]] = None,
         include_preprocessing: bool = True,
         include_top: bool = True,
@@ -165,10 +166,55 @@ class RepVGGVariant(RepVGG):
         dropout_rate: float = 0.0,
         classes: int = 1000,
         classifier_activation: str = "softmax",
-        weights: typing.Optional[str] = "imagenet",
+        weights: typing.Optional[typing.Union[str, pathlib.Path]] = "imagenet",
         name: typing.Optional[str] = None,
+        feature_extractor: bool = False,
+        feature_keys: typing.Optional[typing.Sequence[str]] = None,
         **kwargs,
     ):
+        """Instantiates the RepVGG architecture.
+
+        Reference:
+        - [RepVGG: Making VGG-style ConvNets Great Again(CVPR 2021)](https://arxiv.org/abs/2101.03697)
+
+        Args:
+            reparameterized: Whether to instantiate the model with
+                reparameterized state. Defaults to `False`. Note that
+                pretrained weights are only available with
+                `reparameterized=False`.
+            input_tensor: An optional `keras.KerasTensor` specifying the input.
+            input_shape: An optional sequence of ints specifying the input
+                shape.
+            include_preprocessing: Whether to include preprocessing. Defaults
+                to `True`.
+            include_top: Whether to include prediction head. Defaults
+                to `True`.
+            pooling: An optional `str` specifying the pooling type on top of
+                the model. This argument only takes effect if
+                `include_top=False`. Available values are `"avg"` and `"max"`
+                which correspond to `GlobalAveragePooling2D` and
+                `GlobalMaxPooling2D`, respectively. Defaults to `None`.
+            dropout_rate: A `float` specifying the dropout rate in prediction
+                head. This argument only takes effect if `include_top=True`.
+                Defaults to `0.0`.
+            classes: An `int` specifying the number of classes. Defaults to
+                `1000` for ImageNet.
+            classifier_activation: A `str` specifying the activation
+                function of the final output. Defaults to `"softmax"`.
+            weights: An optional `str` or `pathlib.Path` specifying the name,
+                url or path of the pretrained weights. Defaults to `"imagenet"`.
+            name: An optional `str` specifying the name of the model. If not
+                specified, it will be the class name. Defaults to `None`.
+            feature_extractor: Whether to enable feature extraction. If `True`,
+                the outputs will be a `dict` that keys are feature names and
+                values are feature maps. Defaults to `False`.
+            feature_keys: An optional sequence of strings specifying the
+                selected feature names. This argument only takes effect if
+                `feature_extractor=True`. Defaults to `None`.
+
+        Returns:
+            A `keras.Model` instance.
+        """
         if type(self) is RepVGGVariant:
             raise NotImplementedError(
                 f"Cannot instantiate base class: {self.__class__.__name__}. "
@@ -190,6 +236,8 @@ class RepVGGVariant(RepVGG):
             classifier_activation=classifier_activation,
             weights=weights,
             name=name or str(self.__class__.__name__),
+            feature_extractor=feature_extractor,
+            feature_keys=feature_keys,
             **kwargs,
         )
 

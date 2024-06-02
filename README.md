@@ -27,6 +27,10 @@
 
 ## Latest Updates
 
+2024/06/02:
+
+- Add docstrings for all `kimm` models.
+
 2024/05/29:
 
 - Merge reparameterizable layers into 1 `ReparameterizableConv2D`
@@ -60,7 +64,8 @@ print(kimm.list_models("mobileone", weights="imagenet"))
 # ['MobileOneS0', 'MobileOneS1', 'MobileOneS2', 'MobileOneS3']
 
 # Initialize model with pretrained ImageNet weights
-# Note: all `kimm` models expect inputs in the value range of [0, 255] by default if `incldue_preprocessing=True`.
+# Note: all `kimm` models expect inputs in the value range of [0, 255] by
+# default if `incldue_preprocessing=True`
 x = keras.random.uniform([1, 224, 224, 3]) * 255.0
 model = kimm.models.MobileOneS0()
 y = model.predict(x)
@@ -90,7 +95,7 @@ for feature_name, feature in features.items():
 
 > [!NOTE]  
 > All models in `kimm` expect inputs in the value range of [0, 255] by default if `incldue_preprocessing=True`.
-> Some models only accept static inputs. You should explicitly specify the input shape for these models.
+> Some models only accept static inputs. You should explicitly specify the input shape for these models by `input_shape=[*, *, 3]`.
 
 ## Advanced Usage
 
@@ -190,7 +195,7 @@ Reference: [Grad-CAM class activation visualization (keras.io)](https://keras.io
 |GhostNetV3|[arXiv 2024](https://arxiv.org/abs/2404.11202)|`github`|`GhostNetV3*`|
 |HGNet||`timm`|`HGNet*`|
 |HGNetV2||`timm`|`HGNetV2*`|
-|InceptionNeXt|[arXiv 2023](https://arxiv.org/abs/2303.16900)|`timm`|`InceptionNeXt*`|
+|InceptionNeXt|[CVPR 2024](https://arxiv.org/abs/2303.16900)|`timm`|`InceptionNeXt*`|
 |InceptionV3|[CVPR 2016](https://arxiv.org/abs/1512.00567)|`timm`|`InceptionV3`|
 |LCNet|[arXiv 2021](https://arxiv.org/abs/2109.15099)|`timm`|`LCNet*`|
 |MobileNetV2|[CVPR 2018](https://arxiv.org/abs/1801.04381)|`timm`|`MobileNetV2*`|

@@ -267,7 +267,7 @@ def apply_high_perf_gpu_block(
     hidden_channels,
     output_channels,
     kernel_size,
-    add_skip=False,
+    has_skip=False,
     use_light_block=False,
     use_learnable_affine=False,
     aggregation="ese",
@@ -329,7 +329,7 @@ def apply_high_perf_gpu_block(
             name=f"{name}_aggregation_0",
         )
         x = apply_ese_module(x, output_channels, name=f"{name}_aggregation_1")
-    if add_skip:
+    if has_skip:
         x = layers.Add()([x, inputs])
     return x
 
@@ -375,7 +375,7 @@ def apply_high_perf_gpu_stage(
             hidden_channels,
             output_channels,
             kernel_size,
-            add_skip=False if i == 0 else True,
+            has_skip=False if i == 0 else True,
             use_light_block=use_light_block,
             use_learnable_affine=use_learnable_affine,
             aggregation=aggregation,

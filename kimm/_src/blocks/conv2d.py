@@ -2,6 +2,7 @@ import typing
 
 from keras import backend
 from keras import layers
+from keras.src.utils.argument_validation import standardize_tuple
 
 from kimm._src.kimm_export import kimm_export
 
@@ -10,29 +11,33 @@ from kimm._src.kimm_export import kimm_export
 def apply_conv2d_block(
     inputs,
     filters: typing.Optional[int] = None,
-    kernel_size: typing.Optional[
-        typing.Union[int, typing.Sequence[int]]
-    ] = None,
+    kernel_size: typing.Union[int, typing.Sequence[int]] = 1,
     strides: int = 1,
     groups: int = 1,
     activation: typing.Optional[str] = None,
     use_depthwise: bool = False,
-    add_skip: bool = False,
+    has_skip: bool = False,
     bn_momentum: float = 0.9,
     bn_epsilon: float = 1e-5,
     padding: typing.Optional[typing.Literal["same", "valid"]] = None,
     name="conv2d_block",
 ):
+    """(ZeroPadding) + Conv2D/DepthwiseConv2D + BN + (Activation)."""
     if kernel_size is None:
         raise ValueError(
             f"kernel_size must be passed. Received: kernel_size={kernel_size}"
         )
-    if isinstance(kernel_size, int):
-        kernel_size = [kernel_size, kernel_size]
+    kernel_size = standardize_tuple(kernel_size, 2, "kernel_size")
 
     channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
-    input_channels = inputs.shape[channels_axis]
-    has_skip = add_skip and strides == 1 and input_channels == filters
+    input_filters = inputs.shape[channels_axis]
+    if has_skip and (strides != 1 or input_filters != filters):
+        raise ValueError(
+            "If `has_skip=True`, strides must be 1 and `filters` must be the "
+            "same as input_filters. "
+            f"Received: strides={strides}, filters={filters}, "
+            f"input_filters={input_filters}"
+        )
     x = inputs
 
     if padding is None:

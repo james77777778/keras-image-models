@@ -17,6 +17,7 @@ def apply_se_block(
     se_input_channels: typing.Optional[int] = None,
     name: str = "se_block",
 ):
+    """Squeeze and Excitation."""
     channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
     input_channels = inputs.shape[channels_axis]
     if se_input_channels is None:

@@ -19,6 +19,7 @@ def apply_mlp_block(
     data_format: typing.Optional[str] = None,
     name: str = "mlp_block",
 ):
+    """Dense/Conv2D + Activation + Dense/Conv2D."""
     if data_format is None:
         data_format = backend.image_data_format()
     dim_axis = -1 if data_format == "channels_last" else 1
@@ -56,6 +57,7 @@ def apply_transformer_block(
     activation: str = "gelu",
     name: str = "transformer_block",
 ):
+    """LN + Attention + LN + MLP block."""
     # data_format must be "channels_last"
     x = inputs
     residual_1 = x

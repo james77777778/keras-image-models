@@ -12,7 +12,7 @@ from kimm._src.utils.make_divisble import make_divisible
 @kimm_export(parent_path=["kimm.blocks"])
 def apply_inverted_residual_block(
     inputs,
-    output_channels: int,
+    filters: int,
     depthwise_kernel_size: int = 3,
     expansion_kernel_size: int = 1,
     pointwise_kernel_size: int = 1,
@@ -28,10 +28,11 @@ def apply_inverted_residual_block(
     padding: typing.Optional[typing.Literal["same", "valid"]] = None,
     name: str = "inverted_residual_block",
 ):
+    """Conv2D block + DepthwiseConv2D block + (SE) + Conv2D."""
     channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
     input_channels = inputs.shape[channels_axis]
     hidden_channels = make_divisible(input_channels * expansion_ratio)
-    has_skip = strides == 1 and input_channels == output_channels
+    has_skip = strides == 1 and input_channels == filters
 
     x = inputs
     # Point-wise expansion
@@ -70,7 +71,7 @@ def apply_inverted_residual_block(
     # Point-wise linear projection
     x = apply_conv2d_block(
         x,
-        output_channels,
+        filters,
         pointwise_kernel_size,
         1,
         activation=None,

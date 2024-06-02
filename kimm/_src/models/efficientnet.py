@@ -245,8 +245,17 @@ class EfficientNet(BaseModel):
                     "activation": activation,
                 }
                 if block_type == "ds":
+                    has_skip = x.shape[channels_axis] == c and s == 1
                     x = apply_depthwise_separation_block(
-                        x, c, k, 1, s, se, se_activation=activation, **_kwargs
+                        x,
+                        c,
+                        k,
+                        1,
+                        s,
+                        se,
+                        se_activation=activation,
+                        has_skip=has_skip,
+                        **_kwargs,
                     )
                 elif block_type == "ir":
                     se_c = x.shape[channels_axis]
@@ -254,7 +263,10 @@ class EfficientNet(BaseModel):
                         x, c, k, 1, 1, s, e, se, se_channels=se_c, **_kwargs
                     )
                 elif block_type == "cn":
-                    x = apply_conv2d_block(x, c, k, s, add_skip=True, **_kwargs)
+                    has_skip = x.shape[channels_axis] == c and s == 1
+                    x = apply_conv2d_block(
+                        x, c, k, s, has_skip=has_skip, **_kwargs
+                    )
                 elif block_type == "er":
                     x = apply_edge_residual_block(x, c, k, 1, s, e, **_kwargs)
                 current_stride *= s

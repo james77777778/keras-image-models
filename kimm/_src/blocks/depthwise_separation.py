@@ -11,7 +11,7 @@ from kimm._src.kimm_export import kimm_export
 @kimm_export(parent_path=["kimm.blocks"])
 def apply_depthwise_separation_block(
     inputs,
-    output_channels: int,
+    filters: int,
     depthwise_kernel_size: int = 3,
     pointwise_kernel_size: int = 1,
     strides: int = 1,
@@ -21,14 +21,21 @@ def apply_depthwise_separation_block(
     se_gate_activation: typing.Optional[str] = "sigmoid",
     se_make_divisible_number: typing.Optional[int] = None,
     pw_activation: typing.Optional[str] = None,
-    skip: bool = True,
+    has_skip: bool = True,
     bn_epsilon: float = 1e-5,
     padding: typing.Optional[typing.Literal["same", "valid"]] = None,
     name: str = "depthwise_separation_block",
 ):
+    """Conv2D block + (SqueezeAndExcitation) + Conv2D."""
     channels_axis = -1 if backend.image_data_format() == "channels_last" else -3
-    input_channels = inputs.shape[channels_axis]
-    has_skip = skip and (strides == 1 and input_channels == output_channels)
+    input_filters = inputs.shape[channels_axis]
+    if has_skip and (strides != 1 or input_filters != filters):
+        raise ValueError(
+            "If `has_skip=True`, strides must be 1 and `filters` must be the "
+            "same as input_filters. "
+            f"Received: strides={strides}, filters={filters}, "
+            f"input_filters={input_filters}"
+        )
 
     x = inputs
     x = apply_conv2d_block(
@@ -52,7 +59,7 @@ def apply_depthwise_separation_block(
         )
     x = apply_conv2d_block(
         x,
-        output_channels,
+        filters,
         pointwise_kernel_size,
         1,
         activation=pw_activation,

@@ -3,6 +3,7 @@ import pathlib
 import typing
 
 import keras
+from keras import backend
 
 from kimm._src.blocks.conv2d import apply_conv2d_block
 from kimm._src.blocks.depthwise_separation import (
@@ -55,6 +56,10 @@ class MobileNetV2(BaseModel):
             )
 
         self.set_properties(kwargs)
+        channels_axis = (
+            -1 if backend.image_data_format() == "channels_last" else -3
+        )
+
         inputs = self.determine_input_tensor(
             input_tensor,
             self._input_shape,
@@ -93,8 +98,16 @@ class MobileNetV2(BaseModel):
                 s = s if current_layer_idx == 0 else 1
                 name = f"blocks_{current_block_idx}_{current_layer_idx}"
                 if block_type == "ds":
+                    has_skip = x.shape[channels_axis] == c and s == 1
                     x = apply_depthwise_separation_block(
-                        x, c, k, 1, s, activation="relu6", name=name
+                        x,
+                        c,
+                        k,
+                        1,
+                        s,
+                        activation="relu6",
+                        has_skip=has_skip,
+                        name=name,
                     )
                 elif block_type == "ir":
                     x = apply_inverted_residual_block(

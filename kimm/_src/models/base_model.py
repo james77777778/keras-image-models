@@ -271,6 +271,14 @@ class BaseModel(models.Model):
     def fix_config(self, config: typing.Dict):
         return config
 
+    @classmethod
+    def from_config(cls, config, custom_objects=None):
+        # Set `self._weight` to `None` to avoid redownloading issue.
+        config = config.copy()
+        if "weights" in config:
+            config["weights"] = None
+        return cls(**config)
+
     def __repr__(self):
         repr_str = (
             f"<{self.__class__.__name__} "

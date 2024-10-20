@@ -260,10 +260,11 @@ class BaseModel(models.Model):
             "dropout_rate": self._dropout_rate,
             "classes": self._classes,
             "classifier_activation": self._classifier_activation,
-            "weights": self._weights,
             # feature extractor
             "feature_extractor": self._feature_extractor,
             "feature_keys": self._feature_keys,
+            # Set `self._weight` to `None` to avoid redownloading issue.
+            "weights": None,
         }
         return config
 

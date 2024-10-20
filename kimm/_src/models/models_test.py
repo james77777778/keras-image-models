@@ -159,6 +159,11 @@ class BaseModelTest(testing.TestCase, parameterized.TestCase):
         ):
             SampleModel(weights="imagenet123")
 
+    def test_weights_none_in_config(self):
+        model = SampleModel()
+        config = model.get_config()
+        self.assertIsNone(config["weights"])
+
 
 # Test some small models
 

@@ -23,13 +23,13 @@ class LearnableAffine(layers.Layer):
 
     def build(self, input_shape):
         self.scale = self.add_weight(
-            shape=(1,),
+            shape=(),
             initializer=lambda shape, dtype: ops.cast(self.scale_value, dtype),
             trainable=True,
             name="scale",
         )
         self.bias = self.add_weight(
-            shape=(1,),
+            shape=(),
             initializer=lambda shape, dtype: ops.cast(self.bias_value, dtype),
             trainable=True,
             name="bias",

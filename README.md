@@ -61,7 +61,7 @@ print(kimm.list_models("mobileone", weights="imagenet"))
 
 # Initialize model with pretrained ImageNet weights
 # Note: all `kimm` models expect inputs in the value range of [0, 255] by
-# default if `incldue_preprocessing=True`
+# default if `include_preprocessing=True`
 x = keras.random.uniform([1, 224, 224, 3]) * 255.0
 model = kimm.models.MobileOneS0()
 y = model.predict(x)
@@ -92,7 +92,7 @@ for feature_name, feature in features.items():
 ```
 
 > [!NOTE]  
-> All models in `kimm` expect inputs in the value range of [0, 255] by default if `incldue_preprocessing=True`.
+> All models in `kimm` expect inputs in the value range of [0, 255] by default if `include_preprocessing=True`.
 > Some models only accept static inputs. You should explicitly specify the input shape for these models by `input_shape=[*, *, 3]`.
 
 ## Advanced Usage
